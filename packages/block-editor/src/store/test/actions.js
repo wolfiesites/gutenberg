@@ -51,6 +51,7 @@ const {
 	updateBlock,
 	updateBlockAttributes,
 	updateBlockListSettings,
+	updateInsertUsage,
 	updateSettings,
 	validateBlocksToTemplate,
 	registerInserterMediaCategory,
@@ -215,7 +216,9 @@ describe( 'actions', () => {
 				canInsertBlockType: () => true,
 				getBlockCount: () => 1,
 			};
-			const dispatch = jest.fn();
+			const dispatch = Object.assign( jest.fn(), {
+				updateInsertUsage: () => {},
+			} );
 
 			replaceBlock( 'chicken', block )( { select, dispatch } );
 
@@ -223,8 +226,10 @@ describe( 'actions', () => {
 				type: 'REPLACE_BLOCKS',
 				clientIds: [ 'chicken' ],
 				blocks: [ block ],
-				time: expect.any( Number ),
 				initialPosition: 0,
+				indexToSelect: undefined,
+				meta: undefined,
+				time: expect.any( Number ),
 			} );
 		} );
 	} );
@@ -255,7 +260,9 @@ describe( 'actions', () => {
 					}
 				},
 			};
-			const dispatch = jest.fn();
+			const dispatch = Object.assign( jest.fn(), {
+				updateInsertUsage: () => {},
+			} );
 
 			replaceBlocks( [ 'chicken' ], blocks )( { select, dispatch } );
 
@@ -280,7 +287,9 @@ describe( 'actions', () => {
 				canInsertBlockType: () => true,
 				getBlockCount: () => 1,
 			};
-			const dispatch = jest.fn();
+			const dispatch = Object.assign( jest.fn(), {
+				updateInsertUsage: () => {},
+			} );
 
 			replaceBlocks( [ 'chicken' ], blocks )( { select, dispatch } );
 
@@ -288,8 +297,10 @@ describe( 'actions', () => {
 				type: 'REPLACE_BLOCKS',
 				clientIds: [ 'chicken' ],
 				blocks,
-				time: expect.any( Number ),
 				initialPosition: 0,
+				indexToSelect: undefined,
+				meta: undefined,
+				time: expect.any( Number ),
 			} );
 		} );
 
@@ -313,7 +324,9 @@ describe( 'actions', () => {
 				canInsertBlockType: () => true,
 				getBlockCount: () => 1,
 			};
-			const dispatch = jest.fn();
+			const dispatch = Object.assign( jest.fn(), {
+				updateInsertUsage: () => {},
+			} );
 
 			replaceBlocks(
 				[ 'chicken' ],
@@ -327,11 +340,44 @@ describe( 'actions', () => {
 				type: 'REPLACE_BLOCKS',
 				clientIds: [ 'chicken' ],
 				blocks,
-				time: expect.any( Number ),
 				indexToSelect: null,
 				initialPosition: null,
 				meta: { patternName: 'core/chicken-ribs-pattern' },
+				time: expect.any( Number ),
 			} );
+		} );
+
+		it( 'should set insertUsage in the preferences store', () => {
+			const blocks = [
+				{
+					clientId: 'ribs',
+					name: 'core/test-ribs',
+				},
+				{
+					clientId: 'chicken',
+					name: 'core/test-chicken',
+				},
+			];
+
+			const select = {
+				getSettings: () => null,
+				getBlockRootClientId: () => null,
+				canInsertBlockType: () => true,
+				getBlockCount: () => 1,
+			};
+			const updateInsertUsageSpy = jest.fn();
+			const dispatch = Object.assign( jest.fn(), {
+				updateInsertUsage: updateInsertUsageSpy,
+			} );
+
+			replaceBlocks(
+				[ 'pineapple' ],
+				blocks,
+				null,
+				null
+			)( { select, dispatch } );
+
+			expect( updateInsertUsageSpy ).toHaveBeenCalledWith( blocks );
 		} );
 	} );
 
@@ -347,7 +393,9 @@ describe( 'actions', () => {
 				getSettings: () => null,
 				canInsertBlockType: () => true,
 			};
-			const dispatch = jest.fn();
+			const dispatch = Object.assign( jest.fn(), {
+				updateInsertUsage: () => {},
+			} );
 
 			insertBlock(
 				block,
@@ -361,9 +409,10 @@ describe( 'actions', () => {
 				blocks: [ block ],
 				index,
 				rootClientId: 'testclientid',
-				time: expect.any( Number ),
 				updateSelection: true,
 				initialPosition: 0,
+				time: expect.any( Number ),
+				meta: undefined,
 			} );
 		} );
 	} );
@@ -395,7 +444,9 @@ describe( 'actions', () => {
 				} ),
 				canInsertBlockType: () => true,
 			};
-			const dispatch = jest.fn();
+			const dispatch = Object.assign( jest.fn(), {
+				updateInsertUsage: () => {},
+			} );
 
 			insertBlocks(
 				blocks,
@@ -419,9 +470,10 @@ describe( 'actions', () => {
 				],
 				index: 5,
 				rootClientId: 'testrootid',
-				time: expect.any( Number ),
 				updateSelection: false,
 				initialPosition: null,
+				time: expect.any( Number ),
+				meta: undefined,
 			} );
 		} );
 
@@ -445,7 +497,9 @@ describe( 'actions', () => {
 				} ),
 				canInsertBlockType: () => true,
 			};
-			const dispatch = jest.fn();
+			const dispatch = Object.assign( jest.fn(), {
+				updateInsertUsage: () => {},
+			} );
 
 			insertBlocks(
 				blocks,
@@ -464,9 +518,10 @@ describe( 'actions', () => {
 				],
 				index: 5,
 				rootClientId: 'testrootid',
-				time: expect.any( Number ),
 				updateSelection: false,
 				initialPosition: null,
+				time: expect.any( Number ),
+				meta: undefined,
 			} );
 		} );
 
@@ -500,7 +555,9 @@ describe( 'actions', () => {
 					}
 				},
 			};
-			const dispatch = jest.fn();
+			const dispatch = Object.assign( jest.fn(), {
+				updateInsertUsage: () => {},
+			} );
 
 			insertBlocks(
 				blocks,
@@ -514,9 +571,10 @@ describe( 'actions', () => {
 				blocks: [ ribsBlock, chickenRibsBlock ],
 				index: 5,
 				rootClientId: 'testrootid',
-				time: expect.any( Number ),
 				updateSelection: false,
 				initialPosition: null,
+				time: expect.any( Number ),
+				meta: undefined,
 			} );
 		} );
 
@@ -535,7 +593,9 @@ describe( 'actions', () => {
 				getSettings: () => null,
 				canInsertBlockType: () => false,
 			};
-			const dispatch = jest.fn();
+			const dispatch = Object.assign( jest.fn(), {
+				updateInsertUsage: () => {},
+			} );
 
 			insertBlocks(
 				blocks,
@@ -578,7 +638,9 @@ describe( 'actions', () => {
 					}
 				},
 			};
-			const dispatch = jest.fn();
+			const dispatch = Object.assign( jest.fn(), {
+				updateInsertUsage: () => {},
+			} );
 
 			insertBlocks(
 				blocks,
@@ -594,10 +656,198 @@ describe( 'actions', () => {
 				blocks: [ ribsBlock, chickenRibsBlock ],
 				index: 5,
 				rootClientId: 'testrootid',
-				time: expect.any( Number ),
 				updateSelection: false,
 				initialPosition: null,
 				meta: { patternName: 'core/chicken-ribs-pattern' },
+				time: expect.any( Number ),
+			} );
+		} );
+
+		it( 'should set insertUsage in the preferences store', () => {
+			const blocks = [
+				{
+					clientId: 'ribs',
+					name: 'core/test-ribs',
+				},
+				{
+					clientId: 'chicken',
+					name: 'core/test-chicken',
+				},
+			];
+
+			const select = {
+				getSettings: () => null,
+				canInsertBlockType: () => true,
+			};
+			const updateInsertUsageSpy = jest.fn();
+			const dispatch = Object.assign( jest.fn(), {
+				updateInsertUsage: updateInsertUsageSpy,
+			} );
+
+			insertBlocks(
+				blocks,
+				5,
+				'testrootid',
+				false,
+				0
+			)( { select, dispatch } );
+
+			expect( updateInsertUsageSpy ).toHaveBeenCalledWith( blocks );
+		} );
+	} );
+
+	describe( 'updateInsertUsage', () => {
+		it( 'should record recently used blocks', () => {
+			const setPreference = jest.fn();
+			const registry = {
+				dispatch: () => ( {
+					set: setPreference,
+				} ),
+				select: () => ( {
+					get: () => {},
+					getActiveBlockVariation: () => {},
+				} ),
+			};
+
+			updateInsertUsage( [
+				{
+					clientId: 'bacon',
+					name: 'core/embed',
+				},
+			] )( { registry } );
+
+			expect( setPreference ).toHaveBeenCalledWith(
+				'core',
+				'insertUsage',
+				{
+					'core/embed': {
+						time: expect.any( Number ),
+						count: 1,
+					},
+				}
+			);
+		} );
+
+		it( 'merges insert usage if more blocks are added of the same type', () => {
+			const setPreference = jest.fn();
+			const registry = {
+				dispatch: () => ( {
+					set: setPreference,
+				} ),
+				select: () => ( {
+					// simulate an existing embed block.
+					get: () => ( {
+						'core/embed': {
+							time: 123456,
+							count: 1,
+						},
+					} ),
+					getActiveBlockVariation: () => {},
+				} ),
+			};
+
+			updateInsertUsage( [
+				{
+					clientId: 'eggs',
+					name: 'core/embed',
+				},
+				{
+					clientId: 'bacon',
+					name: 'core/block',
+					attributes: { ref: 123 },
+				},
+			] )( { registry } );
+
+			expect( setPreference ).toHaveBeenCalledWith(
+				'core',
+				'insertUsage',
+				{
+					// The reusable block has a special case where each ref is
+					// stored as though an individual block, and the ref is
+					// also recorded in the `insert` object.
+					'core/block/123': {
+						time: expect.any( Number ),
+						count: 1,
+					},
+					'core/embed': {
+						time: expect.any( Number ),
+						count: 2,
+					},
+				}
+			);
+		} );
+
+		describe( 'block variations handling', () => {
+			const blockWithVariations = 'core/test-block-with-variations';
+
+			it( 'should return proper results with both found or not found block variation matches', () => {
+				const setPreference = jest.fn();
+				const registry = {
+					dispatch: () => ( {
+						set: setPreference,
+					} ),
+					select: () => ( {
+						get: () => {},
+						// simulate an active block variation:
+						// - 'apple' when the fruit attribute is 'apple'.
+						// - 'orange' when the fruit attribute is 'orange'.
+						getActiveBlockVariation: (
+							blockName,
+							{ fruit } = {}
+						) => {
+							if ( blockName === blockWithVariations ) {
+								if ( fruit === 'orange' )
+									return { name: 'orange' };
+								if ( fruit === 'apple' )
+									return { name: 'apple' };
+							}
+						},
+					} ),
+				};
+
+				updateInsertUsage( [
+					{
+						clientId: 'no match',
+						name: blockWithVariations,
+					},
+					{
+						clientId: 'not a variation match',
+						name: blockWithVariations,
+						attributes: { fruit: 'not in a variation' },
+					},
+					{
+						clientId: 'orange',
+						name: blockWithVariations,
+						attributes: { fruit: 'orange' },
+					},
+					{
+						clientId: 'apple',
+						name: blockWithVariations,
+						attributes: { fruit: 'apple' },
+					},
+				] )( { registry } );
+
+				const orangeVariationName = `${ blockWithVariations }/orange`;
+				const appleVariationName = `${ blockWithVariations }/apple`;
+
+				expect( setPreference ).toHaveBeenCalledWith(
+					'core',
+					'insertUsage',
+					{
+						[ orangeVariationName ]: {
+							time: expect.any( Number ),
+							count: 1,
+						},
+						[ appleVariationName ]: {
+							time: expect.any( Number ),
+							count: 1,
+						},
+						[ blockWithVariations ]: {
+							time: expect.any( Number ),
+							count: 2,
+						},
+					}
+				);
 			} );
 		} );
 	} );
@@ -868,7 +1118,6 @@ describe( 'actions', () => {
 				type: 'REPLACE_INNER_BLOCKS',
 				blocks: [ block ],
 				rootClientId: 'root',
-				time: expect.any( Number ),
 				updateSelection: false,
 				initialPosition: null,
 			} );
@@ -879,7 +1128,6 @@ describe( 'actions', () => {
 				type: 'REPLACE_INNER_BLOCKS',
 				blocks: [ block ],
 				rootClientId: 'root',
-				time: expect.any( Number ),
 				updateSelection: true,
 				initialPosition: 0,
 			} );
