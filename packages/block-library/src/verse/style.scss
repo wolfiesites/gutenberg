@@ -2,4 +2,8 @@ pre.wp-block-verse {
 	font-family: inherit;
 	overflow: auto;
 	white-space: pre-wrap;
+
+	// Prevent text overflow off-screen when the previous block has float.
+	min-width: 1em;
+	word-break: break-word;
 }
