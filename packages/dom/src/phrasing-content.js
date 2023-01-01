@@ -53,6 +53,7 @@ const textContentSchema = {
 	bdi: { attributes: [ 'dir' ] },
 	bdo: { attributes: [ 'dir' ] },
 	wbr: {},
+	source: { attributes: [ 'src' ] },
 	'#text': {},
 };
 
@@ -119,9 +120,15 @@ const embeddedContentSchema = {
 			'loop',
 			'muted',
 			'controls',
+			'playsinline',
 			'width',
 			'height',
 		],
+		children: {
+			source: {
+				attributes: [ 'src' ],
+			},
+		},
 	},
 };
 

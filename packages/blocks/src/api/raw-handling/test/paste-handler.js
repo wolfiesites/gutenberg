@@ -6,6 +6,7 @@ import { pasteHandler } from '@wordpress/blocks';
  * Internal dependencies
  */
 import { init as initAndRegisterTableBlock } from '../../../../../block-library/src/table';
+import { init as initAndRegisterVideoBlock } from '../../../../../block-library/src/video';
 
 const tableWithHeaderFooterAndBodyUsingColspan = `
 <table>
@@ -54,6 +55,7 @@ const googleDocsTableWithColspan = `
 describe( 'pasteHandler', () => {
 	beforeAll( () => {
 		initAndRegisterTableBlock();
+		initAndRegisterVideoBlock();
 	} );
 
 	it( 'can handle a table with thead, tbody and tfoot using colspan', () => {
@@ -126,6 +128,44 @@ describe( 'pasteHandler', () => {
 			head: [],
 		} );
 		expect( result.name ).toEqual( 'core/table' );
+		expect( result.isValid ).toBeTruthy();
+	} );
+
+	it( 'can handle a video html', () => {
+		const [ result ] = pasteHandler( {
+			HTML: '<video controls src="https://example.com/media.mp4"></video>',
+			tagName: 'p',
+			preserveWhiteSpace: false,
+		} );
+
+		expect( console ).toHaveLogged();
+
+		expect( result.attributes ).toEqual( {
+			controls: true,
+			preload: 'metadata',
+			src: 'https://example.com/media.mp4',
+			tracks: [],
+		} );
+		expect( result.name ).toEqual( 'core/video' );
+		expect( result.isValid ).toBeTruthy();
+	} );
+
+	it( 'can handle a video html with a source element', () => {
+		const [ result ] = pasteHandler( {
+			HTML: '<video controls><source src="https://example.com/media.mp4" type="video/webm"></video>',
+			tagName: 'p',
+			preserveWhiteSpace: false,
+		} );
+
+		expect( console ).toHaveLogged();
+
+		expect( result.attributes ).toEqual( {
+			controls: true,
+			preload: 'metadata',
+			src: 'https://example.com/media.mp4',
+			tracks: [],
+		} );
+		expect( result.name ).toEqual( 'core/video' );
 		expect( result.isValid ).toBeTruthy();
 	} );
 } );
