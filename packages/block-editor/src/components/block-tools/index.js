@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { switchToBlockType } from '@wordpress/blocks';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useViewportMatch } from '@wordpress/compose';
 import { Popover } from '@wordpress/components';
@@ -51,11 +52,17 @@ export default function BlockTools( {
 		[]
 	);
 	const isMatch = useShortcutEventMatch();
-	const { getSelectedBlockClientIds, getBlockRootClientId } =
-		useSelect( blockEditorStore );
+	const {
+		getBlocksByClientId,
+		getSelectedBlockClientIds,
+		getBlockRootClientId,
+		getBlockTransformItems,
+	} = useSelect( blockEditorStore );
+
 	const {
 		duplicateBlocks,
 		removeBlocks,
+		replaceBlocks,
 		insertAfterBlock,
 		insertBeforeBlock,
 		clearSelectedBlock,
@@ -113,6 +120,23 @@ export default function BlockTools( {
 					.getSelection()
 					.removeAllRanges();
 				__unstableContentRef?.current.focus();
+			}
+		} else if ( isMatch( 'core/block-editor/group', event ) ) {
+			const clientIds = getSelectedBlockClientIds();
+			if ( clientIds.length ) {
+				event.preventDefault();
+				const blocks = getBlocksByClientId( clientIds );
+				const rootClientId = getBlockRootClientId(
+					Array.isArray( clientIds ) ? clientIds[ 0 ] : clientIds
+				);
+				const items = getBlockTransformItems( blocks, rootClientId );
+				const canConvertToGroup = items.some(
+					( { name } ) => name === 'core/group'
+				);
+				if ( canConvertToGroup ) {
+					const newBlocks = switchToBlockType( blocks, 'core/group' );
+					replaceBlocks( clientIds, newBlocks );
+				}
 			}
 		}
 	}

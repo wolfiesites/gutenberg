@@ -264,6 +264,11 @@ This is the canonical list of keyboard shortcuts:
 			<td><kbd>⌥</kbd><kbd>⌘</kbd><kbd>⇧</kbd><kbd>Y</kbd></td>
 		</tr>
 		<tr>
+			<td>Create a group block from the selected block(s).</td>
+			<td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>G</kbd></td>
+			<td><kbd>⌥</kbd><kbd>⌘</kbd><kbd>⇧</kbd><kbd>G</kbd></td>
+		</tr>
+		<tr>
 			<td>Change the block type after adding a new paragraph.</td>
 			<td><kbd>/</kbd></td>
 			<td><kbd>/</kbd></td>
@@ -412,7 +417,7 @@ Gutenberg works in modern browsers.
 
 The [list of supported browsers can be found in the Make WordPress handbook](https://make.wordpress.org/core/handbook/best-practices/browser-support/). The term “modern browsers” generally refers to the _current and previous two versions_ of each major browser.
 
-Since WordPress 5.8, Gutenberg no longer supports any version of Internet Explorer. 
+Since WordPress 5.8, Gutenberg no longer supports any version of Internet Explorer.
 
 ## Should I be concerned that Gutenberg will make my plugin obsolete?
 

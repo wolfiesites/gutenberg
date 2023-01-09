@@ -4,11 +4,14 @@
 import {
 	createNewPost,
 	clickBlockAppender,
+	getAllBlocks,
 	getEditedPostContent,
+	insertBlock,
 	pressKeyWithModifier,
 	clickBlockToolbarButton,
 	clickMenuItem,
 	clickOnCloseModalButton,
+	selectBlockByClientId,
 } from '@wordpress/e2e-test-utils';
 
 const createTestParagraphBlocks = async () => {
@@ -101,6 +104,31 @@ describe( 'block editor keyboard shortcuts', () => {
 			await clickOnCloseModalButton(
 				'.reusable-blocks-menu-items__convert-modal'
 			);
+			expect( await getEditedPostContent() ).toMatchSnapshot();
+		} );
+	} );
+	describe( 'create a group block from the selected blocks', () => {
+		it( 'should propagate properly if multiple blocks are selected.', async () => {
+			await createTestParagraphBlocks();
+
+			// Multiselect via keyboard.
+			await pressKeyWithModifier( 'primary', 'a' );
+			await pressKeyWithModifier( 'primary', 'a' );
+
+			await pressKeyWithModifier( 'primaryAlt', 'g' );
+			expect( await getEditedPostContent() ).toMatchSnapshot();
+		} );
+
+		it( 'should prevent if a group block is selected.', async () => {
+			await insertBlock( 'Group' );
+			const allBlocks = await getAllBlocks();
+			await selectBlockByClientId( allBlocks[ 0 ].clientId );
+
+			// Multiselect via keyboard.
+			await pressKeyWithModifier( 'primary', 'a' );
+			await pressKeyWithModifier( 'primary', 'a' );
+
+			await pressKeyWithModifier( 'primaryAlt', 'g' );
 			expect( await getEditedPostContent() ).toMatchSnapshot();
 		} );
 	} );
