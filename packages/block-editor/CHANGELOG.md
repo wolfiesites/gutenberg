@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Enhancements
+
+-   Add a keyboard shortcut to create group from the selected blocks ([46972](https://github.com/WordPress/gutenberg/pull/46972)).
+
 ### Bug Fix
 
 -   `BlockInspector`: Fix browser warning error when block is not selected ([#46875](https://github.com/WordPress/gutenberg/pull/46875)).
