@@ -546,6 +546,41 @@ exports[`KeyboardShortcutHelpModal should match snapshot when the modal is activ
           <div
             class="edit-post-keyboard-shortcut-help-modal__shortcut-description"
           >
+            Create a group block from the selected block(s).
+          </div>
+          <div
+            class="edit-post-keyboard-shortcut-help-modal__shortcut-term"
+          >
+            <kbd
+              aria-label="Control + Alt + G"
+              class="edit-post-keyboard-shortcut-help-modal__shortcut-key-combination"
+            >
+              <kbd
+                class="edit-post-keyboard-shortcut-help-modal__shortcut-key"
+              >
+                Ctrl
+              </kbd>
+              +
+              <kbd
+                class="edit-post-keyboard-shortcut-help-modal__shortcut-key"
+              >
+                Alt
+              </kbd>
+              +
+              <kbd
+                class="edit-post-keyboard-shortcut-help-modal__shortcut-key"
+              >
+                G
+              </kbd>
+            </kbd>
+          </div>
+        </li>
+        <li
+          class="edit-post-keyboard-shortcut-help-modal__shortcut"
+        >
+          <div
+            class="edit-post-keyboard-shortcut-help-modal__shortcut-description"
+          >
             Change the block type after adding a new paragraph.
           </div>
           <div
