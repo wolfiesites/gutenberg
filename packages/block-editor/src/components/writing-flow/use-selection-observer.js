@@ -127,16 +127,30 @@ export default function useSelectionObserver() {
 				// update the clientIds to multi-select blocks.
 				// For now we check if the event is a `mouse` event.
 				const isClickShift = event.shiftKey && event.type === 'mouseup';
+				const selectionStartNode =
+					extractSelectionStartNode( selection );
+				let startClientId = getBlockClientId( selectionStartNode );
+
 				if ( selection.isCollapsed && ! isClickShift ) {
-					setContentEditableWrapper( node, false );
+					if ( node.contentEditable === 'true' ) {
+						const richTextElement =
+							getRichTextElement( selectionStartNode );
+						const richTextValue =
+							createRichTextValue( richTextElement );
+						selectionChange(
+							startClientId,
+							richTextElement.dataset.richTextIdentifier,
+							richTextValue.start,
+							richTextValue.end
+						);
+						setContentEditableWrapper( node, false );
+					}
 					return;
 				}
 
-				const selectionStartNode =
-					extractSelectionStartNode( selection );
 				const selectionEndNode = extractSelectionEndNode( selection );
-				let startClientId = getBlockClientId( selectionStartNode );
 				let endClientId = getBlockClientId( selectionEndNode );
+
 				// If the selection has changed and we had pressed `shift+click`,
 				// we need to check if in an element that doesn't support
 				// text selection has been clicked.
