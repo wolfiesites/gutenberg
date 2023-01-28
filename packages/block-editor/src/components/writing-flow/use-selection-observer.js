@@ -200,9 +200,9 @@ export default function useSelectionObserver() {
 						const richTextValueEnd =
 							createRichTextValue( richTextElementEnd );
 						const startOffset =
-							richTextValueStart.start || richTextValueStart.end;
+							richTextValueStart.start ?? richTextValueStart.end;
 						const endOffset =
-							richTextValueEnd.start || richTextValueEnd.end;
+							richTextValueEnd.start ?? richTextValueEnd.end;
 						selectionChange( {
 							start: {
 								clientId: startClientId,
