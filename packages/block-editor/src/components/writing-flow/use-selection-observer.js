@@ -135,14 +135,18 @@ export default function useSelectionObserver() {
 					if ( node.contentEditable === 'true' ) {
 						const richTextElement =
 							getRichTextElement( selectionStartNode );
-						const richTextValue =
-							createRichTextValue( richTextElement );
-						selectionChange(
-							startClientId,
-							richTextElement.dataset.richTextIdentifier,
-							richTextValue.start,
-							richTextValue.end
-						);
+						if ( richTextElement ) {
+							const richTextValue =
+								createRichTextValue( richTextElement );
+							selectionChange(
+								startClientId,
+								richTextElement.dataset.richTextIdentifier,
+								richTextValue.start,
+								richTextValue.end
+							);
+						} else {
+							selectBlock( startClientId );
+						}
 						setContentEditableWrapper( node, false );
 					}
 					return;
@@ -209,30 +213,36 @@ export default function useSelectionObserver() {
 							getRichTextElement( selectionStartNode );
 						const richTextElementEnd =
 							getRichTextElement( selectionEndNode );
-						const richTextValueStart =
-							createRichTextValue( richTextElementStart );
-						const richTextValueEnd =
-							createRichTextValue( richTextElementEnd );
-						const startOffset =
-							richTextValueStart.start ?? richTextValueStart.end;
-						const endOffset =
-							richTextValueEnd.start ?? richTextValueEnd.end;
-						selectionChange( {
-							start: {
-								clientId: startClientId,
-								attributeKey:
-									richTextElementStart.dataset
-										.richTextIdentifier,
-								offset: startOffset,
-							},
-							end: {
-								clientId: endPath[ depth ],
-								attributeKey:
-									richTextElementEnd.dataset
-										.richTextIdentifier,
-								offset: endOffset,
-							},
-						} );
+
+						if ( richTextElementStart && richTextElementEnd ) {
+							const richTextValueStart =
+								createRichTextValue( richTextElementStart );
+							const richTextValueEnd =
+								createRichTextValue( richTextElementEnd );
+							const startOffset =
+								richTextValueStart.start ??
+								richTextValueStart.end;
+							const endOffset =
+								richTextValueEnd.start ?? richTextValueEnd.end;
+							selectionChange( {
+								start: {
+									clientId: startClientId,
+									attributeKey:
+										richTextElementStart.dataset
+											.richTextIdentifier,
+									offset: startOffset,
+								},
+								end: {
+									clientId: endClientId,
+									attributeKey:
+										richTextElementEnd.dataset
+											.richTextIdentifier,
+									offset: endOffset,
+								},
+							} );
+						} else {
+							multiSelect( startClientId, endClientId );
+						}
 					}
 				}
 			}
