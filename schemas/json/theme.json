@@ -643,6 +643,7 @@
 				{ "$ref": "#/definitions/settingsPropertiesAppearanceTools" },
 				{ "$ref": "#/definitions/settingsPropertiesBorder" },
 				{ "$ref": "#/definitions/settingsPropertiesColor" },
+				{ "$ref": "#/definitions/settingsPropertiesDimensions" },
 				{ "$ref": "#/definitions/settingsPropertiesShadow" },
 				{ "$ref": "#/definitions/settingsPropertiesLayout" },
 				{ "$ref": "#/definitions/settingsPropertiesSpacing" },
@@ -662,6 +663,7 @@
 						"border": {},
 						"shadow": {},
 						"color": {},
+						"dimensions": {},
 						"layout": {},
 						"spacing": {},
 						"typography": {},
@@ -2018,6 +2020,7 @@
 							"$ref": "#/definitions/settingsPropertiesUseRootPaddingAwareAlignments/properties/useRootPaddingAwareAlignments"
 						},
 						"color": {},
+						"dimensions": {},
 						"layout": {},
 						"spacing": {},
 						"typography": {},
