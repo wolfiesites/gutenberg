@@ -187,6 +187,7 @@
 			"text": true
 		},
 		"dimensions": {
+			"defaultAspectRatios": true,
 			"aspectRatios": [
 				{
 					"name": "Square",
