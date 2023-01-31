@@ -363,8 +363,9 @@ class WP_Theme_JSON_Gutenberg {
 		),
 		'custom'                        => null,
 		'dimensions'                    => array(
-			'aspectRatios' => null,
-			'minHeight'    => null,
+			'defaultAspectRatios' => null,
+			'aspectRatios'        => null,
+			'minHeight'           => null,
 		),
 		'layout'                        => array(
 			'contentSize' => null,
