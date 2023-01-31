@@ -114,19 +114,10 @@ class WP_Theme_JSON_Gutenberg {
 	 *              `use_default_names` preset key, and simplified the metadata structure.
 	 * @since 6.0.0 Replaced `override` with `prevent_override` and updated the
 	 *              `prevent_override` value for `color.duotone` to use `color.defaultDuotone`.
-	 * @since 6.2.0 Added `shadow` and `aspectRatios`.
+	 * @since 6.2.0 Added `shadow`.
 	 * @var array
 	 */
 	const PRESETS_METADATA = array(
-		array(
-			'path'              => array( 'dimensions', 'aspectRatios' ),
-			'prevent_override'  => array( 'dimensions', 'defaultAspectRatios' ),
-			'use_default_names' => false,
-			'value_key'         => 'ratio',
-			'css_vars'          => '--wp--preset--aspectRatio--$slug',
-			'classes'           => array(),
-			'properties'        => array( 'aspect-ratio' ),
-		),
 		array(
 			'path'              => array( 'shadow', 'presets' ),
 			'prevent_override'  => array( 'shadow', 'defaultPresets' ),
