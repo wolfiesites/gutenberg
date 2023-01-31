@@ -410,7 +410,7 @@ class WP_Theme_JSON_Gutenberg {
 	 * @since 6.1.0 Added new side properties for `border`,
 	 *              added new property `shadow`,
 	 *              updated `blockGap` to be allowed at any level.
-	 * @since 6.2.0 Added `dimensions.minHeight` and `dimensions.aspectRatio`.
+	 * @since 6.2.0 Added `dimensions.minHeight`.
 	 * @var array
 	 */
 	const VALID_STYLES = array(
