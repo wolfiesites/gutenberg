@@ -187,7 +187,7 @@
 			"text": true
 		},
 		"dimensions": {
-			"aspectRatio": [
+			"aspectRatios": [
 				{
 					"name": "Square",
 					"slug": "square",
