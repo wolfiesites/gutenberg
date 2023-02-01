@@ -22,7 +22,6 @@ Setting that enables the following UI tools:
 
 - border: color, radius, style, width
 - color: link
-- dimensions: aspectRatio
 - spacing: blockGap, margin, padding
 - typography: lineHeight
 
@@ -91,7 +90,7 @@ Settings related to dimensions.
 | Property  | Type   | Default | Props  |
 | ---       | ---    | ---    |---   |
 | defaultAspectRatios | boolean | true |  |
-| aspectRatios | array | 1/1,16/9,4/3,3/2,10/16,9/16,3/4 | name, ratio, slug |
+| aspectRatios | array |  | name, ratio, slug |
 | minHeight | boolean | false |  |
 
 ---
