@@ -9,8 +9,8 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import useSetting from '../use-setting';
-import { POPOVER_PROPS } from './constants';
-import { useImageEditingContext } from './context';
+import { POPOVER_PROPS } from '../image-editor/constants';
+import { useImageEditingContext } from '../image-editor/context';
 
 function AspectGroup( { aspectRatios, isDisabled, label, onClick, value } ) {
 	return (
