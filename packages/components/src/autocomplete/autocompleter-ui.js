@@ -59,10 +59,17 @@ export function getAutoCompleterUI( autocompleter ) {
 			<Popover
 				focusOnMount={ false }
 				onClose={ onReset }
-				placement="top-start"
+				placement="bottom-start"
+				flip={ false }
 				className="components-autocomplete__popover"
 				anchor={ popoverAnchor }
 				ref={ popoverRef }
+				// To do: move this to shadow DOM.
+				__unstableSlotName={
+					contentRef.current.ownerDocument.defaultView.frameElement
+						? '__internal-iframe-popover-slot'
+						: undefined
+				}
 			>
 				<div
 					id={ listBoxId }

@@ -21,7 +21,10 @@ import {
 	useRefEffect,
 	useDisabled,
 } from '@wordpress/compose';
-import { __experimentalStyleProvider as StyleProvider } from '@wordpress/components';
+import {
+	Popover,
+	__experimentalStyleProvider as StyleProvider,
+} from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 
 /**
@@ -296,6 +299,7 @@ function Iframe( {
 								<StyleProvider document={ iframeDocument }>
 									{ children }
 								</StyleProvider>
+								<Popover.Slot name="__internal-iframe-popover-slot" />
 							</body>
 						</>,
 						iframeDocument.documentElement
