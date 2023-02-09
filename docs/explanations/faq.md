@@ -119,7 +119,7 @@ You can see the whole list going to the top right corner menu of the new editor 
 
 This is the canonical list of keyboard shortcuts:
 
-### Editor shortcuts
+### Global shortcuts
 
 <table>
 	<thead>
@@ -136,6 +136,46 @@ This is the canonical list of keyboard shortcuts:
 			<td><kbd>⌃</kbd><kbd>⌥</kbd><kbd>H</kbd></td>
 		</tr>
 		<tr>
+			<td>Switch between visual editor and code editor.</td>
+			<td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd></td>
+			<td><kbd>⇧</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>M</kbd></td>
+		</tr>
+		<tr>
+			<td>Toggle distraction free mode.</td>
+			<td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>\</kbd></td>
+			<td><kbd>⇧</kbd><kbd>⌘</kbd><kbd>\</kbd></td>
+		</tr>
+		<tr>
+			<td>Toggle fullscreen mode.</td>
+			<td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd></td>
+			<td><kbd>⇧</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>F</kbd></td>
+		</tr>
+		<tr>
+			<td>Open the block list view.</td>
+			<td><kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd></td>
+			<td><kbd>⌃</kbd><kbd>⌥</kbd><kbd>O</kbd></td>
+		</tr>
+		<tr>
+			<td>Show or hide the block settings sidebar.</td>
+			<td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>,</kbd></td>
+			<td><kbd>⇧</kbd><kbd>⌘</kbd><kbd>,</kbd></td>
+		</tr>
+		<tr>
+			<td>Navigate to the next part of the editor.</td>
+			<td><kbd>Ctrl</kbd>+<kbd>`</kbd><br><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>N</kbd></td>
+			<td><kbd>⌃</kbd><kbd>`</kbd><br><kbd>⌃</kbd><kbd>⌥</kbd><kbd>N</kbd></td>
+		</tr>
+		<tr>
+			<td>Navigate to the previous part of the editor.</td>
+			<td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>`</kbd><br><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>P</kbd><br><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>~</kbd></td>
+			<td><kbd>⌃</kbd><kbd>⇧</kbd><kbd>`</kbd><br><kbd>⌃</kbd><kbd>⌥</kbd><kbd>P</kbd><br><kbd>⌃</kbd><kbd>⇧</kbd><kbd>~</kbd></td>
+		</tr>
+		<tr>
+			<td>Navigate to the nearest toolbar.</td>
+			<td><kbd>Alt</kbd>+<kbd>F10</kbd></td>
+			<td><kbd>⌥</kbd><kbd>F10</kbd></td>
+		</tr>
+		<tr>
 			<td>Save your changes.</td>
 			<td><kbd>Ctrl</kbd>+<kbd>S</kbd></td>
 			<td><kbd>⌘</kbd><kbd>S</kbd></td>
@@ -147,53 +187,8 @@ This is the canonical list of keyboard shortcuts:
 		</tr>
 		<tr>
 			<td>Redo your last undo.</td>
-			<td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></td>
-			<td><kbd>⇧</kbd><kbd>⌘</kbd><kbd>Z</kbd></td>
-		</tr>
-		<tr>
-			<td>Show or hide the settings sidebar.</td>
-			<td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>,</kbd></td>
-			<td><kbd>⇧</kbd><kbd>⌘</kbd><kbd>,</kbd></td>
-		</tr>
-		<tr>
-			<td>Open the list view menu.</td>
-			<td><kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd></td>
-			<td><kbd>⌃</kbd><kbd>⌥</kbd><kbd>O</kbd></td>
-		</tr>
-		<tr>
-			<td>Navigate to the next part of the editor.</td>
-			<td><kbd>Ctrl</kbd>+<kbd>`</kbd></td>
-			<td><kbd>⌃</kbd><kbd>`</kbd></td>
-		</tr>
-		<tr>
-			<td>Navigate to the previous part of the editor.</td>
-			<td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>`</kbd></td>
-			<td><kbd>⌃</kbd><kbd>⇧</kbd><kbd>`</kbd></td>
-		</tr>
-		<tr>
-			<td>Navigate to the next part of the editor (alternative).</td>
-			<td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>N</kbd></td>
-			<td><kbd>⌃</kbd><kbd>⌥</kbd><kbd>N</kbd></td>
-		</tr>
-		<tr>
-			<td>Navigate to the previous part of the editor (alternative).</td>
-			<td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>P</kbd></td>
-			<td><kbd>⌃</kbd><kbd>⌥</kbd><kbd>P</kbd></td>
-		</tr>
-		<tr>
-			<td>Navigate to the nearest toolbar.</td>
-			<td><kbd>Alt</kbd>+<kbd>F10</kbd></td>
-			<td><kbd>⌥</kbd><kbd>F10</kbd></td>
-		</tr>
-		<tr>
-			<td>Switch between visual editor and code editor.</td>
-			<td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd></td>
-			<td><kbd>⇧</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>M</kbd></td>
-		</tr>
-		<tr>
-			<td>Toggle fullscreen mode.</td>
-			<td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd></td>
-			<td><kbd>⇧</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>F</kbd></td>
+			<td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd><br><kbd>Ctrl</kbd>+<kbd>Y</kbd></td>
+			<td><kbd>⇧</kbd><kbd>⌘</kbd><kbd>Z</kbd><br><kbd>⇧</kbd>+<kbd>Y</kbd></td>
 		</tr>
 	</tbody>
 </table>
@@ -254,6 +249,11 @@ This is the canonical list of keyboard shortcuts:
 			<td><kbd>⌥</kbd><kbd>⌘</kbd><kbd>Y</kbd></td>
 		</tr>
 		<tr>
+			<td>Delete selection.</td>
+			<td><kbd>del</kbd><br><kbd>backspace</kbd></td>
+			<td><kbd>del</kbd><br><kbd>backspace</kbd></td>
+		</tr>
+		<tr>
 			<td>Move the selected block(s) up.</td>
 			<td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd></td>
 			<td><kbd>⌥</kbd><kbd>⌘</kbd><kbd>⇧</kbd><kbd>T</kbd></td>
@@ -267,11 +267,6 @@ This is the canonical list of keyboard shortcuts:
 			<td>Change the block type after adding a new paragraph.</td>
 			<td><kbd>/</kbd></td>
 			<td><kbd>/</kbd></td>
-		</tr>
-		<tr>
-			<td>Remove multiple selected blocks.</td>
-			<td><kbd>del</kbd><kbd>backspace</kbd></td>
-			<td><kbd>del</kbd><kbd>backspace</kbd></td>
 		</tr>
 	</tbody>
 </table>
@@ -298,11 +293,6 @@ This is the canonical list of keyboard shortcuts:
 			<td><kbd>⌘</kbd><kbd>I</kbd></td>
 		</tr>
 		<tr>
-			<td>Underline the selected text.</td>
-			<td><kbd>Ctrl</kbd>+<kbd>U</kbd></td>
-			<td><kbd>⌘</kbd><kbd>U</kbd></td>
-		</tr>
-		<tr>
 			<td>Convert the selected text into a link.</td>
 			<td><kbd>Ctrl</kbd>+<kbd>K</kbd></td>
 			<td><kbd>⌘</kbd><kbd>K</kbd></td>
@@ -313,14 +303,34 @@ This is the canonical list of keyboard shortcuts:
 			<td><kbd>⇧</kbd><kbd>⌘</kbd><kbd>K</kbd></td>
 		</tr>
 		<tr>
-			<td>Add a strikethrough to the selected text.</td>
+			<td>Insert a link to a post or page.</td>
+			<td><kbd>[[</kbd></td>
+			<td><kbd>[[</kbd></td>
+		</tr>
+		<tr>
+			<td>Underline the selected text.</td>
+			<td><kbd>Ctrl</kbd>+<kbd>U</kbd></td>
+			<td><kbd>⌘</kbd><kbd>U</kbd></td>
+		</tr>
+		<tr>
+			<td>Strikethrough the selected text.</td>
 			<td><kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>D</kbd></td>
 			<td><kbd>⌃</kbd><kbd>⌥</kbd><kbd>D</kbd></td>
 		</tr>
 		<tr>
-			<td>Display the selected text in a monospaced font.</td>
+			<td>Make the selected text inline code.</td>
 			<td><kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>X</kbd></td>
 			<td><kbd>⌃</kbd><kbd>⌥</kbd><kbd>X</kbd></td>
+		</tr>
+		<tr>
+			<td>Convert the current heading to a paragraph.</td>
+			<td><kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>0</kbd></td>
+			<td><kbd>⌃</kbd><kbd>⌥</kbd><kbd>0</kbd></td>
+		</tr>
+		<tr>
+			<td>Convert the current paragraph or heading to a heading of level 1 to 6.</td>
+			<td><kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>1-6</kbd></td>
+			<td><kbd>⌃</kbd><kbd>⌥</kbd><kbd>1-6</kbd></td>
 		</tr>
 	</tbody>
 </table>
@@ -412,7 +422,7 @@ Gutenberg works in modern browsers.
 
 The [list of supported browsers can be found in the Make WordPress handbook](https://make.wordpress.org/core/handbook/best-practices/browser-support/). The term “modern browsers” generally refers to the _current and previous two versions_ of each major browser.
 
-Since WordPress 5.8, Gutenberg no longer supports any version of Internet Explorer. 
+Since WordPress 5.8, Gutenberg no longer supports any version of Internet Explorer.
 
 ## Should I be concerned that Gutenberg will make my plugin obsolete?
 
