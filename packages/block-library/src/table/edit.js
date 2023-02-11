@@ -6,7 +6,7 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import {
 	InspectorControls,
 	BlockControls,
@@ -19,11 +19,13 @@ import {
 	__experimentalGetElementClassName,
 } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
+import { usePrevious } from '@wordpress/compose';
 import {
 	Button,
 	PanelBody,
 	Placeholder,
 	TextControl,
+	ToolbarButton,
 	ToggleControl,
 	ToolbarDropdownMenu,
 	__experimentalHasSplitBorders as hasSplitBorders,
@@ -33,6 +35,7 @@ import {
 	alignRight,
 	alignCenter,
 	blockTable as icon,
+	caption as captionIcon,
 	tableColumnAfter,
 	tableColumnBefore,
 	tableColumnDelete,
@@ -97,8 +100,11 @@ function TableEdit( {
 	setAttributes,
 	insertBlocksAfter,
 	isSelected,
+	isContentLocked,
 } ) {
 	const { hasFixedLayout, caption, head, foot } = attributes;
+	const prevCaption = usePrevious( caption );
+	const [ showCaption, setShowCaption ] = useState( !! caption );
 	const [ initialRowCount, setInitialRowCount ] = useState( 2 );
 	const [ initialColumnCount, setInitialColumnCount ] = useState( 2 );
 	const [ selectedCell, setSelectedCell ] = useState();
@@ -355,6 +361,30 @@ function TableEdit( {
 		}
 	}, [ hasTableCreated ] );
 
+	// We need to show the caption when changes come from
+	// history navigation(undo/redo).
+	useEffect( () => {
+		if ( caption && ! prevCaption ) {
+			setShowCaption( true );
+		}
+	}, [ caption, prevCaption ] );
+
+	useEffect( () => {
+		if ( ! isSelected && ! caption ) {
+			setShowCaption( false );
+		}
+	}, [ isSelected, caption ] );
+
+	// Focus the caption when we click to add one.
+	const captionRef = useCallback(
+		( node ) => {
+			if ( node && ! caption ) {
+				node.focus();
+			}
+		},
+		[ caption ]
+	);
+
 	const sections = [ 'head', 'body', 'foot' ].filter(
 		( name ) => ! isEmptyTableSection( attributes[ name ] )
 	);
@@ -461,6 +491,23 @@ function TableEdit( {
 								onChangeColumnAlignment( nextAlign )
 							}
 						/>
+						{ ! isContentLocked && (
+							<ToolbarButton
+								onClick={ () => {
+									setShowCaption( ! showCaption );
+									if ( showCaption && caption ) {
+										setAttributes( { caption: undefined } );
+									}
+								} }
+								icon={ captionIcon }
+								isPressed={ showCaption }
+								label={
+									showCaption
+										? __( 'Remove caption' )
+										: __( 'Add caption' )
+								}
+							/>
+						) }
 					</BlockControls>
 					<BlockControls group="other">
 						<ToolbarDropdownMenu
@@ -518,11 +565,12 @@ function TableEdit( {
 					{ renderedSections }
 				</table>
 			) }
-			{ ! isEmpty && (
+			{ showCaption && ( ! isEmpty || isSelected ) && (
 				<RichText
 					identifier="caption"
 					tagName="figcaption"
 					className={ __experimentalGetElementClassName( 'caption' ) }
+					ref={ captionRef }
 					aria-label={ __( 'Table caption text' ) }
 					placeholder={ __( 'Add caption' ) }
 					value={ caption }
