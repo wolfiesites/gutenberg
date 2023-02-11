@@ -243,8 +243,11 @@ test.describe( 'Table', () => {
 		// Create the table.
 		await page.click( 'role=button[name="Create Table"i]' );
 
-		// Click the first cell and add some text.
-		await page.click( 'role=document[name="Block: Table"i] >> figcaption' );
+		await editor.clickBlockToolbarButton( 'Add caption' );
+		const caption = page.locator(
+			'role=textbox[name="Table caption text"i]'
+		);
+		await expect( caption ).toBeFocused();
 		await page.keyboard.type( 'Caption!' );
 		expect( await editor.getEditedPostContent() ).toMatchSnapshot();
 	} );
