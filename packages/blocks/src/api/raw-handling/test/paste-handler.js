@@ -75,7 +75,7 @@ describe( 'pasteHandler', () => {
 		expect( console ).toHaveLogged();
 
 		expect( result.attributes ).toEqual( {
-			hasFixedLayout: false,
+			hasFixedLayout: true,
 			caption: '',
 			head: [
 				{
@@ -116,7 +116,7 @@ describe( 'pasteHandler', () => {
 		expect( console ).toHaveLogged();
 
 		expect( result.attributes ).toEqual( {
-			hasFixedLayout: false,
+			hasFixedLayout: true,
 			caption: '',
 			head: [
 				{
