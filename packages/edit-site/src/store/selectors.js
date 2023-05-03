@@ -123,6 +123,10 @@ export const getSettings = createSelector(
 				state,
 				'showIconLabels'
 			),
+			allowRightClickOverrides: !! __unstableGetPreference(
+				state,
+				'allowRightClickOverrides'
+			),
 			__experimentalSetIsInserterOpened: setIsInserterOpen,
 			__experimentalReusableBlocks: getReusableBlocks( state ),
 			__experimentalPreferPatternsOnRoot:

@@ -32,6 +32,7 @@ function Editor( { postId, postType, settings, initialEdits, ...props } ) {
 	useCommands();
 	useCommonCommands();
 	const {
+		allowRightClickOverrides,
 		hasFixedToolbar,
 		focusMode,
 		isDistractionFree,
@@ -75,6 +76,9 @@ function Editor( { postId, postType, settings, initialEdits, ...props } ) {
 			const canEditTemplate = canUser( 'create', 'templates' );
 
 			return {
+				allowRightClickOverrides: isFeatureActive(
+					'allowRightClickOverrides'
+				),
 				hasFixedToolbar: isFeatureActive( 'fixedToolbar' ),
 				focusMode: isFeatureActive( 'focusMode' ),
 				isDistractionFree: isFeatureActive( 'distractionFree' ),
@@ -111,6 +115,7 @@ function Editor( { postId, postType, settings, initialEdits, ...props } ) {
 			focusMode,
 			isDistractionFree,
 			hasInlineToolbar,
+			allowRightClickOverrides,
 
 			// This is marked as experimental to give time for the quick inserter to mature.
 			__experimentalSetIsInserterOpened: setIsInserterOpened,
@@ -138,6 +143,7 @@ function Editor( { postId, postType, settings, initialEdits, ...props } ) {
 		return result;
 	}, [
 		settings,
+		allowRightClickOverrides,
 		hasFixedToolbar,
 		hasInlineToolbar,
 		focusMode,
