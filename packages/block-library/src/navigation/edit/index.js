@@ -106,6 +106,7 @@ function Navigation( {
 	// Allow for this to continue to be used.
 	const ref = attributes.slug || attributes.ref;
 
+	// "ref" attribute is the integer-based reference.
 	const [ idRef, setIdRef ] = useState( attributes.ref );
 
 	const setRef = useCallback(
@@ -365,7 +366,7 @@ function Navigation( {
 	}, [
 		createNavigationMenuStatus,
 		createNavigationMenuError,
-		createNavigationMenuPost?.id,
+		createNavigationMenuPost,
 		createNavigationMenuIsError,
 		createNavigationMenuIsSuccess,
 		isCreatingNavigationMenu,
@@ -750,7 +751,7 @@ function Navigation( {
 	}
 
 	return (
-		<EntityProvider kind="postType" type="wp_navigation" id={ ref }>
+		<EntityProvider kind="postType" type="wp_navigation" id={ idRef }>
 			<RecursionProvider uniqueId={ recursionId }>
 				<MenuInspectorControls
 					clientId={ clientId }
