@@ -599,3 +599,11 @@ export const getNavigationFallbackId =
 			] );
 		}
 	};
+
+export const getNavigationMenuBySlug =
+	( slug ) =>
+	async ( { resolveSelect } ) => {
+		await resolveSelect.getEntityRecords( 'postType', 'wp_navigation', {
+			slug,
+		} );
+	};

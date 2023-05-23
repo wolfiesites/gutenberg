@@ -341,6 +341,19 @@ _Returns_
 
 -   `EntityRecordKey | undefined`: The ID for the fallback Navigation post.
 
+### getNavigationMenuBySlug
+
+Returns a Navigation Menu object by slug.
+
+_Parameters_
+
+-   _state_ `State`:
+-   _slug_ `string`: the slug of the Navigation Menu.
+
+_Returns_
+
+-   `Object | null`: The Navigation Menu object.
+
 ### getRawEntityRecord
 
 Returns the entity's record object by key, with its attributes mapped to their raw values.
