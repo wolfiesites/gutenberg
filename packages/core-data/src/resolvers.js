@@ -605,5 +605,6 @@ export const getNavigationMenuBySlug =
 	async ( { resolveSelect } ) => {
 		await resolveSelect.getEntityRecords( 'postType', 'wp_navigation', {
 			slug,
+			per_page: 1,
 		} );
 	};
