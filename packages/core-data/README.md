@@ -518,6 +518,10 @@ _Returns_
 
 -   `EntityRecordKey | undefined`: The ID for the fallback Navigation post.
 
+### getNavigationMenu
+
+Undocumented declaration.
+
 ### getNavigationMenuBySlug
 
 Returns a Navigation Menu object by slug.
