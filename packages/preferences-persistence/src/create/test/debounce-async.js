@@ -62,19 +62,12 @@ describe( 'debounceAsync', () => {
 		expect( fn ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'calls the function on the trailing edge and then once on the trailing edge after the delay when there are multiple trailing edge calls', async () => {
+	it( 'calls the function on the trailing edge only once when there are multiple trailing edge calls', async () => {
 		jest.useFakeTimers();
 		const fn = jest.fn( async () => {} );
 		const debounce = createAsyncDebouncer();
 
 		debounce( () => fn( 'A' ), { delayMS: 20, isTrailing: true } );
-
-		expect( fn ).toHaveBeenCalledTimes( 0 );
-
-		// After the delay, the function is called.
-		jest.advanceTimersByTime( 20 );
-		expect( fn ).toHaveBeenCalledTimes( 1 );
-
 		debounce( () => fn( 'B' ), { delayMS: 20, isTrailing: true } );
 		debounce( () => fn( 'C' ), { delayMS: 20, isTrailing: true } );
 		debounce( () => fn( 'D' ), { delayMS: 20, isTrailing: true } );
@@ -82,8 +75,7 @@ describe( 'debounceAsync', () => {
 		await flushPromises();
 		jest.runAllTimers();
 
-		expect( fn ).toHaveBeenCalledTimes( 2 );
-		expect( fn ).toHaveBeenCalledWith( 'A' );
+		expect( fn ).toHaveBeenCalledTimes( 1 );
 		expect( fn ).toHaveBeenCalledWith( 'D' );
 
 		jest.runOnlyPendingTimers();
