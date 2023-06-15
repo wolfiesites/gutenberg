@@ -230,7 +230,6 @@ describe( 'actions', () => {
 				initialPosition: 0,
 				indexToSelect: undefined,
 				meta: undefined,
-				time: expect.any( Number ),
 			} );
 		} );
 	} );
@@ -302,7 +301,6 @@ describe( 'actions', () => {
 				initialPosition: 0,
 				indexToSelect: undefined,
 				meta: undefined,
-				time: expect.any( Number ),
 			} );
 		} );
 
@@ -346,7 +344,6 @@ describe( 'actions', () => {
 				indexToSelect: null,
 				initialPosition: null,
 				meta: { patternName: 'core/chicken-ribs-pattern' },
-				time: expect.any( Number ),
 			} );
 		} );
 
@@ -415,7 +412,6 @@ describe( 'actions', () => {
 				time: expect.any( Number ),
 				updateSelection: true,
 				initialPosition: 0,
-				time: expect.any( Number ),
 				meta: undefined,
 			} );
 		} );
@@ -477,7 +473,6 @@ describe( 'actions', () => {
 				time: expect.any( Number ),
 				updateSelection: false,
 				initialPosition: null,
-				time: expect.any( Number ),
 				meta: undefined,
 			} );
 		} );
@@ -526,7 +521,6 @@ describe( 'actions', () => {
 				time: expect.any( Number ),
 				updateSelection: false,
 				initialPosition: null,
-				time: expect.any( Number ),
 				meta: undefined,
 			} );
 		} );
@@ -580,7 +574,6 @@ describe( 'actions', () => {
 				time: expect.any( Number ),
 				updateSelection: false,
 				initialPosition: null,
-				time: expect.any( Number ),
 				meta: undefined,
 			} );
 		} );
@@ -667,7 +660,6 @@ describe( 'actions', () => {
 				updateSelection: false,
 				initialPosition: null,
 				meta: { patternName: 'core/chicken-ribs-pattern' },
-				time: expect.any( Number ),
 			} );
 		} );
 
