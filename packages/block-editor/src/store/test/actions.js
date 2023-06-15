@@ -702,6 +702,7 @@ describe( 'actions', () => {
 			const registry = {
 				dispatch: () => ( {
 					set: setPreference,
+					markNextChangeAsExpensive: () => {},
 				} ),
 				select: () => ( {
 					get: () => {},
@@ -733,6 +734,7 @@ describe( 'actions', () => {
 			const registry = {
 				dispatch: () => ( {
 					set: setPreference,
+					markNextChangeAsExpensive: () => {},
 				} ),
 				select: () => ( {
 					// simulate an existing embed block.
@@ -785,6 +787,7 @@ describe( 'actions', () => {
 				const registry = {
 					dispatch: () => ( {
 						set: setPreference,
+						markNextChangeAsExpensive: () => {},
 					} ),
 					select: () => ( {
 						get: () => {},
