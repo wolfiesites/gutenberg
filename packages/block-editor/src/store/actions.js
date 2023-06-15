@@ -592,6 +592,7 @@ export const updateInsertUsage =
 			};
 		}, previousInsertUsage );
 
+		registry.dispatch( preferencesStore ).markNextChangeAsExpensive();
 		registry
 			.dispatch( preferencesStore )
 			.set( 'core', 'insertUsage', updatedInsertUsage );
