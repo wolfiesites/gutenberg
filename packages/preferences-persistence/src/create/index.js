@@ -6,7 +6,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import debounceAsync from './debounce-async';
+import createAsyncDebouncer from './debounce-async';
 
 const EMPTY_OBJECT = {};
 const localStorage = window.localStorage;
@@ -34,7 +34,7 @@ export default function create( {
 	requestDebounceMS = 2500,
 } = {} ) {
 	let cache = preloadedData;
-	const debouncedApiFetch = debounceAsync( apiFetch, requestDebounceMS );
+	const debounce = createAsyncDebouncer();
 
 	async function get() {
 		if ( cache ) {
@@ -68,7 +68,7 @@ export default function create( {
 		return cache;
 	}
 
-	function set( newData ) {
+	function set( newData, { isExpensive } ) {
 		const dataWithTimestamp = {
 			...newData,
 			_modified: new Date().toISOString(),
@@ -83,26 +83,25 @@ export default function create( {
 			JSON.stringify( dataWithTimestamp )
 		);
 
-		// The user meta endpoint seems susceptible to errors when consecutive
-		// requests are made in quick succession. Ensure there's a gap between
-		// any consecutive requests.
-		//
-		// Catch and do nothing with errors from the REST API.
-		debouncedApiFetch( {
-			path: '/wp/v2/users/me',
-			method: 'PUT',
-			// `keepalive` will still send the request in the background,
-			// even when a browser unload event might interrupt it.
-			// This should hopefully make things more resilient.
-			// This does have a size limit of 64kb, but the data is usually
-			// much less.
-			keepalive: true,
-			data: {
-				meta: {
-					persisted_preferences: dataWithTimestamp,
-				},
-			},
-		} ).catch( () => {} );
+		debounce(
+			() =>
+				apiFetch( {
+					path: '/wp/v2/users/me',
+					method: 'PUT',
+					// `keepalive` will still send the request in the background,
+					// even when a browser unload event might interrupt it.
+					// This should hopefully make things more resilient.
+					// This does have a size limit of 64kb, but the data is usually
+					// much less.
+					keepalive: true,
+					data: {
+						meta: {
+							persisted_preferences: dataWithTimestamp,
+						},
+					},
+				} ).catch( () => {} ),
+			{ delayMS: isExpensive ? 60000 : requestDebounceMS }
+		);
 	}
 
 	return {
