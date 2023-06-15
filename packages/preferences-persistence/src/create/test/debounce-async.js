@@ -17,14 +17,14 @@ function timeout( milliseconds ) {
 }
 
 describe( 'debounceAsync', () => {
-	it( 'uses a leading debounce, the first call happens immediately', () => {
+	it( 'uses a leading debounce by default, the first call happens immediately', () => {
 		const fn = jest.fn( async () => {} );
 		const debounce = createAsyncDebouncer();
 		debounce( () => fn(), { delayMS: 20 } );
 		expect( fn ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'calls the function on the leading edge and then once on the trailing edge when there are multiple calls', async () => {
+	it( 'calls the function on the leading edge and then once on the trailing edge when there are multiple leading edge calls', async () => {
 		jest.useFakeTimers();
 		const fn = jest.fn( async () => {} );
 		const debounce = createAsyncDebouncer();
@@ -36,6 +36,48 @@ describe( 'debounceAsync', () => {
 		debounce( () => fn( 'B' ), { delayMS: 20 } );
 		debounce( () => fn( 'C' ), { delayMS: 20 } );
 		debounce( () => fn( 'D' ), { delayMS: 20 } );
+
+		await flushPromises();
+		jest.runAllTimers();
+
+		expect( fn ).toHaveBeenCalledTimes( 2 );
+		expect( fn ).toHaveBeenCalledWith( 'A' );
+		expect( fn ).toHaveBeenCalledWith( 'D' );
+
+		jest.runOnlyPendingTimers();
+		jest.useRealTimers();
+	} );
+
+	it( 'can be configured to use a trailing edge debounce, the first call happens after the delay', () => {
+		jest.useFakeTimers();
+		const fn = jest.fn( async () => {} );
+		const debounce = createAsyncDebouncer();
+		debounce( () => fn(), { delayMS: 20, isTrailing: true } );
+
+		// The function isn't called immediately.
+		expect( fn ).toHaveBeenCalledTimes( 0 );
+
+		// After the delay, the function is called.
+		jest.advanceTimersByTime( 20 );
+		expect( fn ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'calls the function on the trailing edge and then once on the trailing edge after the delay when there are multiple trailing edge calls', async () => {
+		jest.useFakeTimers();
+		const fn = jest.fn( async () => {} );
+		const debounce = createAsyncDebouncer();
+
+		debounce( () => fn( 'A' ), { delayMS: 20, isTrailing: true } );
+
+		expect( fn ).toHaveBeenCalledTimes( 0 );
+
+		// After the delay, the function is called.
+		jest.advanceTimersByTime( 20 );
+		expect( fn ).toHaveBeenCalledTimes( 1 );
+
+		debounce( () => fn( 'B' ), { delayMS: 20, isTrailing: true } );
+		debounce( () => fn( 'C' ), { delayMS: 20, isTrailing: true } );
+		debounce( () => fn( 'D' ), { delayMS: 20, isTrailing: true } );
 
 		await flushPromises();
 		jest.runAllTimers();

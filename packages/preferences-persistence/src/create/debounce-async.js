@@ -11,16 +11,16 @@
  *
  * @return {Function} A function that debounces the async function passed to it
  *                    in the first parameter by the time passed in the second
- *                    parameter.
+ *                    options parameter.
  */
 export default function createAsyncDebouncer() {
 	let timeoutId;
 	let activePromise;
 
-	return async function debounced( func, { delayMS } ) {
+	return async function debounced( func, { delayMS, isTrailing = false } ) {
 		// This is a leading edge debounce. If there's no promise or timeout
 		// in progress, call the debounced function immediately.
-		if ( ! activePromise && ! timeoutId ) {
+		if ( ! isTrailing && ! activePromise && ! timeoutId ) {
 			return new Promise( ( resolve, reject ) => {
 				// Keep a reference to the promise.
 				activePromise = func()

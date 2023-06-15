@@ -100,7 +100,10 @@ export default function create( {
 						},
 					},
 				} ).catch( () => {} ),
-			{ delayMS: isExpensive ? 60000 : requestDebounceMS }
+			{
+				delayMS: isExpensive ? 60000 : requestDebounceMS,
+				isTrailing: isExpensive,
+			}
 		);
 	}
 
