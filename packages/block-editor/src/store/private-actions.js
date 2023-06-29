@@ -9,7 +9,6 @@ import { store as preferencesStore } from '@wordpress/preferences';
  * Internal dependencies
  */
 import { blockTypePromptMessages } from '../components/block-removal-warning-modal';
-import { unlock } from '../lock-unlock';
 
 const castArray = ( maybeArray ) =>
 	Array.isArray( maybeArray ) ? maybeArray : [ maybeArray ];
@@ -336,9 +335,7 @@ export const updateInsertUsage =
 			};
 		}, previousInsertUsage );
 
-		unlock(
-			registry.dispatch( preferencesStore )
-		).markNextChangeAsExpensive();
+		registry.dispatch( preferencesStore );
 		registry
 			.dispatch( preferencesStore )
 			.set( 'core', 'insertUsage', updatedInsertUsage );
