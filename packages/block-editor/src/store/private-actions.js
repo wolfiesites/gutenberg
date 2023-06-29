@@ -1,7 +1,9 @@
 /**
  * WordPress dependencies
  */
+import { store as blocksStore } from '@wordpress/blocks';
 import { Platform } from '@wordpress/element';
+import { store as preferencesStore } from '@wordpress/preferences';
 
 /**
  * Internal dependencies
@@ -289,3 +291,52 @@ export function toggleRemovalPromptSupport( status = true ) {
 		status,
 	};
 }
+
+/**
+ * Updates the inserter usage statistics in the preferences store.
+ *
+ * Note: this function is an internal and not intended to ever be made
+ * non-private.
+ *
+ * @param {Array} blocks The array of blocks that were inserted.
+ */
+export const updateInsertUsage =
+	( blocks ) =>
+	( { registry } ) => {
+		const previousInsertUsage =
+			registry.select( preferencesStore ).get( 'core', 'insertUsage' ) ??
+			{};
+
+		const time = Date.now();
+
+		const updatedInsertUsage = blocks.reduce( ( previousState, block ) => {
+			const { attributes, name: blockName } = block;
+			let id = blockName;
+			const match = registry
+				.select( blocksStore )
+				.getActiveBlockVariation( blockName, attributes );
+
+			if ( match?.name ) {
+				id += '/' + match.name;
+			}
+
+			if ( blockName === 'core/block' ) {
+				id += '/' + attributes.ref;
+			}
+
+			const previousCount = previousState?.[ id ]?.count ?? 0;
+
+			return {
+				...previousState,
+				[ id ]: {
+					time,
+					count: previousCount + 1,
+				},
+			};
+		}, previousInsertUsage );
+
+		registry.dispatch( preferencesStore ).markNextChangeAsExpensive();
+		registry
+			.dispatch( preferencesStore )
+			.set( 'core', 'insertUsage', updatedInsertUsage );
+	};

@@ -22,6 +22,7 @@ import * as selectors from '../selectors';
 import reducer from '../reducer';
 import * as actions from '../actions';
 import { STORE_NAME as blockEditorStoreName } from '../../store/constants';
+import { updateInsertUsage } from '../private-actions';
 
 const noop = () => {};
 
@@ -51,11 +52,15 @@ const {
 	updateBlock,
 	updateBlockAttributes,
 	updateBlockListSettings,
-	updateInsertUsage,
 	updateSettings,
 	validateBlocksToTemplate,
 	registerInserterMediaCategory,
 } = actions;
+
+jest.mock( '../private-actions', () => ( {
+	...jest.requireActual( '../private-actions' ),
+	updateInsertUsage: jest.fn(),
+} ) );
 
 describe( 'actions', () => {
 	const defaultBlockSettings = {
@@ -216,21 +221,11 @@ describe( 'actions', () => {
 				canInsertBlockType: () => true,
 				getBlockCount: () => 1,
 			};
-			const dispatch = Object.assign( jest.fn(), {
-				updateInsertUsage: () => {},
-			} );
+			const dispatch = Object.assign( jest.fn() );
 
 			replaceBlock( 'chicken', block )( { select, dispatch } );
 
-			expect( dispatch ).toHaveBeenCalledWith( {
-				type: 'REPLACE_BLOCKS',
-				clientIds: [ 'chicken' ],
-				blocks: [ block ],
-				time: expect.any( Number ),
-				initialPosition: 0,
-				indexToSelect: undefined,
-				meta: undefined,
-			} );
+			expect( updateInsertUsage ).toHaveBeenCalledWith( [ block ] );
 		} );
 	} );
 
@@ -365,10 +360,8 @@ describe( 'actions', () => {
 				canInsertBlockType: () => true,
 				getBlockCount: () => 1,
 			};
-			const updateInsertUsageSpy = jest.fn();
-			const dispatch = Object.assign( jest.fn(), {
-				updateInsertUsage: updateInsertUsageSpy,
-			} );
+
+			const dispatch = jest.fn();
 
 			replaceBlocks(
 				[ 'pineapple' ],
@@ -377,7 +370,7 @@ describe( 'actions', () => {
 				null
 			)( { select, dispatch } );
 
-			expect( updateInsertUsageSpy ).toHaveBeenCalledWith( blocks );
+			expect( updateInsertUsage ).toHaveBeenCalledWith( blocks );
 		} );
 	} );
 
@@ -679,10 +672,7 @@ describe( 'actions', () => {
 				getSettings: () => null,
 				canInsertBlockType: () => true,
 			};
-			const updateInsertUsageSpy = jest.fn();
-			const dispatch = Object.assign( jest.fn(), {
-				updateInsertUsage: updateInsertUsageSpy,
-			} );
+			const dispatch = jest.fn();
 
 			insertBlocks(
 				blocks,
@@ -692,166 +682,7 @@ describe( 'actions', () => {
 				0
 			)( { select, dispatch } );
 
-			expect( updateInsertUsageSpy ).toHaveBeenCalledWith( blocks );
-		} );
-	} );
-
-	describe( 'updateInsertUsage', () => {
-		it( 'should record recently used blocks', () => {
-			const setPreference = jest.fn();
-			const registry = {
-				dispatch: () => ( {
-					set: setPreference,
-					markNextChangeAsExpensive: () => {},
-				} ),
-				select: () => ( {
-					get: () => {},
-					getActiveBlockVariation: () => {},
-				} ),
-			};
-
-			updateInsertUsage( [
-				{
-					clientId: 'bacon',
-					name: 'core/embed',
-				},
-			] )( { registry } );
-
-			expect( setPreference ).toHaveBeenCalledWith(
-				'core',
-				'insertUsage',
-				{
-					'core/embed': {
-						time: expect.any( Number ),
-						count: 1,
-					},
-				}
-			);
-		} );
-
-		it( 'merges insert usage if more blocks are added of the same type', () => {
-			const setPreference = jest.fn();
-			const registry = {
-				dispatch: () => ( {
-					set: setPreference,
-					markNextChangeAsExpensive: () => {},
-				} ),
-				select: () => ( {
-					// simulate an existing embed block.
-					get: () => ( {
-						'core/embed': {
-							time: 123456,
-							count: 1,
-						},
-					} ),
-					getActiveBlockVariation: () => {},
-				} ),
-			};
-
-			updateInsertUsage( [
-				{
-					clientId: 'eggs',
-					name: 'core/embed',
-				},
-				{
-					clientId: 'bacon',
-					name: 'core/block',
-					attributes: { ref: 123 },
-				},
-			] )( { registry } );
-
-			expect( setPreference ).toHaveBeenCalledWith(
-				'core',
-				'insertUsage',
-				{
-					// The reusable block has a special case where each ref is
-					// stored as though an individual block, and the ref is
-					// also recorded in the `insert` object.
-					'core/block/123': {
-						time: expect.any( Number ),
-						count: 1,
-					},
-					'core/embed': {
-						time: expect.any( Number ),
-						count: 2,
-					},
-				}
-			);
-		} );
-
-		describe( 'block variations handling', () => {
-			const blockWithVariations = 'core/test-block-with-variations';
-
-			it( 'should return proper results with both found or not found block variation matches', () => {
-				const setPreference = jest.fn();
-				const registry = {
-					dispatch: () => ( {
-						set: setPreference,
-						markNextChangeAsExpensive: () => {},
-					} ),
-					select: () => ( {
-						get: () => {},
-						// simulate an active block variation:
-						// - 'apple' when the fruit attribute is 'apple'.
-						// - 'orange' when the fruit attribute is 'orange'.
-						getActiveBlockVariation: (
-							blockName,
-							{ fruit } = {}
-						) => {
-							if ( blockName === blockWithVariations ) {
-								if ( fruit === 'orange' )
-									return { name: 'orange' };
-								if ( fruit === 'apple' )
-									return { name: 'apple' };
-							}
-						},
-					} ),
-				};
-
-				updateInsertUsage( [
-					{
-						clientId: 'no match',
-						name: blockWithVariations,
-					},
-					{
-						clientId: 'not a variation match',
-						name: blockWithVariations,
-						attributes: { fruit: 'not in a variation' },
-					},
-					{
-						clientId: 'orange',
-						name: blockWithVariations,
-						attributes: { fruit: 'orange' },
-					},
-					{
-						clientId: 'apple',
-						name: blockWithVariations,
-						attributes: { fruit: 'apple' },
-					},
-				] )( { registry } );
-
-				const orangeVariationName = `${ blockWithVariations }/orange`;
-				const appleVariationName = `${ blockWithVariations }/apple`;
-
-				expect( setPreference ).toHaveBeenCalledWith(
-					'core',
-					'insertUsage',
-					{
-						[ orangeVariationName ]: {
-							time: expect.any( Number ),
-							count: 1,
-						},
-						[ appleVariationName ]: {
-							time: expect.any( Number ),
-							count: 1,
-						},
-						[ blockWithVariations ]: {
-							time: expect.any( Number ),
-							count: 2,
-						},
-					}
-				);
-			} );
+			expect( updateInsertUsage ).toHaveBeenCalledWith( blocks );
 		} );
 	} );
 
