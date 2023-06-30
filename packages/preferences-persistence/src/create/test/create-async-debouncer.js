@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import createAsyncDebouncer from '../debounce-async';
+import createAsyncDebouncer from '../create-async-debouncer';
 
 // See https://stackoverflow.com/questions/52177631/jest-timer-and-promise-dont-work-well-settimeout-and-async-function.
 // Jest fake timers and async functions don't mix too well, since queued up

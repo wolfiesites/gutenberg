@@ -6,7 +6,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import createAsyncDebouncer from './debounce-async';
+import createAsyncDebouncer from './create-async-debouncer';
 
 const EMPTY_OBJECT = {};
 const localStorage = window.localStorage;
