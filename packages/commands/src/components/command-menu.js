@@ -158,8 +158,14 @@ export function CommandMenu() {
 			description: __( 'Open the command palette' ),
 			keyCombination: {
 				modifier: 'primary',
-				character: 'k',
+				character: '/',
 			},
+			aliases: [
+				{
+					modifier: 'primaryShift',
+					character: 'p',
+				},
+			],
 		} );
 	}, [ registerShortcut ] );
 
