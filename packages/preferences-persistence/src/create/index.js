@@ -16,22 +16,25 @@ const localStorage = window.localStorage;
  * REST API.
  *
  * @param {Object}  options
- * @param {?Object} options.preloadedData          Any persisted preferences data that should be preloaded.
- *                                                 When set, the persistence layer will avoid fetching data
- *                                                 from the REST API.
- * @param {?string} options.localStorageRestoreKey The key to use for restoring the localStorage backup, used
- *                                                 when the persistence layer calls `localStorage.getItem` or
- *                                                 `localStorage.setItem`.
- * @param {?number} options.requestDebounceMS      Debounce requests to the API so that they only occur at
- *                                                 minimum every `requestDebounceMS` milliseconds, and don't
- *                                                 swamp the server. Defaults to 2500ms.
+ * @param {?Object} options.preloadedData              Any persisted preferences data that should be preloaded.
+ *                                                     When set, the persistence layer will avoid fetching data
+ *                                                     from the REST API.
+ * @param {?string} options.localStorageRestoreKey     The key to use for restoring the localStorage backup, used
+ *                                                     when the persistence layer calls `localStorage.getItem` or
+ *                                                     `localStorage.setItem`.
+ * @param {?number} options.requestDebounceMS          Debounce requests to the API so that they only occur at
+ *                                                     minimum every `requestDebounceMS` milliseconds, and don't
+ *                                                     swamp the server. Defaults to 2500ms.
  *
+ * @param           options.expensiveRequestDebounceMS A longer debounce that can be defined for updates that have
+ *                                                     `isExpensive=true` defined.
  * @return {Object} A persistence layer for WordPress user meta.
  */
 export default function create( {
 	preloadedData,
 	localStorageRestoreKey = 'WP_PREFERENCES_RESTORE_DATA',
 	requestDebounceMS = 2500,
+	expensiveRequestDebounceMS = 60000,
 } = {} ) {
 	let cache = preloadedData;
 	const debounce = createAsyncDebouncer();
@@ -101,7 +104,9 @@ export default function create( {
 					},
 				} ).catch( () => {} ),
 			{
-				delayMS: isExpensive ? 60000 : requestDebounceMS,
+				delayMS: isExpensive
+					? expensiveRequestDebounceMS
+					: requestDebounceMS,
 				isTrailing: isExpensive,
 			}
 		);
