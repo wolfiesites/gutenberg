@@ -177,7 +177,7 @@ function BaseDocumentActions( { className, icon, children, onBack } ) {
 					</Text>
 				</HStack>
 				<span className="edit-site-document-actions__shortcut">
-					{ displayShortcut.primary( 'k' ) }
+					{ displayShortcut.primary( '/' ) }
 				</span>
 			</Button>
 		</div>
