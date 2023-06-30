@@ -309,7 +309,7 @@ export const updateInsertUsage =
 
 		const time = Date.now();
 
-		const updatedInsertUsage = blocks.reduce( ( previousState, block ) => {
+		let updatedInsertUsage = blocks.reduce( ( previousState, block ) => {
 			const { attributes, name: blockName } = block;
 			let id = blockName;
 			const variation = registry
@@ -334,6 +334,25 @@ export const updateInsertUsage =
 				},
 			};
 		}, previousInsertUsage );
+
+		// Ensure the list of blocks doesn't grow above `limit` items.
+		// This is to ensure the preferences store data doesn't grow too big
+		// given it's persisted in the database.
+		const limit = 100;
+		const entries = Object.entries( updatedInsertUsage );
+		if ( entries.length > limit ) {
+			// Most recently inserted blocks first.
+			entries.sort( ( entryLeft, entryRight ) => {
+				const [ , { time: timeLeft } ] = entryLeft;
+				const [ , { time: timeRight } ] = entryRight;
+				return timeRight - timeLeft;
+			} );
+
+			// Slice an array of items that are the newest and convert them
+			// back into object form.
+			const entriesToKeep = entries.slice( 0, limit );
+			updatedInsertUsage = Object.fromEntries( entriesToKeep );
+		}
 
 		registry.dispatch( preferencesStore );
 		registry
