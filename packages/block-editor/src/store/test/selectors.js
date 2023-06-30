@@ -73,8 +73,6 @@ const {
 	__experimentalGetPatternTransformItems,
 	wasBlockJustInserted,
 	__experimentalGetGlobalBlocksByName,
-	__unstableGetInsertUsage,
-	__unstableGetInsertUsageForBlock,
 } = selectors;
 
 jest.mock( '../private-selectors', () => ( {

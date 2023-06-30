@@ -26,8 +26,9 @@ const localStorage = window.localStorage;
  *                                                     minimum every `requestDebounceMS` milliseconds, and don't
  *                                                     swamp the server. Defaults to 2500ms.
  *
- * @param           options.expensiveRequestDebounceMS A longer debounce that can be defined for updates that have
- *                                                     `isExpensive=true` defined.
+ * @param {?number} options.expensiveRequestDebounceMS A longer debounce that can be defined for updates that have
+ *                                                     `isExpensive=true` defined. defaults to 60000ms.
+ *
  * @return {Object} A persistence layer for WordPress user meta.
  */
 export default function create( {
