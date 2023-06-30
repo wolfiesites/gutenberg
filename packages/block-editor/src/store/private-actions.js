@@ -312,12 +312,12 @@ export const updateInsertUsage =
 		const updatedInsertUsage = blocks.reduce( ( previousState, block ) => {
 			const { attributes, name: blockName } = block;
 			let id = blockName;
-			const match = registry
+			const variation = registry
 				.select( blocksStore )
 				.getActiveBlockVariation( blockName, attributes );
 
-			if ( match?.name ) {
-				id += '/' + match.name;
+			if ( variation?.name ) {
+				id += '/' + variation.name;
 			}
 
 			if ( blockName === 'core/block' ) {
