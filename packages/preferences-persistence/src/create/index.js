@@ -71,7 +71,7 @@ export default function create( {
 		return cache;
 	}
 
-	function set( newData, { isExpensive } = {} ) {
+	function set( newData, { isExpensive = false } = {} ) {
 		const dataWithTimestamp = {
 			...newData,
 			_modified: new Date().toISOString(),
