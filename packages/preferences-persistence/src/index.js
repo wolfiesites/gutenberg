@@ -55,14 +55,18 @@ export function __unstableCreatePersistenceLayer( serverData, userId ) {
 	// performs a separate migration just for this data.
 	if ( preloadedData && ! preloadedData?.core?.insertUsage ) {
 		const legacyData = getLegacyData( userId );
-		// Check if there is data in the legacy format from the old persistence system.
-		preloadedData = {
-			...preloadedData,
-			core: {
-				...preloadedData.core,
-				insertUsage: convertLegacyInsertUsageData( legacyData ),
-			},
-		};
+
+		// Only run the migration if there's something to migrate.
+		if ( legacyData?.[ 'core/block-editor' ]?.preferences?.insertUsage ) {
+			// Check if there is data in the legacy format from the old persistence system.
+			preloadedData = {
+				...preloadedData,
+				core: {
+					...preloadedData.core,
+					insertUsage: convertLegacyInsertUsageData( legacyData ),
+				},
+			};
+		}
 	}
 
 	return create( {
