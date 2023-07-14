@@ -164,20 +164,14 @@ export function CommandMenu() {
 		} );
 	}, [ registerShortcut ] );
 
-	useShortcut(
-		'core/commands',
-		( event ) => {
-			event.preventDefault();
-			if ( isOpen ) {
-				close();
-			} else {
-				open();
-			}
-		},
-		{
-			bindGlobal: true,
+	useShortcut( 'core/commands', ( event ) => {
+		event.preventDefault();
+		if ( isOpen ) {
+			close();
+		} else {
+			open();
 		}
-	);
+	} );
 
 	const setLoader = useCallback(
 		( name, value ) =>
