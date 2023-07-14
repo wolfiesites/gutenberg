@@ -160,12 +160,7 @@ export function CommandMenu() {
 				modifier: 'primary',
 				character: '/',
 			},
-			aliases: [
-				{
-					modifier: 'primaryShift',
-					character: 'p',
-				},
-			],
+			aliases: [ { character: 'F1' } ],
 		} );
 	}, [ registerShortcut ] );
 
