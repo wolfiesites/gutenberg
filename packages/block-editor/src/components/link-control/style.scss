@@ -118,7 +118,7 @@ $preview-image-height: 140px;
 .block-editor-link-control__search-results {
 	margin-top: -$grid-unit-20;
 	padding: $grid-unit-10;
-	max-height: $grid-unit * 24;
+	max-height: $grid-unit * 24; // resolves to 194px
 	overflow-y: auto; // allow results list to scroll
 
 	&.is-loading {
