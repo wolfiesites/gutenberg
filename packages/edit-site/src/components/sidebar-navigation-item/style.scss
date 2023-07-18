@@ -17,9 +17,8 @@
 		}
 	}
 
-	// Prevents the focus from being cut off by the background
-	// color of the next item when the next item is moused over.
 	&:focus-visible {
+		// Avoid hiding the focus outline when the next navigation item is hovered
 		position: relative;
 	}
 
