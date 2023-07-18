@@ -17,6 +17,12 @@
 		}
 	}
 
+	// Prevents the focus from being cut off by the background
+	// color of the next item when the next item is moused over.
+	&:focus-visible {
+		position: relative;
+	}
+
 	&[aria-current] {
 		background: var(--wp-admin-theme-color);
 		color: $white;
