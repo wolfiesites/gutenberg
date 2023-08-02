@@ -198,22 +198,6 @@ function wp_add_footnotes_to_revision( $fields ) {
 add_filter( '_wp_post_revision_fields', 'wp_add_footnotes_to_revision' );
 
 /**
- * Gets the footnotes field from the revision.
- *
- * @since 6.3.0
- *
- * @param string $revision_field The field value, but $revision->$field
- *                               (footnotes) does not exist.
- * @param string $field          The field name, in this case "footnotes".
- * @param object $revision       The revision object to compare against.
- * @return string The field value.
- */
-function wp_get_footnotes_from_revision( $revision_field, $field, $revision ) {
-	return get_metadata( 'post', $revision->ID, $field, true );
-}
-add_filter( '_wp_post_revision_field_footnotes', 'wp_get_footnotes_from_revision', 10, 3 );
-
-/**
  * The REST API autosave endpoint doesn't save meta, so we can use the
  * `wp_creating_autosave` when it updates an exiting autosave, and
  * `_wp_put_post_revision` when it creates a new autosave.
