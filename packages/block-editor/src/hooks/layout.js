@@ -183,7 +183,7 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 	const {
 		allowSwitching = false,
 		allowEditing = allowEditingSetting ?? true,
-		// allowInheriting = true,
+		allowInheriting = true,
 		default: defaultBlockLayout = { type: 'default' },
 	} = layoutBlockSupport;
 
@@ -218,11 +218,6 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 
 	const innerWidthOptions = [
 		{
-			key: 'theme',
-			value: 'theme',
-			name: __( 'Boxed' ),
-		},
-		{
 			key: 'fill',
 			value: 'fill',
 			name: __( 'Fill' ),
@@ -236,6 +231,15 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 			name: __( 'Fit' ),
 		} );
 	}
+
+	if ( allowInheriting ) {
+		innerWidthOptions.unshift( {
+			key: 'theme',
+			value: 'theme',
+			name: __( 'Boxed' ),
+		} );
+	}
+
 	const horizontalAlignmentOptions = [
 		{
 			value: 'left',
@@ -319,7 +323,8 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 		}
 	};
 
-	const onChangeInnerWidth = ( key ) => {
+	const onChangeInnerWidth = ( { selectedItem } ) => {
+		const { key } = selectedItem;
 		if ( key === 'theme' ) {
 			setAttributes( {
 				layout: { ...usedLayout, type: 'constrained' },
@@ -360,6 +365,16 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 				...usedLayout,
 				flexWrap: newWrap,
 			},
+		} );
+	};
+
+	const onChangeMatrix = ( newValue ) => {
+		const [ horizontal, vertical ] = newValue.split( ' ' );
+
+		onChangeLayout( {
+			...usedLayout,
+			justifyContent: vertical,
+			verticalAlignment: horizontal,
 		} );
 	};
 
@@ -472,12 +487,7 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 												'Change content position'
 											) }
 											value={ 'top' }
-											onChange={ ( nextPosition ) =>
-												setAttributes( {
-													contentPosition:
-														nextPosition,
-												} )
-											}
+											onChange={ onChangeMatrix }
 										/>
 									}
 								</FlexBlock>
@@ -507,6 +517,44 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 									label={ __( 'No' ) }
 								/>
 							</ToggleGroupControl>
+						) }
+						{ type === 'constrained' && (
+							<HStack spacing={ 2 } justify="stretch">
+								<FlexBlock>
+									<ToggleGroupControl
+										__nextHasNoMarginBottom
+										style={ {
+											marginBottom: 0,
+											marginTop: 0,
+										} }
+										label={ __( 'Justification' ) }
+										value={
+											usedLayout?.justifyContent ||
+											'center'
+										}
+										isBlock={ true }
+										onChange={ ( selectedItem ) => {
+											onChangeLayout( {
+												...usedLayout,
+												justifyContent: selectedItem,
+											} );
+										} }
+										className="components-toggle-group-control__full-width"
+									>
+										{ horizontalAlignmentOptions.map(
+											( { value, icon, label } ) => (
+												<ToggleGroupControlOptionIcon
+													key={ value }
+													icon={ icon }
+													value={ value }
+													label={ label }
+												/>
+											)
+										) }
+									</ToggleGroupControl>
+								</FlexBlock>
+								<FlexBlock></FlexBlock>
+							</HStack>
 						) }
 						{ constrainedType &&
 							displayControlsForLegacyLayouts && (
