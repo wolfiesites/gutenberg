@@ -252,7 +252,7 @@ const BlockInspectorSingleBlock = ( { clientId, blockName } ) => {
 				{ ...blockInformation }
 				className={ blockInformation.isSynced && 'is-synced' }
 			/>
-			<BlockVariationTransforms blockClientId={ clientId } />
+			{ /* <BlockVariationTransforms blockClientId={ clientId } /> */ }
 			<BlockInfo.Slot />
 			{ showTabs && (
 				<InspectorControlsTabs
