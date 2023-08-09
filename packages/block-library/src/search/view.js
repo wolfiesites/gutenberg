@@ -148,9 +148,7 @@ document.addEventListener(
 	'click',
 	( event ) => {
 		// Get the ancestor expandable Search block of the clicked element.
-		const block = event.target.closest(
-			'.wp-block-search__button-behavior-expand'
-		);
+		const block = event.target.closest( '.wp-block-search__button-only' );
 
 		/*
 		 * If there is already an expanded search block and either the current click was not for a Search block or it was
