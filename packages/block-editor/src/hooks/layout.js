@@ -11,13 +11,28 @@ import { addFilter } from '@wordpress/hooks';
 import { getBlockSupport, hasBlockSupport } from '@wordpress/blocks';
 import { useSelect, useDispatch } from '@wordpress/data';
 import {
-	Button,
-	ButtonGroup,
-	ToggleControl,
+	CustomSelectControl,
+	FlexBlock,
 	PanelBody,
+	RangeControl,
+	__experimentalAlignmentMatrixControl as AlignmentMatrixControl,
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
+	__experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon,
+	__experimentalHStack as HStack,
+	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useContext, createPortal } from '@wordpress/element';
+import {
+	arrowRight,
+	arrowDown,
+	grid,
+	justifyLeft,
+	justifyCenter,
+	justifyRight,
+	justifySpaceBetween,
+} from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -25,6 +40,8 @@ import { useEffect } from '@wordpress/element';
 import { store as blockEditorStore } from '../store';
 import { InspectorControls } from '../components';
 import useSetting from '../components/use-setting';
+import { LayoutStyle } from '../components/block-list/layout';
+import BlockList from '../components/block-list';
 import { getLayoutType, getLayoutTypes } from '../layouts';
 import { useBlockEditingMode } from '../components/block-editing-mode';
 import { LAYOUT_DEFINITIONS } from '../layouts/definitions';
@@ -40,6 +57,13 @@ function hasLayoutBlockSupport( blockName ) {
 		hasBlockSupport( blockName, '__experimentalLayout' )
 	);
 }
+import {
+	alignTop,
+	alignCenter,
+	alignBottom,
+	spaceBetween,
+	alignStretch,
+} from '../components/block-vertical-alignment-control/icons';
 
 /**
  * Generates the utility classnames for the given block's layout attributes.
@@ -141,8 +165,8 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 		layout: { allowEditing: allowEditingSetting },
 	} = settings;
 
-	const { layout } = attributes;
-	const defaultThemeLayout = useSetting( 'layout' );
+	const { layout, style } = attributes;
+
 	const { themeSupportsLayout } = useSelect( ( select ) => {
 		const { getSettings } = select( blockEditorStore );
 		return {
@@ -157,34 +181,25 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 		{}
 	);
 	const {
-		allowSwitching,
+		allowSwitching = false,
 		allowEditing = allowEditingSetting ?? true,
-		allowInheriting = true,
-		default: defaultBlockLayout,
+		// allowInheriting = true,
+		default: defaultBlockLayout = { type: 'default' },
 	} = layoutBlockSupport;
 
 	if ( ! allowEditing ) {
 		return null;
 	}
 
-	// Only show the inherit toggle if it's supported,
-	// a default theme layout is set (e.g. one that provides `contentSize` and/or `wideSize` values),
-	// and either the default / flow or the constrained layout type is in use, as the toggle switches from one to the other.
-	const showInheritToggle = !! (
-		allowInheriting &&
-		!! defaultThemeLayout &&
-		( ! layout?.type ||
-			layout?.type === 'default' ||
-			layout?.type === 'constrained' ||
-			layout?.inherit )
-	);
-
 	const usedLayout = layout || defaultBlockLayout || {};
 	const {
 		inherit = false,
 		type = 'default',
 		contentSize = null,
+		orientation = 'horizontal',
+		flexWrap = 'nowrap',
 	} = usedLayout;
+	const { type: defaultBlockLayoutType } = defaultBlockLayout;
 	/**
 	 * `themeSupportsLayout` is only relevant to the `default/flow` or
 	 * `constrained` layouts and it should not be taken into account when other
@@ -200,74 +215,308 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 	const constrainedType = getLayoutType( 'constrained' );
 	const displayControlsForLegacyLayouts =
 		! usedLayout.type && ( contentSize || inherit );
-	const hasContentSizeOrLegacySettings = !! inherit || !! contentSize;
 
-	const onChangeType = ( newType ) =>
-		setAttributes( { layout: { type: newType } } );
+	const innerWidthOptions = [
+		{
+			key: 'theme',
+			value: 'theme',
+			name: __( 'Boxed' ),
+		},
+		{
+			key: 'fill',
+			value: 'fill',
+			name: __( 'Fill' ),
+		},
+	];
+
+	if ( allowSwitching || defaultBlockLayoutType === 'flex' ) {
+		innerWidthOptions.unshift( {
+			key: 'fit',
+			value: 'fit',
+			name: __( 'Fit' ),
+		} );
+	}
+	const horizontalAlignmentOptions = [
+		{
+			value: 'left',
+			icon: justifyLeft,
+			label: __( 'Left' ),
+		},
+		{
+			value: 'center',
+			icon: justifyCenter,
+			label: __( 'Middle' ),
+		},
+		{
+			value: 'right',
+			icon: justifyRight,
+			label: __( 'Right' ),
+		},
+	];
+
+	if ( type === 'flex' ) {
+		horizontalAlignmentOptions.push( {
+			value: 'space-between',
+			icon: justifySpaceBetween,
+			label: __( 'Space Between' ),
+		} );
+	}
+
+	const verticalAlignmentOptions = [
+		{
+			value: 'top',
+			icon: alignTop,
+			label: __( 'Top' ),
+		},
+		{
+			value: 'center',
+			icon: alignCenter,
+			label: __( 'Middle' ),
+		},
+		{
+			value: 'bottom',
+			icon: alignBottom,
+			label: __( 'Bottom' ),
+		},
+	];
+
+	if ( orientation === 'horizontal' ) {
+		verticalAlignmentOptions.push( {
+			value: 'stretch',
+			icon: alignStretch,
+			label: __( 'Stretch' ),
+		} );
+	} else {
+		verticalAlignmentOptions.push( {
+			value: 'space-between',
+			icon: spaceBetween,
+			label: __( 'Space Between' ),
+		} );
+	}
+
+	const onChangeType = ( newType ) => {
+		if ( newType === 'stack' ) {
+			const { type: previousLayoutType } = usedLayout;
+			if ( previousLayoutType === 'flex' ) {
+				setAttributes( {
+					layout: {
+						...usedLayout,
+						type: 'flex',
+						orientation: 'vertical',
+					},
+				} );
+			} else {
+				setAttributes( { layout: { type: 'default' } } );
+			}
+		} else {
+			setAttributes( {
+				layout: {
+					...usedLayout,
+					type: newType,
+					orientation: 'horizontal',
+				},
+			} );
+		}
+	};
+
+	const onChangeInnerWidth = ( key ) => {
+		if ( key === 'theme' ) {
+			setAttributes( {
+				layout: { ...usedLayout, type: 'constrained' },
+			} );
+		} else if ( key === 'fit' ) {
+			setAttributes( {
+				layout: {
+					...usedLayout,
+					type: 'flex',
+					orientation: 'vertical',
+				},
+			} );
+		} else {
+			setAttributes( {
+				layout: { ...usedLayout, type: 'default' },
+			} );
+		}
+	};
+
 	const onChangeLayout = ( newLayout ) =>
 		setAttributes( { layout: newLayout } );
+
+	const onChangeGap = ( newGap ) => {
+		setAttributes( {
+			style: {
+				...style,
+				spacing: {
+					...style?.spacing,
+					blockGap: `${ newGap }px`,
+				},
+			},
+		} );
+	};
+
+	const onChangeWrap = ( newWrap ) => {
+		setAttributes( {
+			layout: {
+				...usedLayout,
+				flexWrap: newWrap,
+			},
+		} );
+	};
+
+	let defaultContentWidthValue = 'fill';
+	if ( defaultBlockLayoutType === 'constrained' ) {
+		defaultContentWidthValue = 'theme';
+	} else if ( defaultBlockLayoutType === 'flex' ) {
+		defaultContentWidthValue = 'fit';
+	}
+
+	let usedContentWidthValue = 'fill';
+	if ( type === 'constrained' ) {
+		usedContentWidthValue = 'theme';
+	} else if ( type === 'flex' ) {
+		usedContentWidthValue = 'fit';
+	} else if ( ! type ) {
+		usedContentWidthValue = defaultContentWidthValue;
+	}
+
+	const selectedContentWidth = innerWidthOptions.find(
+		( option ) => option.value === usedContentWidthValue
+	);
 
 	return (
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Layout' ) }>
-					{ showInheritToggle && (
-						<>
-							<ToggleControl
-								__nextHasNoMarginBottom
-								className="block-editor-hooks__toggle-control"
-								label={ __( 'Inner blocks use content width' ) }
-								checked={
-									layoutType?.name === 'constrained' ||
-									hasContentSizeOrLegacySettings
-								}
-								onChange={ () =>
-									setAttributes( {
-										layout: {
-											type:
-												layoutType?.name ===
-													'constrained' ||
-												hasContentSizeOrLegacySettings
-													? 'default'
-													: 'constrained',
-										},
-									} )
-								}
-								help={
-									layoutType?.name === 'constrained' ||
-									hasContentSizeOrLegacySettings
-										? __(
-												'Nested blocks use content width with options for full and wide widths.'
-										  )
-										: __(
-												'Nested blocks will fill the width of this container. Toggle to constrain.'
-										  )
-								}
+					<VStack spacing={ 3 } className="components-wrapper-vstack">
+						<HStack>
+							{ ( allowSwitching ||
+								defaultBlockLayoutType === 'flex' ) && (
+								<ToggleGroupControl
+									__nextHasNoMarginBottom
+									style={ { marginBottom: 0, marginTop: 0 } }
+									label={ __( 'Direction' ) }
+									value={
+										type === 'default' ||
+										type === 'constrained' ||
+										( type === 'flex' &&
+											orientation === 'vertical' )
+											? 'stack'
+											: type
+									}
+									onChange={ onChangeType }
+									isBlock={ true }
+									className="components-toggle-group-control__full-width"
+								>
+									<ToggleGroupControlOptionIcon
+										key={ 'stack' }
+										icon={ arrowDown }
+										value="stack"
+										label={ __( 'Stack' ) }
+									/>
+
+									<ToggleGroupControlOptionIcon
+										key={ 'row' }
+										icon={ arrowRight }
+										value="flex"
+										label={ __( 'Row' ) }
+									/>
+
+									{ allowSwitching && (
+										<ToggleGroupControlOptionIcon
+											key={ 'grid' }
+											icon={ grid }
+											value="grid"
+											label={ __( 'Grid' ) }
+										/>
+									) }
+								</ToggleGroupControl>
+							) }
+						</HStack>
+						{ type === 'grid' && (
+							<layoutType.inspectorControls
+								layout={ usedLayout }
+								onChange={ onChangeLayout }
+								layoutBlockSupport={ layoutBlockSupport }
 							/>
-						</>
-					) }
-
-					{ ! inherit && allowSwitching && (
-						<LayoutTypeSwitcher
-							type={ type }
-							onChange={ onChangeType }
-						/>
-					) }
-
-					{ layoutType && layoutType.name !== 'default' && (
-						<layoutType.inspectorControls
-							layout={ usedLayout }
-							onChange={ onChangeLayout }
-							layoutBlockSupport={ layoutBlockSupport }
-						/>
-					) }
-					{ constrainedType && displayControlsForLegacyLayouts && (
-						<constrainedType.inspectorControls
-							layout={ usedLayout }
-							onChange={ onChangeLayout }
-							layoutBlockSupport={ layoutBlockSupport }
-						/>
-					) }
+						) }
+						{ ( ( type === 'flex' && orientation === 'vertical' ) ||
+							type === 'default' ||
+							type === 'constrained' ) && (
+							<CustomSelectControl
+								label={ __( 'Content width' ) }
+								value={ selectedContentWidth }
+								options={ innerWidthOptions }
+								onChange={ onChangeInnerWidth }
+								__nextUnconstrainedWidth
+								__next36pxDefaultSize
+							/>
+						) }
+						<HStack spacing={ 2 } justify="stretch">
+							{ type === 'flex' && (
+								<FlexBlock>
+									<RangeControl
+										label={ __( 'Gap' ) }
+										onChange={ onChangeGap }
+										value={ style?.spacing?.blockGap }
+										min={ 0 }
+										max={ 100 }
+										withInputField={ true }
+									/>
+								</FlexBlock>
+							) }
+							{ type === 'flex' && (
+								<FlexBlock>
+									{
+										<AlignmentMatrixControl
+											label={ __(
+												'Change content position'
+											) }
+											value={ 'top' }
+											onChange={ ( nextPosition ) =>
+												setAttributes( {
+													contentPosition:
+														nextPosition,
+												} )
+											}
+										/>
+									}
+								</FlexBlock>
+							) }
+						</HStack>
+						{ type === 'flex' && orientation === 'horizontal' && (
+							<ToggleGroupControl
+								__nextHasNoMarginBottom
+								style={ {
+									marginBottom: 0,
+									marginTop: 0,
+								} }
+								size={ '__unstable-large' }
+								label={ __( 'Wrap' ) }
+								value={ flexWrap }
+								onChange={ onChangeWrap }
+								isBlock={ true }
+							>
+								<ToggleGroupControlOption
+									key={ 'wrap' }
+									value="wrap"
+									label={ __( 'Yes' ) }
+								/>
+								<ToggleGroupControlOption
+									key={ 'nowrap' }
+									value="nowrap"
+									label={ __( 'No' ) }
+								/>
+							</ToggleGroupControl>
+						) }
+						{ constrainedType &&
+							displayControlsForLegacyLayouts && (
+								<constrainedType.inspectorControls
+									layout={ usedLayout }
+									onChange={ onChangeLayout }
+									layoutBlockSupport={ layoutBlockSupport }
+								/>
+							) }
+					</VStack>
 				</PanelBody>
 			</InspectorControls>
 			{ ! inherit && blockEditingMode === 'default' && layoutType && (
@@ -278,24 +527,6 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 				/>
 			) }
 		</>
-	);
-}
-
-function LayoutTypeSwitcher( { type, onChange } ) {
-	return (
-		<ButtonGroup>
-			{ getLayoutTypes().map( ( { name, label } ) => {
-				return (
-					<Button
-						key={ name }
-						isPressed={ type === name }
-						onClick={ () => onChange( name ) }
-					>
-						{ label }
-					</Button>
-				);
-			} ) }
-		</ButtonGroup>
 	);
 }
 
