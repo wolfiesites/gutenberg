@@ -715,13 +715,12 @@ export const withChildLayoutStyles = createHigherOrderComponent(
 		const { attributes } = props;
 		const { style: { layout = {} } = {} } = attributes;
 		const { selfStretch, flexSize } = layout;
-		const hasChildLayout = selfStretch || flexSize;
+		// const hasChildLayout = selfStretch || flexSize;
 		const disableLayoutStyles = useSelect( ( select ) => {
 			const { getSettings } = select( blockEditorStore );
 			return !! getSettings().disableLayoutStyles;
 		} );
-		const shouldRenderChildLayoutStyles =
-			hasChildLayout && ! disableLayoutStyles;
+		const shouldRenderChildLayoutStyles = ! disableLayoutStyles;
 
 		const id = useInstanceId( BlockListBlock );
 		const selector = `.wp-container-content-${ id }`;
