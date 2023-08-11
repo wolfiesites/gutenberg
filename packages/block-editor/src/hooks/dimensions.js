@@ -77,9 +77,10 @@ export function DimensionsPanel( props ) {
 	const isEnabled = useHasDimensionsPanel( settings );
 	const value = attributes.style;
 	const [ visualizedProperty, setVisualizedProperty ] = useVisualizer();
-	const onChange = ( newStyle ) => {
+	const onChange = ( newAttributes ) => {
 		setAttributes( {
-			style: cleanEmptyObject( newStyle ),
+			...attributes,
+			...cleanEmptyObject( newAttributes ),
 		} );
 	};
 
