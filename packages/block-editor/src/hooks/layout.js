@@ -185,13 +185,13 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 		orientation = 'horizontal',
 		flexWrap = 'nowrap',
 		justifyContent = 'left',
-		verticalAlignment = 'top',
+		verticalAlignment = 'center',
 	} = usedLayout;
 	const { type: defaultBlockLayoutType } = defaultBlockLayout;
 
 	const [ matrixJustification, setMatrixJustification ] = useState( 'left' );
 
-	const [ matrixAlignment, setMatrixAlignment ] = useState( 'top' );
+	const [ matrixAlignment, setMatrixAlignment ] = useState( 'center' );
 
 	if ( ! allowEditing ) {
 		return null;
