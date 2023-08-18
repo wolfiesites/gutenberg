@@ -433,11 +433,29 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 
 	const onChangeMatrix = ( newValue ) => {
 		const [ horizontal, vertical ] = newValue.split( ' ' );
+		let alignment = horizontal;
+		let justification = vertical;
+
+		if (
+			verticalAlignment === 'stretch' ||
+			verticalAlignment === 'space-between'
+		) {
+			setMatrixAlignment( horizontal );
+			alignment = verticalAlignment;
+		}
+
+		if (
+			justifyContent === 'stretch' ||
+			justifyContent === 'space-between'
+		) {
+			setMatrixJustification( vertical );
+			justification = justifyContent;
+		}
 
 		onChangeLayout( {
 			...usedLayout,
-			justifyContent: vertical,
-			verticalAlignment: horizontal,
+			justifyContent: justification,
+			verticalAlignment: alignment,
 		} );
 	};
 
