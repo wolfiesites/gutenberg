@@ -189,11 +189,9 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 	} = usedLayout;
 	const { type: defaultBlockLayoutType } = defaultBlockLayout;
 
-	const [ matrixJustification, setMatrixJustification ] =
-		useState( justifyContent );
+	const [ matrixJustification, setMatrixJustification ] = useState( 'left' );
 
-	const [ matrixAlignment, setMatrixAlignment ] =
-		useState( verticalAlignment );
+	const [ matrixAlignment, setMatrixAlignment ] = useState( 'top' );
 
 	if ( ! allowEditing ) {
 		return null;
@@ -266,11 +264,11 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 			justifyContent === 'space-between'
 		) {
 			return horizontalAlignmentOptions.find(
-				( { _value } ) => _value?.key === justifyContent
+				( _value ) => _value?.key === justifyContent
 			);
 		}
 		return horizontalAlignmentOptions.find(
-			( { _value } ) => _value?.key === 'fit'
+			( _value ) => _value?.key === 'fit'
 		);
 	};
 
@@ -459,6 +457,28 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 		} );
 	};
 
+	const matrixValue = () => {
+		let alignment = matrixAlignment;
+		let justification = matrixJustification;
+
+		if (
+			verticalAlignment === 'top' ||
+			verticalAlignment === 'bottom' ||
+			verticalAlignment === 'center'
+		) {
+			alignment = verticalAlignment;
+		}
+
+		if (
+			justifyContent === 'left' ||
+			justifyContent === 'right' ||
+			justifyContent === 'center'
+		) {
+			justification = justifyContent;
+		}
+		return `${ alignment } ${ justification }`;
+	};
+
 	let defaultContentWidthValue = 'fill';
 	if ( defaultBlockLayoutType === 'constrained' ) {
 		defaultContentWidthValue = 'theme';
@@ -556,7 +576,7 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 												label={ __(
 													'Change content position'
 												) }
-												value={ `${ matrixAlignment } ${ matrixJustification }` }
+												value={ matrixValue() }
 												onChange={ onChangeMatrix }
 											/>
 										}
