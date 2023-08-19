@@ -37,7 +37,7 @@ import { arrowRight, arrowDown, grid } from '@wordpress/icons';
 import { store as blockEditorStore } from '../store';
 import { InspectorControls } from '../components';
 import useSetting from '../components/use-setting';
-import { LayoutStyle } from '../components/block-list/layout';
+import { LayoutStyle, useLayout } from '../components/block-list/layout';
 import BlockList from '../components/block-list';
 import { getLayoutType, getLayoutTypes } from '../layouts';
 import { useBlockEditingMode } from '../components/block-editing-mode';
@@ -862,6 +862,8 @@ export const withLayoutStyles = createHigherOrderComponent(
  */
 export const withChildLayoutStyles = createHigherOrderComponent(
 	( BlockListBlock ) => ( props ) => {
+		const parentLayout = useLayout() || {};
+		const { orientation } = parentLayout;
 		const { attributes } = props;
 		const { style: { layout = {} } = {} } = attributes;
 		const { selfStretch, flexSize, selfAlign } = layout;
@@ -890,9 +892,15 @@ export const withChildLayoutStyles = createHigherOrderComponent(
 				align-self: stretch;
 			}`;
 		} else if ( selfAlign === 'fit' ) {
-			css += `${ selector } {
-				width: fit-content;
-			}`;
+			if ( orientation === 'vertical' ) {
+				css += `${ selector } {
+					width: fit-content;
+				}`;
+			} else {
+				css += `${ selector } {
+					height: fit-content;
+				}`;
+			}
 		}
 
 		// Attach a `wp-container-content` id-based classname.
