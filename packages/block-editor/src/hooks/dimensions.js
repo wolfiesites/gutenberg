@@ -112,6 +112,7 @@ export function DimensionsPanel( props ) {
 				defaultControls={ defaultControls }
 				onVisualize={ setVisualizedProperty }
 				align={ attributes?.align }
+				clientId={ clientId }
 			/>
 			{ !! settings?.spacing?.padding && (
 				<PaddingVisualizer
