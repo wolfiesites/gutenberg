@@ -56,5 +56,7 @@
 			}
 		}
 	},
-	"style": "wp-block-footnotes"
+	"editorScript": "file:./editor.min.js",
+	"editorStyle": "file:./editor.css",
+	"style": "file:./style.css"
 }

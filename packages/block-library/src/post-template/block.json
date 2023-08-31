@@ -51,6 +51,7 @@
 			}
 		}
 	},
-	"style": "wp-block-post-template",
-	"editorStyle": "wp-block-post-template-editor"
+	"editorScript": "file:./editor.min.js",
+	"editorStyle": "file:./editor.css",
+	"style": "file:./style.css"
 }

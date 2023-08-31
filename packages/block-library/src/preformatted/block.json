@@ -43,5 +43,6 @@
 			}
 		}
 	},
-	"style": "wp-block-preformatted"
+	"editorScript": "file:./editor.min.js",
+	"style": "file:./style.css"
 }
