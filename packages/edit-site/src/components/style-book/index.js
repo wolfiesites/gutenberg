@@ -17,7 +17,7 @@ import {
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	getCategories,
-	getBlockTypes,
+	getBootstrappedBlockTypes,
 	getBlockFromExample,
 	createBlock,
 } from '@wordpress/blocks';
@@ -144,7 +144,7 @@ function getExamples() {
 		],
 	};
 
-	const otherExamples = getBlockTypes()
+	const otherExamples = getBootstrappedBlockTypes()
 		.filter( ( blockType ) => {
 			const { name, example, supports } = blockType;
 			return (

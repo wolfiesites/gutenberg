@@ -834,6 +834,10 @@ _Returns_
 
 -   `string|false`: Block Template Lock
 
+### getUnsyncedPatterns
+
+Undocumented declaration.
+
 ### hasBlockMovingClientId
 
 Returns whether block moving mode is enabled.

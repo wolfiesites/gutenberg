@@ -16,7 +16,11 @@ import { __unstableStripHTML as stripHTML } from '@wordpress/dom';
  * Internal dependencies
  */
 import { BLOCK_ICON_DEFAULT } from './constants';
-import { getBlockType, getDefaultBlockName } from './registration';
+import {
+	getBlockType,
+	getBootstrappedBlockType,
+	getDefaultBlockName,
+} from './registration';
 import { createBlock } from './factory';
 
 extend( [ namesPlugin, a11yPlugin ] );
@@ -45,9 +49,9 @@ export function isUnmodifiedBlock( block ) {
 	}
 
 	const newBlock = isUnmodifiedBlock[ block.name ];
-	const blockType = getBlockType( block.name );
+	const blockType = getBootstrappedBlockType( block.name );
 
-	return Object.keys( blockType?.attributes ?? {} ).every(
+	return Object.keys( blockType.attributes ?? {} ).every(
 		( key ) => newBlock.attributes[ key ] === block.attributes[ key ]
 	);
 }
@@ -253,7 +257,7 @@ export function getAccessibleBlockLabel(
  */
 export function __experimentalSanitizeBlockAttributes( name, attributes ) {
 	// Get the type definition associated with a registered block.
-	const blockType = getBlockType( name );
+	const blockType = getBootstrappedBlockType( name );
 
 	if ( undefined === blockType ) {
 		throw new Error( `Block type '${ name }' is not registered.` );

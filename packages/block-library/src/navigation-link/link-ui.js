@@ -105,10 +105,10 @@ function LinkControlTransforms( { clientId } ) {
 					return (
 						<Button
 							key={ `transform-${ index }` }
-							onClick={ () =>
+							onClick={ async () =>
 								replaceBlock(
 									clientId,
-									switchToBlockType(
+									await switchToBlockType(
 										getBlock( clientId ),
 										item.name
 									)

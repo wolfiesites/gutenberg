@@ -351,10 +351,10 @@ export default function Image( {
 	const canEditImage = id && naturalWidth && naturalHeight && imageEditing;
 	const allowCrop = ! multiImageSelection && canEditImage && ! isEditingImage;
 
-	function switchToCover() {
+	async function switchToCover() {
 		replaceBlocks(
 			clientId,
-			switchToBlockType( getBlock( clientId ), 'core/cover' )
+			await switchToBlockType( getBlock( clientId ), 'core/cover' )
 		);
 	}
 

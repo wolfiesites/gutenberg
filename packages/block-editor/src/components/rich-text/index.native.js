@@ -315,16 +315,17 @@ function RichTextWrapper(
 	);
 
 	const onEnter = useCallback(
-		( { value, onChange, shiftKey } ) => {
+		async ( { value, onChange, shiftKey } ) => {
 			const canSplit = onReplace && onSplit;
 
 			if ( onReplace ) {
-				const transforms = getBlockTransforms( 'from' ).filter(
-					( { type } ) => type === 'enter'
+				const transforms = await getBlockTransforms( 'from' );
+				const enterTransforms = transforms.filter(
+					( t ) => t.type === 'enter'
 				);
-				const transformation = findTransform( transforms, ( item ) => {
-					return item.regExp.test( value.text );
-				} );
+				const transformation = findTransform( enterTransforms, ( t ) =>
+					t.regExp.test( value.text )
+				);
 
 				if ( transformation ) {
 					onReplace( [
@@ -378,7 +379,7 @@ function RichTextWrapper(
 	);
 
 	const onPaste = useCallback(
-		( {
+		async ( {
 			value,
 			onChange,
 			html,
@@ -411,7 +412,7 @@ function RichTextWrapper(
 			// Only process file if no HTML is present.
 			// Note: a pasted file may have the URL as plain text.
 			if ( files && files.length && ! html ) {
-				const content = pasteHandler( {
+				const content = await pasteHandler( {
 					HTML: filePasteHandler( files ),
 					mode: 'BLOCKS',
 					tagName,
@@ -462,7 +463,7 @@ function RichTextWrapper(
 				mode = 'BLOCKS';
 			}
 
-			const content = pasteHandler( {
+			const content = await pasteHandler( {
 				HTML: html,
 				plainText,
 				mode,
@@ -528,7 +529,7 @@ function RichTextWrapper(
 	);
 
 	const inputRule = useCallback(
-		( value, valueToFormat ) => {
+		async ( value, valueToFormat ) => {
 			if ( ! onReplace ) {
 				return;
 			}
@@ -545,14 +546,12 @@ function RichTextWrapper(
 			}
 
 			const trimmedTextBefore = text.slice( 0, startPosition ).trim();
-			const prefixTransforms = getBlockTransforms( 'from' ).filter(
-				( { type } ) => type === 'prefix'
-			);
+			const prefixTransforms = (
+				await getBlockTransforms( 'from' )
+			 ).filter( ( { type } ) => type === 'prefix' );
 			const transformation = findTransform(
 				prefixTransforms,
-				( { prefix } ) => {
-					return trimmedTextBefore === prefix;
-				}
+				( { prefix } ) => trimmedTextBefore === prefix
 			);
 
 			if ( ! transformation ) {

@@ -132,7 +132,7 @@ export default function VisualEditor( { styles } ) {
 		}
 
 		const editorSettings = getEditorSettings();
-		const supportsTemplateMode = editorSettings.supportsTemplateMode;
+		const supportsTemplateMode = false; //editorSettings.supportsTemplateMode;
 		const canEditTemplate = select( coreStore ).canUser(
 			'create',
 			'templates'

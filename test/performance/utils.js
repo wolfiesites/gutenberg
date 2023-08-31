@@ -170,10 +170,10 @@ export async function loadBlocksFromHtml( page, filepath ) {
 		throw new Error( `File not found (${ filepath })` );
 	}
 
-	return await page.evaluate( ( html ) => {
+	return await page.evaluate( async ( html ) => {
 		const { parse } = window.wp.blocks;
 		const { dispatch } = window.wp.data;
-		const blocks = parse( html );
+		const blocks = await parse( html );
 
 		blocks.forEach( ( block ) => {
 			if ( block.name === 'core/image' ) {

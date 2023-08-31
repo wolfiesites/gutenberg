@@ -1913,6 +1913,17 @@ export function blockEditingModes( state = new Map(), action ) {
 	return state;
 }
 
+export function parsedPatterns( state = {}, action ) {
+	switch ( action.type ) {
+		case 'SET_PARSED_PATTERN':
+			return {
+				...state,
+				[ action.patternName ]: action.parsedPattern,
+			};
+	}
+	return state;
+}
+
 const combinedReducers = combineReducers( {
 	blocks,
 	isTyping,
@@ -1938,6 +1949,7 @@ const combinedReducers = combineReducers( {
 	blockEditingModes,
 	removalPromptData,
 	blockRemovalRules,
+	parsedPatterns,
 } );
 
 function withAutomaticChangeReset( reducer ) {

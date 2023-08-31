@@ -23,7 +23,7 @@ export function useEnter( props ) {
 	const propsRef = useRef( props );
 	propsRef.current = props;
 	return useRefEffect( ( element ) => {
-		function onKeyDown( event ) {
+		async function onKeyDown( event ) {
 			if ( event.defaultPrevented ) {
 				return;
 			}
@@ -51,9 +51,9 @@ export function useEnter( props ) {
 			const canSplit = onReplace && onSplit;
 
 			if ( onReplace ) {
-				const transforms = getBlockTransforms( 'from' ).filter(
-					( { type } ) => type === 'enter'
-				);
+				const transforms = (
+					await getBlockTransforms( 'from' )
+				 ).filter( ( { type } ) => type === 'enter' );
 				const transformation = findTransform( transforms, ( item ) => {
 					return item.regExp.test( _value.text );
 				} );

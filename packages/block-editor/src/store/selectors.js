@@ -8,11 +8,9 @@ import createSelector from 'rememo';
  */
 import {
 	getBlockType,
-	getBlockTypes,
+	getBootstrappedBlockTypes,
 	getBlockVariations,
 	hasBlockSupport,
-	getPossibleBlockTransformations,
-	parse,
 	switchToBlockType,
 	store as blocksStore,
 } from '@wordpress/blocks';
@@ -1525,119 +1523,125 @@ const checkAllowList = ( list, item, defaultResult = null ) => {
  *
  * @return {boolean} Whether the given block type is allowed to be inserted.
  */
-const canInsertBlockTypeUnmemoized = (
-	state,
-	blockName,
-	rootClientId = null
-) => {
-	let blockType;
-	if ( blockName && 'object' === typeof blockName ) {
-		blockType = blockName;
-		blockName = blockType.name;
-	} else {
-		blockType = getBlockType( blockName );
-	}
-	if ( ! blockType ) {
-		return false;
-	}
+const canInsertBlockTypeUnmemoized = createRegistrySelector(
+	( select ) =>
+		( state, blockName, rootClientId = null ) => {
+			let blockType;
+			if ( blockName && 'object' === typeof blockName ) {
+				blockType = blockName;
+				blockName = blockType.name;
+			} else {
+				blockType =
+					select( blocksStore ).getBootstrappedBlockType( blockName );
+			}
+			if ( ! blockType ) {
+				return false;
+			}
 
-	const { allowedBlockTypes } = getSettings( state );
+			const { allowedBlockTypes } = getSettings( state );
 
-	const isBlockAllowedInEditor = checkAllowList(
-		allowedBlockTypes,
-		blockName,
-		true
-	);
-	if ( ! isBlockAllowedInEditor ) {
-		return false;
-	}
+			const isBlockAllowedInEditor = checkAllowList(
+				allowedBlockTypes,
+				blockName,
+				true
+			);
+			if ( ! isBlockAllowedInEditor ) {
+				return false;
+			}
 
-	const isLocked = !! getTemplateLock( state, rootClientId );
-	if ( isLocked ) {
-		return false;
-	}
+			const isLocked = !! getTemplateLock( state, rootClientId );
+			if ( isLocked ) {
+				return false;
+			}
 
-	if ( getBlockEditingMode( state, rootClientId ?? '' ) === 'disabled' ) {
-		return false;
-	}
+			if (
+				getBlockEditingMode( state, rootClientId ?? '' ) === 'disabled'
+			) {
+				return false;
+			}
 
-	const parentBlockListSettings = getBlockListSettings( state, rootClientId );
+			const parentBlockListSettings = getBlockListSettings(
+				state,
+				rootClientId
+			);
 
-	// The parent block doesn't have settings indicating it doesn't support
-	// inner blocks, return false.
-	if ( rootClientId && parentBlockListSettings === undefined ) {
-		return false;
-	}
+			// The parent block doesn't have settings indicating it doesn't support
+			// inner blocks, return false.
+			if ( rootClientId && parentBlockListSettings === undefined ) {
+				return false;
+			}
 
-	const parentAllowedBlocks = parentBlockListSettings?.allowedBlocks;
-	const hasParentAllowedBlock = checkAllowList(
-		parentAllowedBlocks,
-		blockName
-	);
+			const parentAllowedBlocks = parentBlockListSettings?.allowedBlocks;
+			const hasParentAllowedBlock = checkAllowList(
+				parentAllowedBlocks,
+				blockName
+			);
 
-	const blockAllowedParentBlocks = blockType.parent;
-	const parentName = getBlockName( state, rootClientId );
-	const hasBlockAllowedParent = checkAllowList(
-		blockAllowedParentBlocks,
-		parentName
-	);
+			const blockAllowedParentBlocks = blockType.parent;
+			const parentName = getBlockName( state, rootClientId );
+			const hasBlockAllowedParent = checkAllowList(
+				blockAllowedParentBlocks,
+				parentName
+			);
 
-	let hasBlockAllowedAncestor = true;
-	const blockAllowedAncestorBlocks = blockType.ancestor;
-	if ( blockAllowedAncestorBlocks ) {
-		const ancestors = [
-			rootClientId,
-			...getBlockParents( state, rootClientId ),
-		];
+			let hasBlockAllowedAncestor = true;
+			const blockAllowedAncestorBlocks = blockType.ancestor;
+			if ( blockAllowedAncestorBlocks ) {
+				const ancestors = [
+					rootClientId,
+					...getBlockParents( state, rootClientId ),
+				];
 
-		hasBlockAllowedAncestor = ancestors.some( ( ancestorClientId ) =>
-			checkAllowList(
-				blockAllowedAncestorBlocks,
-				getBlockName( state, ancestorClientId )
-			)
-		);
-	}
+				hasBlockAllowedAncestor = ancestors.some(
+					( ancestorClientId ) =>
+						checkAllowList(
+							blockAllowedAncestorBlocks,
+							getBlockName( state, ancestorClientId )
+						)
+				);
+			}
 
-	const canInsert =
-		hasBlockAllowedAncestor &&
-		( ( hasParentAllowedBlock === null &&
-			hasBlockAllowedParent === null ) ||
-			hasParentAllowedBlock === true ||
-			hasBlockAllowedParent === true );
+			const canInsert =
+				hasBlockAllowedAncestor &&
+				( ( hasParentAllowedBlock === null &&
+					hasBlockAllowedParent === null ) ||
+					hasParentAllowedBlock === true ||
+					hasBlockAllowedParent === true );
 
-	if ( ! canInsert ) {
-		return canInsert;
-	}
+			if ( ! canInsert ) {
+				return canInsert;
+			}
 
-	/**
-	 * This filter is an ad-hoc solution to prevent adding template parts inside post content.
-	 * Conceptually, having a filter inside a selector is bad pattern so this code will be
-	 * replaced by a declarative API that doesn't the following drawbacks:
-	 *
-	 * Filters are not reactive: Upon switching between "template mode" and non "template mode",
-	 * the filter and selector won't necessarily be executed again. For now, it doesn't matter much
-	 * because you can't switch between the two modes while the inserter stays open.
-	 *
-	 * Filters are global: Once they're defined, they will affect all editor instances and all registries.
-	 * An ideal API would only affect specific editor instances.
-	 */
-	return applyFilters(
-		'blockEditor.__unstableCanInsertBlockType',
-		canInsert,
-		blockType,
-		rootClientId,
-		{
-			// Pass bound selectors of the current registry. If we're in a nested
-			// context, the data will differ from the one selected from the root
-			// registry.
-			getBlock: getBlock.bind( null, state ),
-			getBlockParentsByBlockName: getBlockParentsByBlockName.bind(
-				null,
-				state
-			),
+			/**
+			 * This filter is an ad-hoc solution to prevent adding template parts inside post content.
+			 * Conceptually, having a filter inside a selector is bad pattern so this code will be
+			 * replaced by a declarative API that doesn't the following drawbacks:
+			 *
+			 * Filters are not reactive: Upon switching between "template mode" and non "template mode",
+			 * the filter and selector won't necessarily be executed again. For now, it doesn't matter much
+			 * because you can't switch between the two modes while the inserter stays open.
+			 *
+			 * Filters are global: Once they're defined, they will affect all editor instances and all registries.
+			 * An ideal API would only affect specific editor instances.
+			 */
+			return applyFilters(
+				'blockEditor.__unstableCanInsertBlockType',
+				canInsert,
+				blockType,
+				rootClientId,
+				{
+					// Pass bound selectors of the current registry. If we're in a nested
+					// context, the data will differ from the one selected from the root
+					// registry.
+					getBlock: getBlock.bind( null, state ),
+					getBlockParentsByBlockName: getBlockParentsByBlockName.bind(
+						null,
+						state
+					),
+				}
+			);
 		}
-	);
-};
+);
 
 /**
  * Determines if the given block type is allowed to be inserted into the block list.
@@ -1648,16 +1652,7 @@ const canInsertBlockTypeUnmemoized = (
  *
  * @return {boolean} Whether the given block type is allowed to be inserted.
  */
-export const canInsertBlockType = createSelector(
-	canInsertBlockTypeUnmemoized,
-	( state, blockName, rootClientId ) => [
-		state.blockListSettings[ rootClientId ],
-		state.blocks.byClientId.get( rootClientId ),
-		state.settings.allowedBlockTypes,
-		state.settings.templateLock,
-		state.blockEditingModes,
-	]
-);
+export const canInsertBlockType = canInsertBlockTypeUnmemoized;
 
 /**
  * Determines if the given blocks are allowed to be inserted into the block
@@ -2002,7 +1997,7 @@ export const getInserterItems = createSelector(
 			buildScope: 'inserter',
 		} );
 
-		const blockTypeInserterItems = getBlockTypes()
+		const blockTypeInserterItems = getBootstrappedBlockTypes()
 			.filter( ( blockType ) =>
 				canIncludeBlockTypeInInserter( state, blockType, rootClientId )
 			)
@@ -2014,10 +2009,9 @@ export const getInserterItems = createSelector(
 			if ( ! variations.some( ( { isDefault } ) => isDefault ) ) {
 				accumulator.push( item );
 			}
-			if ( variations.length ) {
-				const variationMapper = getItemFromVariation( state, item );
-				accumulator.push( ...variations.map( variationMapper ) );
-			}
+			accumulator.push(
+				...variations.map( getItemFromVariation( state, item ) )
+			);
 			return accumulator;
 		}, [] );
 
@@ -2026,18 +2020,10 @@ export const getInserterItems = createSelector(
 		// the core blocks (usually by using the `init` action),
 		// thus affecting the display order.
 		// We don't sort reusable blocks as they are handled differently.
-		const groupByType = ( blocks, block ) => {
-			const { core, noncore } = blocks;
-			const type = block.name.startsWith( 'core/' ) ? core : noncore;
-
-			type.push( block );
-			return blocks;
-		};
-		const { core: coreItems, noncore: nonCoreItems } = items.reduce(
-			groupByType,
-			{ core: [], noncore: [] }
+		const sortedBlockTypes = orderBy(
+			items,
+			( block ) => ! block.name.startsWith( 'core/' ) // false < true
 		);
-		const sortedBlockTypes = [ ...coreItems, ...nonCoreItems ];
 		return [ ...sortedBlockTypes, ...syncedPatternInserterItems ];
 	},
 	( state, rootClientId ) => [
@@ -2048,7 +2034,7 @@ export const getInserterItems = createSelector(
 		state.settings.allowedBlockTypes,
 		state.settings.templateLock,
 		getReusableBlocks( state ),
-		getBlockTypes(),
+		getBootstrappedBlockTypes(),
 	]
 );
 
@@ -2079,37 +2065,18 @@ export const getInserterItems = createSelector(
  * @property {number}          frecency     Heuristic that combines frequency and recency.
  */
 export const getBlockTransformItems = createSelector(
-	( state, blocks, rootClientId = null ) => {
-		const normalizedBlocks = Array.isArray( blocks ) ? blocks : [ blocks ];
+	( state, rootClientId = null ) => {
 		const buildBlockTypeTransformItem = buildBlockTypeItem( state, {
 			buildScope: 'transform',
 		} );
-		const blockTypeTransformItems = getBlockTypes()
+		const blockTypeTransformItems = getBootstrappedBlockTypes()
 			.filter( ( blockType ) =>
 				canIncludeBlockTypeInInserter( state, blockType, rootClientId )
 			)
-			.map( buildBlockTypeTransformItem );
+			.map( buildBlockTypeTransformItem )
+			.map( ( value ) => [ value.name, value ] );
 
-		const itemsByName = Object.fromEntries(
-			Object.entries( blockTypeTransformItems ).map( ( [ , value ] ) => [
-				value.name,
-				value,
-			] )
-		);
-
-		const possibleTransforms = getPossibleBlockTransformations(
-			normalizedBlocks
-		).reduce( ( accumulator, block ) => {
-			if ( itemsByName[ block?.name ] ) {
-				accumulator.push( itemsByName[ block.name ] );
-			}
-			return accumulator;
-		}, [] );
-		return orderBy(
-			possibleTransforms,
-			( block ) => itemsByName[ block.name ].frecency,
-			'desc'
-		);
+		return Object.fromEntries( blockTypeTransformItems );
 	},
 	( state, blocks, rootClientId ) => [
 		state.blockListSettings[ rootClientId ],
@@ -2117,7 +2084,7 @@ export const getBlockTransformItems = createSelector(
 		state.preferences.insertUsage,
 		state.settings.allowedBlockTypes,
 		state.settings.templateLock,
-		getBlockTypes(),
+		getBootstrappedBlockTypes(),
 	]
 );
 
@@ -2129,29 +2096,21 @@ export const getBlockTransformItems = createSelector(
  *
  * @return {boolean} Items that appear in inserter.
  */
-export const hasInserterItems = createSelector(
-	( state, rootClientId = null ) => {
-		const hasBlockType = getBlockTypes().some( ( blockType ) =>
-			canIncludeBlockTypeInInserter( state, blockType, rootClientId )
-		);
-		if ( hasBlockType ) {
-			return true;
-		}
-		const hasReusableBlock =
-			canInsertBlockTypeUnmemoized( state, 'core/block', rootClientId ) &&
-			getReusableBlocks( state ).length > 0;
+export const hasInserterItems = ( state, rootClientId = null ) => {
+	const hasBlockType = getBootstrappedBlockTypes().some( ( blockType ) =>
+		canIncludeBlockTypeInInserter( state, blockType, rootClientId )
+	);
 
-		return hasReusableBlock;
-	},
-	( state, rootClientId ) => [
-		state.blockListSettings[ rootClientId ],
-		state.blocks.byClientId,
-		state.settings.allowedBlockTypes,
-		state.settings.templateLock,
-		getReusableBlocks( state ),
-		getBlockTypes(),
-	]
-);
+	if ( hasBlockType ) {
+		return true;
+	}
+
+	const hasReusableBlock =
+		canInsertBlockTypeUnmemoized( state, 'core/block', rootClientId ) &&
+		getReusableBlocks( state ).length > 0;
+
+	return hasReusableBlock;
+};
 
 /**
  * Returns the list of allowed inserter blocks for inner blocks children.
@@ -2167,9 +2126,10 @@ export const getAllowedBlocks = createSelector(
 			return;
 		}
 
-		const blockTypes = getBlockTypes().filter( ( blockType ) =>
+		const blockTypes = getBootstrappedBlockTypes().filter( ( blockType ) =>
 			canIncludeBlockTypeInInserter( state, blockType, rootClientId )
 		);
+
 		const hasReusableBlock =
 			canInsertBlockTypeUnmemoized( state, 'core/block', rootClientId ) &&
 			getReusableBlocks( state ).length > 0;
@@ -2185,7 +2145,7 @@ export const getAllowedBlocks = createSelector(
 		state.settings.allowedBlockTypes,
 		state.settings.templateLock,
 		getReusableBlocks( state ),
-		getBlockTypes(),
+		getBootstrappedBlockTypes(),
 	]
 );
 
@@ -2290,7 +2250,7 @@ const checkAllowListRecursive = ( blocks, allowedBlockTypes ) => {
 	return true;
 };
 
-function getUnsyncedPatterns( state ) {
+export function getUnsyncedPatterns( state ) {
 	const reusableBlocks =
 		state?.settings?.__experimentalReusableBlocks ?? EMPTY_ARRAY;
 
@@ -2309,53 +2269,9 @@ function getUnsyncedPatterns( state ) {
 		} );
 }
 
-export const __experimentalGetParsedPattern = createSelector(
-	( state, patternName ) => {
-		const patterns = state.settings.__experimentalBlockPatterns;
-		const unsyncedPatterns = getUnsyncedPatterns( state );
-
-		const pattern = [ ...patterns, ...unsyncedPatterns ].find(
-			( { name } ) => name === patternName
-		);
-		if ( ! pattern ) {
-			return null;
-		}
-		return {
-			...pattern,
-			blocks: parse( pattern.content, {
-				__unstableSkipMigrationLogs: true,
-			} ),
-		};
-	},
-	( state ) => [
-		state.settings.__experimentalBlockPatterns,
-		state.settings.__experimentalReusableBlocks,
-	]
-);
-
-const getAllAllowedPatterns = createSelector(
-	( state ) => {
-		const patterns = state.settings.__experimentalBlockPatterns;
-		const unsyncedPatterns = getUnsyncedPatterns( state );
-
-		const { allowedBlockTypes } = getSettings( state );
-
-		const parsedPatterns = [ ...patterns, ...unsyncedPatterns ]
-			.filter( ( { inserter = true } ) => !! inserter )
-			.map( ( { name } ) =>
-				__experimentalGetParsedPattern( state, name )
-			);
-		const allowedPatterns = parsedPatterns.filter( ( { blocks } ) =>
-			checkAllowListRecursive( blocks, allowedBlockTypes )
-		);
-		return allowedPatterns;
-	},
-	( state ) => [
-		state.settings.__experimentalBlockPatterns,
-		state.settings.__experimentalReusableBlocks,
-		state.settings.allowedBlockTypes,
-	]
-);
+export const __experimentalGetParsedPattern = ( state, patternName ) => {
+	return state.parsedPatterns[ patternName ] ?? null;
+};
 
 /**
  * Returns the list of allowed patterns for inner blocks children.
@@ -2367,15 +2283,30 @@ const getAllAllowedPatterns = createSelector(
  */
 export const __experimentalGetAllowedPatterns = createSelector(
 	( state, rootClientId = null ) => {
-		const availableParsedPatterns = getAllAllowedPatterns( state );
-		const patternsAllowed = availableParsedPatterns.filter(
+		const patterns = state.settings.__experimentalBlockPatterns;
+		const unsyncedPatterns = getUnsyncedPatterns( state );
+
+		const inserterPatterns = [ ...patterns, ...unsyncedPatterns ].filter(
+			( { inserter = true } ) => inserter
+		);
+
+		const parsedPatterns = inserterPatterns.map( ( pattern ) =>
+			__experimentalGetParsedPattern( state, pattern.name )
+		);
+
+		if ( parsedPatterns.some( ( p ) => ! p ) ) {
+			return null;
+		}
+		const { allowedBlockTypes } = getSettings( state );
+		const allowedPatterns = parsedPatterns.filter(
 			( { blocks } ) =>
-				blocks.every( ( { name } ) =>
-					canInsertBlockType( state, name, rootClientId )
+				checkAllowListRecursive( blocks, allowedBlockTypes ) &&
+				blocks.every( ( block ) =>
+					canInsertBlockType( state, block.name, rootClientId )
 				)
 		);
 
-		return patternsAllowed;
+		return allowedPatterns;
 	},
 	( state, rootClientId ) => [
 		state.settings.__experimentalBlockPatterns,
@@ -2384,6 +2315,7 @@ export const __experimentalGetAllowedPatterns = createSelector(
 		state.settings.templateLock,
 		state.blockListSettings[ rootClientId ],
 		state.blocks.byClientId.get( rootClientId ),
+		state.parsedPatterns,
 	]
 );
 
@@ -2407,6 +2339,11 @@ export const getPatternsByBlockTypes = createSelector(
 			state,
 			rootClientId
 		);
+
+		if ( ! patterns ) {
+			return null;
+		}
+
 		const normalizedBlockNames = Array.isArray( blockNames )
 			? blockNames
 			: [ blockNames ];

@@ -99,7 +99,7 @@ export function useClipboardHandler() {
 	const notifyCopy = useNotifyCopy();
 
 	return useRefEffect( ( node ) => {
-		function handler( event ) {
+		async function handler( event ) {
 			if ( event.defaultPrevented ) {
 				// This was likely already handled in rich-text/use-paste-handler.js.
 				return;
@@ -210,7 +210,7 @@ export function useClipboardHandler() {
 				let blocks = [];
 
 				if ( files.length ) {
-					const fromTransforms = getBlockTransforms( 'from' );
+					const fromTransforms = await getBlockTransforms( 'from' );
 					blocks = files
 						.reduce( ( accumulator, file ) => {
 							const transformation = findTransform(
@@ -228,7 +228,7 @@ export function useClipboardHandler() {
 						}, [] )
 						.flat();
 				} else {
-					blocks = pasteHandler( {
+					blocks = await pasteHandler( {
 						HTML: html,
 						plainText,
 						mode: 'BLOCKS',

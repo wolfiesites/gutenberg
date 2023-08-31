@@ -23,34 +23,35 @@ import { store as blockEditorStore } from '../../../store';
  * @return {Array} Returns the block types state. (block types, categories, collections, onSelect handler)
  */
 const useBlockTypesState = ( rootClientId, onInsert ) => {
-	const { categories, collections, items } = useSelect(
-		( select ) => {
-			const { getInserterItems } = select( blockEditorStore );
-			const { getCategories, getCollections } = select( blocksStore );
-
-			return {
-				categories: getCategories(),
-				collections: getCollections(),
-				items: getInserterItems( rootClientId ),
-			};
-		},
+	const { items } = useSelect(
+		( select ) => ( {
+			items: select( blockEditorStore ).getInserterItems( rootClientId ),
+		} ),
 		[ rootClientId ]
 	);
 
+	const { categories, collections } = useSelect( ( select ) => {
+		const { getCategories, getCollections } = select( blocksStore );
+
+		return {
+			categories: getCategories(),
+			collections: getCollections(),
+		};
+	} );
+
 	const onSelectItem = useCallback(
-		(
-			{ name, initialAttributes, innerBlocks, syncStatus, content },
-			shouldFocusBlock
-		) => {
+		async ( item, shouldFocusBlock ) => {
 			const insertedBlock =
-				syncStatus === 'unsynced'
-					? parse( content, {
+				item.syncStatus === 'unsynced'
+					? await parse( item.content, {
 							__unstableSkipMigrationLogs: true,
 					  } )
 					: createBlock(
-							name,
-							initialAttributes,
-							createBlocksFromInnerBlocksTemplate( innerBlocks )
+							item.name,
+							item.initialAttributes,
+							createBlocksFromInnerBlocksTemplate(
+								item.innerBlocks
+							)
 					  );
 
 			onInsert( insertedBlock, undefined, shouldFocusBlock );

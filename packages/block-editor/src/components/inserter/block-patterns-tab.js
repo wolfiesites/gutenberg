@@ -1,13 +1,7 @@
 /**
  * WordPress dependencies
  */
-import {
-	useMemo,
-	useState,
-	useCallback,
-	useRef,
-	useEffect,
-} from '@wordpress/element';
+import { useMemo, useState, useRef, useEffect } from '@wordpress/element';
 import { _x, __, isRTL } from '@wordpress/i18n';
 import { useAsyncList, useViewportMatch } from '@wordpress/compose';
 import {
@@ -44,27 +38,19 @@ const patternCategoriesOrder = [
 	'footer',
 ];
 
-function usePatternsCategories( rootClientId ) {
-	const [ allPatterns, allCategories ] = usePatternsState(
-		undefined,
-		rootClientId
+function hasRegisteredCategory( pattern, categories ) {
+	if ( ! pattern.categories || ! pattern.categories.length ) {
+		return false;
+	}
+
+	return pattern.categories.some( ( cat ) =>
+		categories.some( ( category ) => category.name === cat )
 	);
+}
 
-	const hasRegisteredCategory = useCallback(
-		( pattern ) => {
-			if ( ! pattern.categories || ! pattern.categories.length ) {
-				return false;
-			}
-
-			return pattern.categories.some( ( cat ) =>
-				allCategories.some( ( category ) => category.name === cat )
-			);
-		},
-		[ allCategories ]
-	);
-
+function usePopulatedCategories( allPatterns, allCategories ) {
 	// Remove any empty categories.
-	const populatedCategories = useMemo( () => {
+	return useMemo( () => {
 		const categories = allCategories
 			.filter( ( category ) =>
 				allPatterns.some( ( pattern ) =>
@@ -83,7 +69,7 @@ function usePatternsCategories( rootClientId ) {
 
 		if (
 			allPatterns.some(
-				( pattern ) => ! hasRegisteredCategory( pattern )
+				( pattern ) => ! hasRegisteredCategory( pattern, allCategories )
 			) &&
 			! categories.find(
 				( category ) => category.name === 'uncategorized'
@@ -96,9 +82,7 @@ function usePatternsCategories( rootClientId ) {
 		}
 
 		return categories;
-	}, [ allCategories, allPatterns, hasRegisteredCategory ] );
-
-	return populatedCategories;
+	}, [ allPatterns, allCategories ] );
 }
 
 export function BlockPatternsCategoryDialog( {
@@ -141,12 +125,16 @@ export function BlockPatternsCategoryPanel( {
 	category,
 	showTitlesAsTooltip,
 } ) {
-	const [ allPatterns, , onClick ] = usePatternsState(
+	const [ allPatterns, allCategories, onClick ] = usePatternsState(
 		onInsert,
 		rootClientId
 	);
 
-	const availableCategories = usePatternsCategories( rootClientId );
+	const availableCategories = usePopulatedCategories(
+		allPatterns,
+		allCategories
+	);
+
 	const currentCategoryPatterns = useMemo(
 		() =>
 			allPatterns.filter( ( pattern ) => {
@@ -156,15 +144,15 @@ export function BlockPatternsCategoryPanel( {
 
 				// The uncategorized category should show all the patterns without any category
 				// or with no available category.
-				const availablePatternCategories =
-					pattern.categories?.filter( ( cat ) =>
-						availableCategories.find(
-							( availableCategory ) =>
-								availableCategory.name === cat
-						)
-					) ?? [];
+				if ( ! pattern.categories ) {
+					return true;
+				}
 
-				return availablePatternCategories.length === 0;
+				return (
+					! pattern.categories.some( ( cat ) =>
+						availableCategories.find( ( { name } ) => name === cat )
+					) ?? []
+				);
 			} ),
 		[ allPatterns, availableCategories, category.name ]
 	);
@@ -206,7 +194,11 @@ function BlockPatternsTabs( {
 	rootClientId,
 } ) {
 	const [ showPatternsExplorer, setShowPatternsExplorer ] = useState( false );
-	const categories = usePatternsCategories( rootClientId );
+	const [ allPatterns, allCategories ] = usePatternsState(
+		null,
+		rootClientId
+	);
+	const categories = usePopulatedCategories( allPatterns, allCategories );
 	const initialCategory = selectedCategory || categories[ 0 ];
 	const isMobile = useViewportMatch( 'medium', '<' );
 	return (
