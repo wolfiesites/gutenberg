@@ -14,12 +14,13 @@ import {
 	CustomSelectControl,
 	FlexBlock,
 	PanelBody,
-	RangeControl,
+	UnitControl,
 	__experimentalToggleGroupControl as ToggleGroupControl,
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 	__experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon,
 	__experimentalHStack as HStack,
 	__experimentalVStack as VStack,
+	__experimentalUseCustomUnits as useCustomUnits,
 } from '@wordpress/components';
 
 import { __ } from '@wordpress/i18n';
@@ -49,6 +50,11 @@ import { LAYOUT_DEFINITIONS } from '../layouts/definitions';
 import { kebabCase } from '../utils/object';
 import { useBlockSettings } from './utils';
 import { unlock } from '../lock-unlock';
+import SpacingSizesControl from '../components/spacing-sizes-control';
+import {
+	useHasSpacingPresets,
+	splitGapValue,
+} from '../components/global-styles/dimensions-panel';
 
 import {
 	alignTop,
@@ -163,6 +169,16 @@ export function useLayoutStyles( blockAttributes = {}, blockName, selector ) {
 
 function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 	const settings = useBlockSettings( blockName );
+	const showSpacingPresetsControl = useHasSpacingPresets( settings );
+	const units = useCustomUnits( {
+		availableUnits: settings?.spacing?.units || [
+			'%',
+			'px',
+			'em',
+			'rem',
+			'vw',
+		],
+	} );
 	const {
 		layout: { allowEditing: allowEditingSetting },
 	} = settings;
@@ -431,7 +447,7 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 				...style,
 				spacing: {
 					...style?.spacing,
-					blockGap: `${ newGap }px`,
+					blockGap: newGap.top,
 				},
 			},
 		} );
@@ -586,14 +602,29 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 						</HStack>
 						<HStack alignment="topLeft">
 							<FlexBlock>
-								<RangeControl
-									label={ __( 'Block spacing' ) }
-									onChange={ onChangeGap }
-									value={ style?.spacing?.blockGap }
-									min={ 0 }
-									max={ 100 }
-									withInputField={ false }
-								/>
+								{ ! showSpacingPresetsControl && (
+									<UnitControl
+										label={ __( 'Block spacing' ) }
+										__unstableInputWidth="80px"
+										min={ 0 }
+										onChange={ onChangeGap }
+										units={ units }
+										value={ style?.spacing?.blockGap }
+									/>
+								) }
+								{ showSpacingPresetsControl && (
+									<SpacingSizesControl
+										label={ __( 'Spacing' ) }
+										min={ 0 }
+										onChange={ onChangeGap }
+										showSideInLabel={ false }
+										sides={ [ 'top' ] } // Use 'top' as the shorthand property in non-axial configurations.
+										values={ splitGapValue(
+											style?.spacing?.blockGap
+										) }
+										allowReset={ false }
+									/>
+								) }
 							</FlexBlock>
 						</HStack>
 
