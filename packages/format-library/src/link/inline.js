@@ -233,6 +233,7 @@ function InlineLinkUI( {
 
 	return (
 		<Popover
+			role="dialog"
 			anchor={ popoverAnchor }
 			focusOnMount={ 'firstElement' }
 			onClose={ stopAddingLink }
