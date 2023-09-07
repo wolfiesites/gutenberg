@@ -216,16 +216,6 @@ function LinkControl( {
 
 	const hasLinkValue = value?.url?.trim()?.length > 0;
 
-	/**
-	 * Cancels editing state and marks that focus may need to be restored after
-	 * the next render, if focus was within the wrapper when editing finished.
-	 */
-	const stopEditing = () => {
-		isEndingEditWithFocus.current = !! wrapperNode.current?.contains(
-			wrapperNode.current.ownerDocument.activeElement
-		);
-	};
-
 	const handleSelectSuggestion = ( updatedValue ) => {
 		// Suggestions may contains "settings" values (e.g. `opensInNewTab`)
 		// which should not overide any existing settings values set by the
@@ -248,8 +238,6 @@ function LinkControl( {
 			// any "title" value provided by the "suggestion".
 			title: internalControlValue?.title || updatedValue?.title,
 		} );
-
-		stopEditing();
 	};
 
 	const handleSubmit = () => {
@@ -262,7 +250,6 @@ function LinkControl( {
 				url: currentUrlInputValue,
 			} );
 		}
-		stopEditing();
 	};
 
 	const handleSubmitWithEnter = ( event ) => {
@@ -288,10 +275,7 @@ function LinkControl( {
 		// Ensure that any unsubmitted input changes are reset.
 		resetInternalValues();
 
-		if ( hasLinkValue ) {
-			// If there is a link then exist editing mode and show preview.
-			stopEditing();
-		} else {
+		if ( ! hasLinkValue ) {
 			// If there is no link value, then remove the link entirely.
 			onRemove?.();
 		}
