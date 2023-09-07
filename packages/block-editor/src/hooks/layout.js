@@ -241,6 +241,7 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 		{
 			key: 'fill',
 			value: 'fill',
+			__experimentalHint: 'Content fills width of container',
 			name: __( 'Fill' ),
 		},
 	];
@@ -249,6 +250,7 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 		innerWidthOptions.unshift( {
 			key: 'fit',
 			value: 'fit',
+			__experimentalHint: 'Content only takes up as much space as needed',
 			name: __( 'Fit' ),
 		} );
 	}
@@ -257,6 +259,7 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 		innerWidthOptions.unshift( {
 			key: 'theme',
 			value: 'theme',
+			__experimentalHint: 'Content width is set by theme',
 			name: __( 'Boxed' ),
 		} );
 	}
@@ -530,43 +533,40 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 									</ToggleGroupControl>
 								</FlexBlock>
 							) }
-							<FlexBlock>
-								{ ( ( type === 'flex' &&
-									orientation === 'vertical' ) ||
-									type === 'default' ||
-									type === 'constrained' ) && (
-									<CustomSelectControl
-										label={ __( 'Content width' ) }
-										value={ selectedContentWidth }
-										options={ innerWidthOptions }
-										onChange={ onChangeInnerWidth }
-										__nextUnconstrainedWidth
-										__next36pxDefaultSize
-									/>
-								) }
-								{ type === 'flex' &&
-									orientation === 'horizontal' && (
-										<ToggleGroupControl
-											__nextHasNoMarginBottom
-											label={ __( 'Wrap' ) }
-											value={ flexWrap }
-											onChange={ onChangeWrap }
-											isBlock={ true }
-										>
-											<ToggleGroupControlOption
-												key={ 'wrap' }
-												value="wrap"
-												label={ __( 'Yes' ) }
-											/>
-											<ToggleGroupControlOption
-												key={ 'nowrap' }
-												value="nowrap"
-												label={ __( 'No' ) }
-											/>
-										</ToggleGroupControl>
-									) }
-							</FlexBlock>
+							<FlexBlock></FlexBlock>
 						</HStack>
+						{ type === 'flex' && orientation === 'horizontal' && (
+							<ToggleGroupControl
+								__nextHasNoMarginBottom
+								label={ __( 'Wrap' ) }
+								value={ flexWrap }
+								onChange={ onChangeWrap }
+								isBlock={ true }
+							>
+								<ToggleGroupControlOption
+									key={ 'wrap' }
+									value="wrap"
+									label={ __( 'Yes' ) }
+								/>
+								<ToggleGroupControlOption
+									key={ 'nowrap' }
+									value="nowrap"
+									label={ __( 'No' ) }
+								/>
+							</ToggleGroupControl>
+						) }
+						{ ( ( type === 'flex' && orientation === 'vertical' ) ||
+							type === 'default' ||
+							type === 'constrained' ) && (
+							<CustomSelectControl
+								label={ __( 'Content width' ) }
+								value={ selectedContentWidth }
+								options={ innerWidthOptions }
+								onChange={ onChangeInnerWidth }
+								__nextUnconstrainedWidth
+								__next36pxDefaultSize
+							/>
+						) }
 
 						{ type === 'grid' && (
 							<layoutType.inspectorControls
