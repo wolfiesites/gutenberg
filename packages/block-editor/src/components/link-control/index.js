@@ -316,6 +316,16 @@ function LinkControl( {
 	const isDisabled = ! valueHasChanges || currentInputIsEmpty;
 	const showSettings = !! settings?.length && hasLinkValue;
 
+	// In previous iterations of this component, clicking "Cancel" would toggle
+	// the UI to "preview" mode.
+	//
+	// However, this UI state was removed in:
+	// https://github.com/WordPress/gutenberg/pull/50998
+	//
+	// Therefore as the state no longer exists, unless a dedicated handler is
+	// provided, the cancel button will not be shown.
+	const showOnCancel = onCancel;
+
 	return (
 		<div
 			tabIndex={ -1 }
@@ -427,9 +437,12 @@ function LinkControl( {
 					>
 						{ __( 'Save' ) }
 					</Button>
-					<Button variant="tertiary" onClick={ handleCancel }>
-						{ __( 'Cancel' ) }
-					</Button>
+
+					{ showOnCancel && (
+						<Button variant="tertiary" onClick={ handleCancel }>
+							{ __( 'Cancel' ) }
+						</Button>
+					) }
 				</div>
 			) }
 
