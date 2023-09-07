@@ -280,7 +280,23 @@ function LinkControl( {
 			onRemove?.();
 		}
 
-		onCancel?.();
+		// In previous iterations of this component, clicking "Cancel" would toggle
+		// the component's UI into "preview" mode.
+		//
+		// However, this UI state was removed in:
+		// https://github.com/WordPress/gutenberg/pull/50998
+		//
+		// This poses a backwards compatibility problem as current consumers will
+		// assume that the previous UI behaviour is maintained.
+		//
+		// To avoid this, if a dedicated onCancel hanlder is not provided then the
+		// component will simply call onChange with the **original** (unchanged) value.
+		// This should effectively save the current value and close the UI.
+		if ( onCancel ) {
+			onCancel();
+		} else {
+			onChange( value );
+		}
 	};
 
 	const currentUrlInputValue =
@@ -299,16 +315,6 @@ function LinkControl( {
 
 	const isDisabled = ! valueHasChanges || currentInputIsEmpty;
 	const showSettings = !! settings?.length && hasLinkValue;
-
-	// In previous iterations of this component, clicking "Cancel" would toggle
-	// the UI to "preview" mode.
-	//
-	// However, this UI state was removed in:
-	// https://github.com/WordPress/gutenberg/pull/50998
-	//
-	// Therefore as the state no longer exists, unless a dedicated handler is
-	// provided, the cancel button will not be shown.
-	const showOnCancel = onCancel;
 
 	return (
 		<div
@@ -422,11 +428,9 @@ function LinkControl( {
 						{ __( 'Save' ) }
 					</Button>
 
-					{ showOnCancel && (
-						<Button variant="tertiary" onClick={ handleCancel }>
-							{ __( 'Cancel' ) }
-						</Button>
-					) }
+					<Button variant="tertiary" onClick={ handleCancel }>
+						{ __( 'Cancel' ) }
+					</Button>
 				</div>
 			) }
 
