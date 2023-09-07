@@ -596,6 +596,8 @@ export default function NavigationLinkEdit( {
 									setAttributes,
 									attributes
 								);
+
+								setIsLinkOpen( false );
 							} }
 						/>
 					) }
