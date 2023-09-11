@@ -489,7 +489,10 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Layout' ) }>
-					<VStack spacing={ 3 } className="components-wrapper-vstack">
+					<VStack
+						spacing={ 3 }
+						className="components-wrapper-vstack block-layout-controls"
+					>
 						<HStack alignment="topLeft">
 							{ ( allowSwitching ||
 								defaultBlockLayoutType === 'flex' ) && (
@@ -537,7 +540,7 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 						</HStack>
 						{ type === 'flex' && orientation === 'horizontal' && (
 							<ToggleGroupControl
-								__nextHasNoMarginBottom
+								__nextHasNoMarginBottom={ true }
 								label={ __( 'Wrap' ) }
 								value={ flexWrap }
 								onChange={ onChangeWrap }
@@ -585,6 +588,7 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 											value={ verticalControlValue }
 											options={ verticalAlignmentOptions }
 											onChange={ onChangeVertical }
+											className="layout-controls-alignment-select"
 											__nextUnconstrainedWidth
 											__next36pxDefaultSize
 										/>
@@ -595,6 +599,7 @@ function LayoutPanel( { setAttributes, attributes, name: blockName } ) {
 									<FlexBlock>
 										<CustomSelectControl
 											label={ __( 'Horizontal' ) }
+											className="layout-controls-alignment-select"
 											value={ horizontalControlValue }
 											options={
 												horizontalAlignmentOptions
