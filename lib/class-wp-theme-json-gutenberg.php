@@ -544,6 +544,7 @@ class WP_Theme_JSON_Gutenberg {
 		'color'                => 'color',
 		'spacing'              => 'spacing',
 		'typography'           => 'typography',
+		'@currentItem'         => 'currentItem',
 	);
 
 	/**
@@ -789,7 +790,7 @@ class WP_Theme_JSON_Gutenberg {
 			$schema_styles_blocks[ $block ]               = $styles_non_top_level;
 			$schema_styles_blocks[ $block ]['elements']   = $schema_styles_elements;
 			$schema_styles_blocks[ $block ]['variations'] = $schema_styles_variations;
-			$schema_styles_blocks[ $block ]['.current-item'] = $styles_non_top_level;
+			$schema_styles_blocks[ $block ]['@currentItem'] = $styles_non_top_level;
 
 
 		}
@@ -2297,15 +2298,14 @@ class WP_Theme_JSON_Gutenberg {
 				'selectors'  => $feature_selectors,
 				'duotone'    => $duotone_selector,
 				'variations' => $variation_selectors,
-				// 'state_selectors' => $selectors[ $name ]['.current-item'],
 			);
 
-			$nodes[] = array(
-				'name' => 'core/navigation',
-				'path' => array( 'styles', 'blocks', 'core/navigation', '.current-item' ),
-				'selector' => '.wp-block-navigation .current-item'
-			);
+			if($name === 'core/navigation') {
+				echo "<pre>";
+				var_dump($feature_selectors);
+				echo "</pre>";
 
+			}
 
 
 			if ( isset( $theme_json['styles']['blocks'][ $name ]['elements'] ) ) {
