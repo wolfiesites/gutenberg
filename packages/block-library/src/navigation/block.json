@@ -135,7 +135,7 @@
 		"interactivity": true
 	},
 	"selectors": {
-		"@currentItem": ".wp-block-navigation .current-item"
+		"@currentItem": ".current-menu-item"
 	},
 	"viewScript": "file:./view.min.js",
 	"editorStyle": "wp-block-navigation-editor",
