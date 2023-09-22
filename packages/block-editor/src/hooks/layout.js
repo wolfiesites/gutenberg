@@ -24,7 +24,7 @@ import {
 } from '@wordpress/components';
 
 import { __ } from '@wordpress/i18n';
-import { useEffect, useContext, createPortal } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import {
 	arrowRight,
 	arrowDown,
@@ -42,9 +42,8 @@ import {
 import { store as blockEditorStore } from '../store';
 import { InspectorControls } from '../components';
 import useSetting from '../components/use-setting';
-import { LayoutStyle, useLayout } from '../components/block-list/layout';
-import BlockList from '../components/block-list';
-import { getLayoutType, getLayoutTypes } from '../layouts';
+import { useLayout } from '../components/block-list/layout';
+import { getLayoutType } from '../layouts';
 import { useBlockEditingMode } from '../components/block-editing-mode';
 import { LAYOUT_DEFINITIONS } from '../layouts/definitions';
 import { kebabCase } from '../utils/object';
