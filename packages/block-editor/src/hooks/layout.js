@@ -823,8 +823,7 @@ export const withChildLayoutStyles = createHigherOrderComponent(
 				? 'selfStretch'
 				: 'selfAlign';
 
-		let css = `${ selector } {
-			box-sizing: border-box;}`;
+		let css = '';
 
 		if ( isConstrained || orientation === 'vertical' ) {
 			// set width
