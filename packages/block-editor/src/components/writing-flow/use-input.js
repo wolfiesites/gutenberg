@@ -4,7 +4,11 @@
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useRefEffect } from '@wordpress/compose';
 import { ENTER, BACKSPACE, DELETE } from '@wordpress/keycodes';
-import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
+import {
+	createBlock,
+	getDefaultBlockName,
+	hasBlockSupport,
+} from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -18,8 +22,10 @@ export default function useInput() {
 	const {
 		__unstableIsFullySelected,
 		getSelectedBlockClientIds,
+		getSelectedBlockClientId,
 		__unstableIsSelectionMergeable,
 		hasMultiSelection,
+		getBlockName,
 	} = useSelect( blockEditorStore );
 	const {
 		replaceBlocks,
@@ -45,6 +51,25 @@ export default function useInput() {
 			}
 
 			if ( ! hasMultiSelection() ) {
+				if ( event.keyCode === ENTER ) {
+					if ( event.shiftKey ) {
+						return;
+					}
+
+					const clientId = getSelectedBlockClientId();
+					if (
+						! hasBlockSupport(
+							getBlockName( clientId ),
+							'__experimentalOnEnter',
+							false
+						)
+					) {
+						return;
+					}
+
+					event.preventDefault();
+					__unstableSplitSelection();
+				}
 				return;
 			}
 

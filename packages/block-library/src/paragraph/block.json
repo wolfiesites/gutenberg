@@ -32,6 +32,7 @@
 		}
 	},
 	"supports": {
+		"__experimentalOnEnter": true,
 		"anchor": true,
 		"className": false,
 		"color": {

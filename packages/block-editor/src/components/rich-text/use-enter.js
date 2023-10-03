@@ -25,6 +25,10 @@ export function useEnter( props ) {
 				return;
 			}
 
+			if ( event.target !== element ) {
+				return;
+			}
+
 			if ( event.keyCode !== ENTER ) {
 				return;
 			}
@@ -97,9 +101,11 @@ export function useEnter( props ) {
 			}
 		}
 
-		element.addEventListener( 'keydown', onKeyDown );
+		// Attach the listener to the document so parent elements have the
+		// chance to prevent the default behavior.
+		element.ownerDocument.addEventListener( 'keydown', onKeyDown );
 		return () => {
-			element.removeEventListener( 'keydown', onKeyDown );
+			element.ownerDocument.removeEventListener( 'keydown', onKeyDown );
 		};
 	}, [] );
 }
