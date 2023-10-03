@@ -80,11 +80,13 @@ export function useEnter( props ) {
 			}
 		}
 
-		// Attach the listener to the document so parent elements have the
+		const { defaultView } = element.ownerDocument;
+
+		// Attach the listener to the window so parent elements have the
 		// chance to prevent the default behavior.
-		element.ownerDocument.addEventListener( 'keydown', onKeyDown );
+		defaultView.addEventListener( 'keydown', onKeyDown );
 		return () => {
-			element.ownerDocument.removeEventListener( 'keydown', onKeyDown );
+			defaultView.removeEventListener( 'keydown', onKeyDown );
 		};
 	}, [] );
 }

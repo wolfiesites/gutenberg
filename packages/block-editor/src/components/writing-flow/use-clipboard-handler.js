@@ -33,15 +33,13 @@ export default function useClipboardHandler() {
 		__unstableIsSelectionCollapsed,
 		__unstableIsSelectionMergeable,
 		__unstableGetSelectedBlocksWithPartialSelection,
-		canInsertBlockType,
 	} = useSelect( blockEditorStore );
 	const {
 		flashBlock,
 		removeBlocks,
-		replaceBlocks,
 		__unstableDeleteSelection,
 		__unstableExpandSelection,
-		insertBlocks,
+		__unstableSplitSelection,
 	} = useDispatch( blockEditorStore );
 	const notifyCopy = useNotifyCopy();
 
@@ -58,28 +56,9 @@ export default function useClipboardHandler() {
 				return;
 			}
 
-			// Always handle multiple selected blocks.
-			if ( ! hasMultiSelection() ) {
-				const { target } = event;
-				const { ownerDocument } = target;
-				// If copying, only consider actual text selection as selection.
-				// Otherwise, any focus on an input field is considered.
-				const hasSelection =
-					event.type === 'copy' || event.type === 'cut'
-						? documentHasUncollapsedSelection( ownerDocument )
-						: documentHasSelection( ownerDocument );
-
-				// Let native copy behaviour take over in input fields.
-				if ( hasSelection ) {
-					return;
-				}
-			}
-
 			if ( ! node.contains( event.target.ownerDocument.activeElement ) ) {
 				return;
 			}
-
-			event.preventDefault();
 
 			const isSelectionMergeable = __unstableIsSelectionMergeable();
 			const shouldHandleWholeBlocks =
@@ -87,6 +66,24 @@ export default function useClipboardHandler() {
 			const expandSelectionIsNeeded =
 				! shouldHandleWholeBlocks && ! isSelectionMergeable;
 			if ( event.type === 'copy' || event.type === 'cut' ) {
+				if ( ! hasMultiSelection() ) {
+					const { target } = event;
+					const { ownerDocument } = target;
+					// If copying, only consider actual text selection as selection.
+					// Otherwise, any focus on an input field is considered.
+					const hasSelection =
+						event.type === 'copy' || event.type === 'cut'
+							? documentHasUncollapsedSelection( ownerDocument )
+							: documentHasSelection( ownerDocument );
+
+					// Let native copy behaviour take over in input fields.
+					if ( hasSelection ) {
+						return;
+					}
+				}
+
+				event.preventDefault();
+
 				if ( selectedBlockClientIds.length === 1 ) {
 					flashBlock( selectedBlockClientIds[ 0 ] );
 				}
@@ -178,37 +175,18 @@ export default function useClipboardHandler() {
 					blocks = pasteHandler( {
 						HTML: html,
 						plainText,
-						mode: 'BLOCKS',
+						mode: 'AUTO',
 						canUserUseUnfilteredHTML,
 					} );
 				}
 
-				if ( selectedBlockClientIds.length === 1 ) {
-					const [ selectedBlockClientId ] = selectedBlockClientIds;
-
-					if (
-						blocks.every( ( block ) =>
-							canInsertBlockType(
-								block.name,
-								selectedBlockClientId
-							)
-						)
-					) {
-						insertBlocks(
-							blocks,
-							undefined,
-							selectedBlockClientId
-						);
-						return;
-					}
+				// Inline paste: let rich text handle it.
+				if ( typeof blocks === 'string' ) {
+					return;
 				}
 
-				replaceBlocks(
-					selectedBlockClientIds,
-					blocks,
-					blocks.length - 1,
-					-1
-				);
+				__unstableSplitSelection( blocks );
+				event.preventDefault();
 			}
 		}
 

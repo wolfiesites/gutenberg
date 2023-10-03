@@ -39,6 +39,14 @@ export function usePasteHandler( props ) {
 				pastePlainText,
 			} = propsRef.current;
 
+			if ( event.target !== element ) {
+				return;
+			}
+
+			if ( event.defaultPrevented ) {
+				return;
+			}
+
 			if ( ! isSelected ) {
 				return;
 			}
@@ -177,9 +185,11 @@ export function usePasteHandler( props ) {
 			}
 		}
 
-		element.addEventListener( 'paste', _onPaste );
+		const { defaultView } = element.ownerDocument;
+
+		defaultView.addEventListener( 'paste', _onPaste );
 		return () => {
-			element.removeEventListener( 'paste', _onPaste );
+			defaultView.removeEventListener( 'paste', _onPaste );
 		};
 	}, [] );
 }

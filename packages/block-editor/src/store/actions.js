@@ -881,10 +881,11 @@ export const __unstableDeleteSelection =
 
 /**
  * Split the current selection.
+ * @param {?Array} blocks
  */
 export const __unstableSplitSelection =
-	() =>
-	( { select, dispatch } ) => {
+	( blocks = [] ) =>
+	( { registry, select, dispatch } ) => {
 		const selectionAnchor = select.getSelectionStart();
 		const selectionFocus = select.getSelectionEnd();
 
@@ -894,8 +895,17 @@ export const __unstableSplitSelection =
 			! selectionFocus.attributeKey ||
 			typeof selectionAnchor.offset === 'undefined' ||
 			typeof selectionFocus.offset === 'undefined'
-		)
+		) {
+			if ( blocks.length ) {
+				dispatch.replaceBlocks(
+					select.getSelectedBlockClientIds(),
+					blocks,
+					blocks.length - 1,
+					-1
+				);
+			}
 			return;
+		}
 
 		const anchorRootClientId = select.getBlockRootClientId(
 			selectionAnchor.clientId
@@ -954,34 +964,102 @@ export const __unstableSplitSelection =
 		valueA = remove( valueA, selectionA.offset, valueA.text.length );
 		valueB = remove( valueB, 0, selectionB.offset );
 
-		dispatch.replaceBlocks( select.getSelectedBlockClientIds(), [
-			{
-				// Preserve the original client ID.
-				...blockA,
-				attributes: {
-					...blockA.attributes,
-					[ selectionA.attributeKey ]: toHTMLString( {
-						value: valueA,
-						...mapRichTextSettings( attributeDefinitionA ),
-					} ),
-				},
+		const head = {
+			// Preserve the original client ID.
+			...blockA,
+			attributes: {
+				...blockA.attributes,
+				[ selectionA.attributeKey ]: toHTMLString( {
+					value: valueA,
+					...mapRichTextSettings( attributeDefinitionA ),
+				} ),
 			},
-			{
-				// Preserve the original client ID.
-				...blockB,
-				clientId:
-					blockA.clientId === blockB.clientId
-						? createBlock( blockB.name ).clientId
-						: blockB.clientId,
-				attributes: {
-					...blockB.attributes,
-					[ selectionB.attributeKey ]: toHTMLString( {
-						value: valueB,
-						...mapRichTextSettings( attributeDefinitionB ),
-					} ),
-				},
+		};
+
+		const tail = {
+			// Preserve the original client ID.
+			...blockB,
+			clientId:
+				blockA.clientId === blockB.clientId
+					? createBlock( blockB.name ).clientId
+					: blockB.clientId,
+			attributes: {
+				...blockB.attributes,
+				[ selectionB.attributeKey ]: toHTMLString( {
+					value: valueB,
+					...mapRichTextSettings( attributeDefinitionB ),
+				} ),
 			},
-		] );
+		};
+
+		if ( ! blocks.length ) {
+			dispatch.replaceBlocks( select.getSelectedBlockClientIds(), [
+				head,
+				tail,
+			] );
+			return;
+		}
+
+		let offset;
+		const output = [];
+		const clonedBlocks = [ ...blocks ];
+		const firstBlock = clonedBlocks.shift();
+		const headType = getBlockType( head.name );
+
+		if ( head.name === firstBlock.name && headType.merge ) {
+			output.push( {
+				...head,
+				attributes: headType.merge(
+					head.attributes,
+					firstBlock.attributes
+				),
+			} );
+		} else {
+			output.push( head, firstBlock );
+		}
+
+		const lastBlock = clonedBlocks.pop();
+		const tailType = getBlockType( tail.name );
+
+		if ( clonedBlocks.length ) {
+			output.push( ...clonedBlocks );
+		}
+
+		if ( lastBlock ) {
+			if ( lastBlock.name === tail.name && tailType.merge ) {
+				output.push( {
+					...tail,
+					attributes: tailType.merge(
+						lastBlock.attributes,
+						tail.attributes
+					),
+				} );
+				offset = create( {
+					html: lastBlock.attributes[ selectionB.attributeKey ],
+				} ).text.length;
+			} else {
+				output.push( lastBlock, tail );
+			}
+		} else {
+			output.push( tail );
+		}
+
+		registry.batch( () => {
+			dispatch.replaceBlocks(
+				select.getSelectedBlockClientIds(),
+				output,
+				output.length - 1,
+				0
+			);
+			if ( offset ) {
+				dispatch.selectionChange(
+					tail.clientId,
+					selectionB.attributeKey,
+					offset,
+					offset
+				);
+			}
+		} );
 	};
 
 /**
