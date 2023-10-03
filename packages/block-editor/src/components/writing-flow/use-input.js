@@ -26,6 +26,8 @@ export default function useInput() {
 		__unstableIsSelectionMergeable,
 		hasMultiSelection,
 		getBlockName,
+		canInsertBlockType,
+		getBlockRootClientId,
 	} = useSelect( blockEditorStore );
 	const {
 		replaceBlocks,
@@ -57,9 +59,11 @@ export default function useInput() {
 					}
 
 					const clientId = getSelectedBlockClientId();
+					const blockName = getBlockName( clientId );
+
 					if (
 						! hasBlockSupport(
-							getBlockName( clientId ),
+							blockName,
 							'__experimentalOnEnter',
 							false
 						)
@@ -67,8 +71,16 @@ export default function useInput() {
 						return;
 					}
 
-					event.preventDefault();
-					__unstableSplitSelection();
+					// Ensure template is not locked.
+					if (
+						canInsertBlockType(
+							blockName,
+							getBlockRootClientId( clientId )
+						)
+					) {
+						__unstableSplitSelection();
+						event.preventDefault();
+					}
 				}
 				return;
 			}
