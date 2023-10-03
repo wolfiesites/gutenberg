@@ -56,7 +56,9 @@ export default function useClipboardHandler() {
 				return;
 			}
 
-			if ( ! node.contains( event.target.ownerDocument.activeElement ) ) {
+			const { activeElement } = event.target.ownerDocument;
+
+			if ( ! node.contains( activeElement ) ) {
 				return;
 			}
 
@@ -151,7 +153,9 @@ export default function useClipboardHandler() {
 						canUserUseUnfilteredHTML,
 				} = getSettings();
 				const isInternal =
-					event.clipboardData.getData( 'rich-text' ) === 'true';
+					event.clipboardData.getData( 'rich-text' ) === 'true' ||
+					// All uses of __unstablePastePlainText use pre.
+					activeElement.closest( 'pre' );
 				if ( isInternal ) {
 					return;
 				}

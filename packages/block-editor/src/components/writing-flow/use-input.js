@@ -60,7 +60,7 @@ export default function useInput() {
 
 			if ( ! hasMultiSelection() ) {
 				if ( event.keyCode === ENTER ) {
-					if ( event.shiftKey ) {
+					if ( event.shiftKey || __unstableIsFullySelected() ) {
 						return;
 					}
 
