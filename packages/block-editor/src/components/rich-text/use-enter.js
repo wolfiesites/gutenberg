@@ -5,18 +5,15 @@ import { useRef } from '@wordpress/element';
 import { useRefEffect } from '@wordpress/compose';
 import { ENTER } from '@wordpress/keycodes';
 import { insert, remove } from '@wordpress/rich-text';
-import { getBlockTransforms, findTransform } from '@wordpress/blocks';
-import { useDispatch, useRegistry } from '@wordpress/data';
+import { useRegistry } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { store as blockEditorStore } from '../../store';
 import { splitValue } from './split-value';
 
 export function useEnter( props ) {
 	const registry = useRegistry();
-	const { __unstableMarkAutomaticChange } = useDispatch( blockEditorStore );
 	const propsRef = useRef( props );
 	propsRef.current = props;
 	return useRefEffect( ( element ) => {
@@ -49,24 +46,6 @@ export function useEnter( props ) {
 			const _value = { ...value };
 			_value.formats = removeEditorOnlyFormats( value );
 			const canSplit = onReplace && onSplit;
-
-			if ( onReplace ) {
-				const transforms = getBlockTransforms( 'from' ).filter(
-					( { type } ) => type === 'enter'
-				);
-				const transformation = findTransform( transforms, ( item ) => {
-					return item.regExp.test( _value.text );
-				} );
-
-				if ( transformation ) {
-					onReplace( [
-						transformation.transform( {
-							content: _value.text,
-						} ),
-					] );
-					__unstableMarkAutomaticChange();
-				}
-			}
 
 			const { text, start, end } = _value;
 
