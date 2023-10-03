@@ -14,6 +14,7 @@ import {
 	synchronizeBlocksWithTemplate,
 	getBlockSupport,
 	isUnmodifiedDefaultBlock,
+	isUnmodifiedBlock,
 } from '@wordpress/blocks';
 import { speak } from '@wordpress/a11y';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -1015,7 +1016,10 @@ export const __unstableSplitSelection =
 				),
 			} );
 		} else {
-			output.push( head, firstBlock );
+			if ( ! isUnmodifiedBlock( head ) ) {
+				output.push( head );
+			}
+			output.push( firstBlock );
 		}
 
 		const lastBlock = clonedBlocks.pop();
@@ -1038,9 +1042,12 @@ export const __unstableSplitSelection =
 					html: lastBlock.attributes[ selectionB.attributeKey ],
 				} ).text.length;
 			} else {
-				output.push( lastBlock, tail );
+				output.push( lastBlock );
+				if ( ! isUnmodifiedBlock( tail ) ) {
+					output.push( tail );
+				}
 			}
-		} else {
+		} else if ( ! isUnmodifiedBlock( tail ) ) {
 			output.push( tail );
 		}
 

@@ -150,6 +150,11 @@ export default function useClipboardHandler() {
 					__experimentalCanUserUseUnfilteredHTML:
 						canUserUseUnfilteredHTML,
 				} = getSettings();
+				const isInternal =
+					event.clipboardData.getData( 'rich-text' ) === 'true';
+				if ( isInternal ) {
+					return;
+				}
 				const { plainText, html, files } = getPasteEventData( event );
 				let blocks = [];
 
