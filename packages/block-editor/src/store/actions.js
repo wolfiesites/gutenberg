@@ -944,6 +944,7 @@ export const __unstableSplitSelection =
 		// default block can be inserter, create an empty block of the type that
 		// is selected.
 		if (
+			! blocks.length &&
 			selectionA.clientId === selectionB.clientId &&
 			selectionA.attributeKey === selectionB.attributeKey &&
 			selectionA.offset === selectionB.offset
@@ -955,11 +956,8 @@ export const __unstableSplitSelection =
 			}
 
 			if ( selectionA.offset === 0 ) {
-				if ( ! blocks.length ) {
-					blocks = [ createBlock( getDefaultBlockName() ) ];
-				}
 				dispatch.insertBlocks(
-					blocks,
+					[ createBlock( getDefaultBlockName() ) ],
 					select.getBlockIndex( selectionA.clientId ),
 					anchorRootClientId,
 					false
@@ -972,11 +970,8 @@ export const __unstableSplitSelection =
 					selectionA.attributeKey
 				)
 			) {
-				if ( ! blocks.length ) {
-					blocks = [ createBlock( getDefaultBlockName() ) ];
-				}
 				dispatch.insertBlocks(
-					blocks,
+					[ createBlock( getDefaultBlockName() ) ],
 					select.getBlockIndex( selectionA.clientId ) + 1,
 					anchorRootClientId
 				);

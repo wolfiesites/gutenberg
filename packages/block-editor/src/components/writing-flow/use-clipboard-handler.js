@@ -39,6 +39,7 @@ export default function useClipboardHandler() {
 	const {
 		flashBlock,
 		removeBlocks,
+		replaceBlocks,
 		__unstableDeleteSelection,
 		__unstableExpandSelection,
 		__unstableSplitSelection,
@@ -160,6 +161,7 @@ export default function useClipboardHandler() {
 					return;
 				}
 				const { plainText, html, files } = getPasteEventData( event );
+				const isFullySelected = __unstableIsFullySelected();
 				let blocks = [];
 
 				if ( files.length ) {
@@ -184,13 +186,23 @@ export default function useClipboardHandler() {
 					blocks = pasteHandler( {
 						HTML: html,
 						plainText,
-						mode: 'AUTO',
+						mode: isFullySelected ? 'BLOCKS' : 'AUTO',
 						canUserUseUnfilteredHTML,
 					} );
 				}
 
 				// Inline paste: let rich text handle it.
 				if ( typeof blocks === 'string' ) {
+					return;
+				}
+
+				if ( isFullySelected ) {
+					replaceBlocks(
+						selectedBlockClientIds,
+						blocks,
+						blocks.length - 1,
+						-1
+					);
 					return;
 				}
 
