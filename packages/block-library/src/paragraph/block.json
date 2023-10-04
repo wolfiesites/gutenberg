@@ -32,7 +32,7 @@
 		}
 	},
 	"supports": {
-		"__experimentalOnEnter": true,
+		"splitting": true,
 		"anchor": true,
 		"className": false,
 		"color": {

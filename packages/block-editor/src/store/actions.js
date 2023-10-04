@@ -939,10 +939,55 @@ export const __unstableSplitSelection =
 		const selectionA = selectionStart;
 		const selectionB = selectionEnd;
 
-		const blockA = select.getBlock( selectionA.clientId );
-		const blockAType = getBlockType( blockA.name );
+		// Short-circuit if selection is collapsed and at start or end of block.
+		// We can simply insert the given blocks or a default block. If no
+		// default block can be inserter, create an empty block of the type that
+		// is selected.
+		if (
+			selectionA.clientId === selectionB.clientId &&
+			selectionA.attributeKey === selectionB.attributeKey &&
+			selectionA.offset === selectionB.offset
+		) {
+			function getRichTextAttributeLength( clientId, attributeKey ) {
+				return create( {
+					html: select.getBlockAttributes( clientId )[ attributeKey ],
+				} ).text.length;
+			}
 
+			if ( selectionA.offset === 0 ) {
+				if ( ! blocks.length ) {
+					blocks = [ createBlock( getDefaultBlockName() ) ];
+				}
+				dispatch.insertBlocks(
+					blocks,
+					select.getBlockIndex( selectionA.clientId ),
+					anchorRootClientId,
+					false
+				);
+				return;
+			} else if (
+				selectionA.offset ===
+				getRichTextAttributeLength(
+					selectionA.clientId,
+					selectionA.attributeKey
+				)
+			) {
+				if ( ! blocks.length ) {
+					blocks = [ createBlock( getDefaultBlockName() ) ];
+				}
+				dispatch.insertBlocks(
+					blocks,
+					select.getBlockIndex( selectionA.clientId ) + 1,
+					anchorRootClientId
+				);
+				return;
+			}
+		}
+
+		const blockA = select.getBlock( selectionA.clientId );
 		const blockB = select.getBlock( selectionB.clientId );
+
+		const blockAType = getBlockType( blockA.name );
 		const blockBType = getBlockType( blockB.name );
 
 		const htmlA = blockA.attributes[ selectionA.attributeKey ];

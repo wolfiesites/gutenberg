@@ -346,7 +346,6 @@ export function RichTextWrapper(
 						formatTypes,
 						tagName,
 						onReplace,
-						onSplit,
 						__unstableEmbedURLOnPaste,
 						preserveWhiteSpace,
 						pastePlainText,

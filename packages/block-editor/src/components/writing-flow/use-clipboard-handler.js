@@ -7,6 +7,7 @@ import {
 	createBlock,
 	findTransform,
 	getBlockTransforms,
+	hasBlockSupport,
 } from '@wordpress/blocks';
 import {
 	documentHasSelection,
@@ -29,6 +30,7 @@ export default function useClipboardHandler() {
 		getSelectedBlockClientIds,
 		hasMultiSelection,
 		getSettings,
+		getBlockName,
 		__unstableIsFullySelected,
 		__unstableIsSelectionCollapsed,
 		__unstableIsSelectionMergeable,
@@ -153,9 +155,7 @@ export default function useClipboardHandler() {
 						canUserUseUnfilteredHTML,
 				} = getSettings();
 				const isInternal =
-					event.clipboardData.getData( 'rich-text' ) === 'true' ||
-					// All uses of __unstablePastePlainText use pre.
-					!! activeElement.closest( 'pre' );
+					event.clipboardData.getData( 'rich-text' ) === 'true';
 				if ( isInternal ) {
 					return;
 				}
@@ -191,6 +191,19 @@ export default function useClipboardHandler() {
 
 				// Inline paste: let rich text handle it.
 				if ( typeof blocks === 'string' ) {
+					return;
+				}
+
+				// If a block doesn't support splitting, let rich text paste
+				// inline.
+				if (
+					! hasMultiSelection() &&
+					! hasBlockSupport(
+						getBlockName( selectedBlockClientIds[ 0 ] ),
+						'splitting',
+						false
+					)
+				) {
 					return;
 				}
 

@@ -101,13 +101,7 @@ export default function useInput() {
 						}
 					}
 
-					if (
-						! hasBlockSupport(
-							blockName,
-							'__experimentalOnEnter',
-							false
-						)
-					) {
+					if ( ! hasBlockSupport( blockName, 'splitting', false ) ) {
 						return;
 					}
 
