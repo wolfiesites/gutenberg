@@ -25,7 +25,6 @@ import {
 	useSpace,
 	useIndentListItem,
 	useOutdentListItem,
-	useSplit,
 	useMerge,
 	useCopy,
 } from './hooks';
@@ -71,7 +70,6 @@ export default function ListItemEdit( {
 	} );
 	const useEnterRef = useEnter( { content, clientId } );
 	const useSpaceRef = useSpace( clientId );
-	const onSplit = useSplit( clientId );
 	const onMerge = useMerge( clientId, mergeBlocks );
 	return (
 		<>
@@ -86,7 +84,6 @@ export default function ListItemEdit( {
 					value={ content }
 					aria-label={ __( 'List text' ) }
 					placeholder={ placeholder || __( 'List' ) }
-					onSplit={ onSplit }
 					onMerge={ onMerge }
 					onReplace={
 						onReplace

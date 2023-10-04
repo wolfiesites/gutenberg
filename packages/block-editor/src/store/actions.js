@@ -955,9 +955,19 @@ export const __unstableSplitSelection =
 				} ).text.length;
 			}
 
+			function createEmpty() {
+				const defaultBlockName = getDefaultBlockName();
+				return select.canInsertBlockType(
+					defaultBlockName,
+					anchorRootClientId
+				)
+					? createBlock( defaultBlockName )
+					: createBlock( select.getBlockName( selectionA.clientId ) );
+			}
+
 			if ( selectionA.offset === 0 ) {
 				dispatch.insertBlocks(
-					[ createBlock( getDefaultBlockName() ) ],
+					[ createEmpty() ],
 					select.getBlockIndex( selectionA.clientId ),
 					anchorRootClientId,
 					false
@@ -971,7 +981,7 @@ export const __unstableSplitSelection =
 				)
 			) {
 				dispatch.insertBlocks(
-					[ createBlock( getDefaultBlockName() ) ],
+					[ createEmpty() ],
 					select.getBlockIndex( selectionA.clientId ) + 1,
 					anchorRootClientId
 				);
