@@ -489,6 +489,7 @@ test.describe( 'Copy/cut/paste', () => {
 	} ) => {
 		pageUtils.setClipboardData( {
 			html: '<pre>x</pre>',
+			plainText: 'x',
 		} );
 		await editor.insertBlock( { name: 'core/list' } );
 		await pageUtils.pressKeys( 'primary+v' );

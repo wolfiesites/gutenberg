@@ -155,7 +155,7 @@ export default function useClipboardHandler() {
 				const isInternal =
 					event.clipboardData.getData( 'rich-text' ) === 'true' ||
 					// All uses of __unstablePastePlainText use pre.
-					activeElement.closest( 'pre' );
+					!! activeElement.closest( 'pre' );
 				if ( isInternal ) {
 					return;
 				}
