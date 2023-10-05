@@ -947,7 +947,8 @@ export const __unstableSplitSelection =
 			! blocks.length &&
 			selectionA.clientId === selectionB.clientId &&
 			selectionA.attributeKey === selectionB.attributeKey &&
-			selectionA.offset === selectionB.offset
+			selectionA.offset === selectionB.offset &&
+			! select.getBlock( selectionA.clientId ).innerBlocks?.length
 		) {
 			function getRichTextAttributeLength( clientId, attributeKey ) {
 				return create( {
@@ -1018,6 +1019,9 @@ export const __unstableSplitSelection =
 		const head = {
 			// Preserve the original client ID.
 			...blockA,
+			// If both start and end are the same, should only copy innerBlocks
+			// once.
+			innerBlocks: blockA.clientId === blockB.clientId ? [] : undefined,
 			attributes: {
 				...blockA.attributes,
 				[ selectionA.attributeKey ]: toHTMLString( {
@@ -1028,8 +1032,8 @@ export const __unstableSplitSelection =
 		};
 
 		const tail = {
-			// Preserve the original client ID.
 			...blockB,
+			// Only preserve the original client ID if the end is different.
 			clientId:
 				blockA.clientId === blockB.clientId
 					? createBlock( blockB.name ).clientId
