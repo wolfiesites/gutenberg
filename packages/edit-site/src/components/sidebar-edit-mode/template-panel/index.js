@@ -2,11 +2,12 @@
  * WordPress dependencies
  */
 import { __experimentalBlockPatternsList as BlockPatternsList } from '@wordpress/block-editor';
+import { serialize } from '@wordpress/blocks';
 import { PanelBody } from '@wordpress/components';
 import { useAsyncList } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { store as editorStore } from '@wordpress/editor';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { navigation, symbol } from '@wordpress/icons';
@@ -45,7 +46,7 @@ function TemplatesList( { availableTemplates, onSelect } ) {
 }
 
 export default function TemplatePanel() {
-	const { title, description, icon, record, postType } = useSelect(
+	const { title, description, icon, record, postType, postId } = useSelect(
 		( select ) => {
 			const { getEditedPostType, getEditedPostId } =
 				select( editSiteStore );
@@ -54,8 +55,8 @@ export default function TemplatePanel() {
 				select( editorStore );
 
 			const type = getEditedPostType();
-			const postId = getEditedPostId();
-			const _record = getEditedEntityRecord( 'postType', type, postId );
+			const id = getEditedPostId();
+			const _record = getEditedEntityRecord( 'postType', type, id );
 			const info = getTemplateInfo( _record );
 
 			return {
@@ -64,16 +65,25 @@ export default function TemplatePanel() {
 				icon: info.icon,
 				record: _record,
 				postType: type,
+				postId: id,
 			};
 		},
 		[]
 	);
 
 	const availablePatterns = useAvailablePatterns( record );
+	const { editEntityRecord } = useDispatch( coreStore );
 
 	if ( ! title && ! description ) {
 		return null;
 	}
+
+	const onTemplateSelect = async ( selectedTemplate ) => {
+		await editEntityRecord( 'postType', postType, postId, {
+			blocks: selectedTemplate.blocks,
+			content: serialize( selectedTemplate.blocks ),
+		} );
+	};
 
 	return (
 		<PanelBody className="edit-site-template-panel">
@@ -93,7 +103,7 @@ export default function TemplatePanel() {
 			</p>
 			<TemplatesList
 				availableTemplates={ availablePatterns }
-				onSelect={ () => {} }
+				onSelect={ onTemplateSelect }
 			/>
 			<LastRevision />
 			{ postType === PATTERN_TYPES.user && (
