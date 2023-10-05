@@ -98,7 +98,7 @@ export default function TemplatePanel() {
 			</SidebarCard>
 			<p>
 				{ __(
-					'Choose a predefined pattern to switch up the look of your footer.'
+					'Choose a predefined pattern to switch up the look of your template.' // TODO - make this dynamic?
 				) }
 			</p>
 			<TemplatesList

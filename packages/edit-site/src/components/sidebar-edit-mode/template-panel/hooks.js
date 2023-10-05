@@ -10,8 +10,7 @@ import { parse } from '@wordpress/blocks';
  * Internal dependencies
  */
 import { store as editSiteStore } from '../../../store';
-import { PATTERN_CORE_SOURCES, PATTERN_TYPES } from '../../../utils/constants';
-import { useExistingTemplateParts } from '../../../utils/template-part-create';
+import { PATTERN_TYPES } from '../../../utils/constants';
 import { unlock } from '../../../lock-unlock';
 
 function injectThemeAttributeInBlockTemplateContent(
@@ -34,15 +33,17 @@ function injectThemeAttributeInBlockTemplateContent(
 	return block;
 }
 
-// TODO - describe what this does?
+/**
+ * Filter all patterns and return only the ones that are compatible with the current template.
+ *
+ * @param {Array}  patterns An array of patterns.
+ * @param {Object} template The current template.
+ * @return {Array} Array of patterns that are compatible with the current template.
+ */
 function filterPatterns( patterns, template ) {
 	// Filter out duplicates.
 	const filterOutDuplicatesByName = ( currentItem, index, items ) =>
 		index === items.findIndex( ( item ) => currentItem.name === item.name );
-
-	// Filter out core patterns.
-	const filterOutCorePatterns = ( pattern ) =>
-		! PATTERN_CORE_SOURCES.includes( pattern.source );
 
 	// Filter only the patterns that are compatible with the current template.
 	const filterCompatiblePatterns = ( pattern ) =>
@@ -50,13 +51,17 @@ function filterPatterns( patterns, template ) {
 		pattern.blockTypes?.includes( 'core/template-part/' + template.area ); // TODO - get this working for templates.
 
 	return patterns.filter(
-		filterOutCorePatterns &&
-			filterOutDuplicatesByName &&
-			filterCompatiblePatterns
+		filterOutDuplicatesByName && filterCompatiblePatterns
 	);
 }
 
-// TODO - describe what this does?
+/**
+ * Map the array of patterns to a format that can be used by the Block Pattern List component.
+ *
+ * @param {Array}  patterns               An array of patterns.
+ * @param {string} currentThemeStylesheet The current theme path.
+ * @return {Array} Array of pattern objects that are compatible with the current template.
+ */
 function preparePatterns( patterns, currentThemeStylesheet ) {
 	return patterns.map( ( pattern ) => ( {
 		...pattern,
@@ -97,30 +102,4 @@ export function useAvailablePatterns( template ) {
 		const filteredPatterns = filterPatterns( mergedPatterns, template );
 		return preparePatterns( filteredPatterns, currentThemeStylesheet );
 	}, [ blockPatterns, restBlockPatterns, template, currentThemeStylesheet ] );
-}
-
-function prepareTemplateParts( templateParts, template ) {
-	// Filter only the patterns that are compatible with the current template.
-	const filterCompatiblePatterns = ( templatePart ) =>
-		templatePart.area?.includes( template.area );
-
-	return templateParts
-		.filter( filterCompatiblePatterns )
-		.map( ( templatePart ) => ( {
-			id: templatePart.id,
-			area: templatePart.area,
-			keywords: templateParts.keywords || [],
-			type: PATTERN_TYPES.theme, //TODO?
-			blocks: parse( templatePart.content.raw, {
-				__unstableSkipMigrationLogs: true,
-			} ),
-		} ) );
-}
-
-export function useAvailableTemplateParts( template ) {
-	const existingTemplateParts = useExistingTemplateParts();
-
-	return useMemo( () => {
-		return prepareTemplateParts( existingTemplateParts || [], template );
-	}, [ existingTemplateParts, template ] );
 }
