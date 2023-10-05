@@ -974,16 +974,16 @@ export const __unstableSplitSelection =
 					false
 				);
 				return;
-			} else if (
-				selectionA.offset ===
-				getRichTextAttributeLength(
-					selectionA.clientId,
-					selectionA.attributeKey
-				)
-			) {
+			}
+			const length = getRichTextAttributeLength(
+				selectionA.clientId,
+				selectionA.attributeKey
+			);
+			if ( selectionA.offset === length ) {
+				const offset = length ? 1 : 0;
 				dispatch.insertBlocks(
 					[ createEmpty() ],
-					select.getBlockIndex( selectionA.clientId ) + 1,
+					select.getBlockIndex( selectionA.clientId ) + offset,
 					anchorRootClientId
 				);
 				return;
