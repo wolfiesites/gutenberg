@@ -7,16 +7,23 @@ import { ENTER } from '@wordpress/keycodes';
 import { insert, remove } from '@wordpress/rich-text';
 import { useRegistry } from '@wordpress/data';
 
-/**
- * Internal dependencies
- */
-import { splitValue } from './split-value';
-
 export function useEnter( props ) {
 	const registry = useRegistry();
 	const propsRef = useRef( props );
 	propsRef.current = props;
 	return useRefEffect( ( element ) => {
+		function onKeyDownDeprecated( event ) {
+			if ( event.keyCode !== ENTER ) {
+				return;
+			}
+
+			const { onReplace, onSplit } = propsRef.current;
+
+			if ( onReplace && onSplit ) {
+				event.__deprecatedOnSplit = true;
+			}
+		}
+
 		function onKeyDown( event ) {
 			if ( event.defaultPrevented ) {
 				return;
@@ -31,10 +38,7 @@ export function useEnter( props ) {
 			}
 
 			const {
-				removeEditorOnlyFormats,
 				value,
-				onReplace,
-				onSplit,
 				onChange,
 				disableLineBreaks,
 				onSplitAtEnd,
@@ -43,22 +47,12 @@ export function useEnter( props ) {
 
 			event.preventDefault();
 
-			const _value = { ...value };
-			_value.formats = removeEditorOnlyFormats( value );
-			const canSplit = onReplace && onSplit;
-
-			const { text, start, end } = _value;
+			const { text, start, end } = value;
 
 			if ( event.shiftKey ) {
 				if ( ! disableLineBreaks ) {
-					onChange( insert( _value, '\n' ) );
+					onChange( insert( value, '\n' ) );
 				}
-			} else if ( canSplit ) {
-				splitValue( {
-					value: _value,
-					onReplace,
-					onSplit,
-				} );
 			} else if ( onSplitAtEnd && start === end && end === text.length ) {
 				onSplitAtEnd();
 			} else if (
@@ -71,12 +65,13 @@ export function useEnter( props ) {
 				text.slice( -2 ) === '\n\n'
 			) {
 				registry.batch( () => {
+					const _value = { ...value };
 					_value.start = _value.end - 2;
 					onChange( remove( _value ) );
 					onSplitAtDoubleLineEnd();
 				} );
 			} else if ( ! disableLineBreaks ) {
-				onChange( insert( _value, '\n' ) );
+				onChange( insert( value, '\n' ) );
 			}
 		}
 
@@ -85,8 +80,10 @@ export function useEnter( props ) {
 		// Attach the listener to the window so parent elements have the
 		// chance to prevent the default behavior.
 		defaultView.addEventListener( 'keydown', onKeyDown );
+		element.addEventListener( 'keydown', onKeyDownDeprecated );
 		return () => {
 			defaultView.removeEventListener( 'keydown', onKeyDown );
+			element.removeEventListener( 'keydown', onKeyDownDeprecated );
 		};
 	}, [] );
 }

@@ -101,7 +101,10 @@ export default function useInput() {
 						}
 					}
 
-					if ( ! hasBlockSupport( blockName, 'splitting', false ) ) {
+					if (
+						! hasBlockSupport( blockName, 'splitting', false ) &&
+						! event.__deprecatedOnSplit
+					) {
 						return;
 					}
 

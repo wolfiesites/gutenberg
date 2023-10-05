@@ -214,7 +214,8 @@ export default function useClipboardHandler() {
 						getBlockName( selectedBlockClientIds[ 0 ] ),
 						'splitting',
 						false
-					)
+					) &&
+					! event.__deprecatedOnSplit
 				) {
 					return;
 				}
