@@ -1021,7 +1021,8 @@ export const __unstableSplitSelection =
 			...blockA,
 			// If both start and end are the same, should only copy innerBlocks
 			// once.
-			innerBlocks: blockA.clientId === blockB.clientId ? [] : undefined,
+			innerBlocks:
+				blockA.clientId === blockB.clientId ? [] : blockA.innerBlocks,
 			attributes: {
 				...blockA.attributes,
 				[ selectionA.attributeKey ]: toHTMLString( {
