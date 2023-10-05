@@ -34,7 +34,8 @@ function injectThemeAttributeInBlockTemplateContent(
 	return block;
 }
 
-function preparePatterns( patterns, template, currentThemeStylesheet ) {
+// TODO - describe what this does?
+function filterPatterns( patterns, template ) {
 	// Filter out duplicates.
 	const filterOutDuplicatesByName = ( currentItem, index, items ) =>
 		index === items.findIndex( ( item ) => currentItem.name === item.name );
@@ -45,27 +46,31 @@ function preparePatterns( patterns, template, currentThemeStylesheet ) {
 
 	// Filter only the patterns that are compatible with the current template.
 	const filterCompatiblePatterns = ( pattern ) =>
-		pattern.templateTypes?.includes( template.slug );
+		pattern.templateTypes?.includes( template.slug ) ||
+		pattern.blockTypes?.includes( 'core/template-part/' + template.area ); // TODO - get this working for templates.
 
-	return patterns
-		.filter(
-			filterOutCorePatterns &&
-				filterOutDuplicatesByName &&
-				filterCompatiblePatterns
-		)
-		.map( ( pattern ) => ( {
-			...pattern,
-			keywords: pattern.keywords || [],
-			type: PATTERN_TYPES.theme,
-			blocks: parse( pattern.content, {
-				__unstableSkipMigrationLogs: true,
-			} ).map( ( block ) =>
-				injectThemeAttributeInBlockTemplateContent(
-					block,
-					currentThemeStylesheet
-				)
-			),
-		} ) );
+	return patterns.filter(
+		filterOutCorePatterns &&
+			filterOutDuplicatesByName &&
+			filterCompatiblePatterns
+	);
+}
+
+// TODO - describe what this does?
+function preparePatterns( patterns, currentThemeStylesheet ) {
+	return patterns.map( ( pattern ) => ( {
+		...pattern,
+		keywords: pattern.keywords || [],
+		type: PATTERN_TYPES.theme,
+		blocks: parse( pattern.content, {
+			__unstableSkipMigrationLogs: true,
+		} ).map( ( block ) =>
+			injectThemeAttributeInBlockTemplateContent(
+				block,
+				currentThemeStylesheet
+			)
+		),
+	} ) );
 }
 
 export function useAvailablePatterns( template ) {
@@ -89,11 +94,8 @@ export function useAvailablePatterns( template ) {
 			...( blockPatterns || [] ),
 			...( restBlockPatterns || [] ),
 		];
-		return preparePatterns(
-			mergedPatterns,
-			template,
-			currentThemeStylesheet
-		);
+		const filteredPatterns = filterPatterns( mergedPatterns, template );
+		return preparePatterns( filteredPatterns, currentThemeStylesheet );
 	}, [ blockPatterns, restBlockPatterns, template, currentThemeStylesheet ] );
 }
 

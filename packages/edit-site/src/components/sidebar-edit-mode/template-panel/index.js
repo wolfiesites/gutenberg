@@ -21,7 +21,7 @@ import LastRevision from './last-revision';
 import SidebarCard from '../sidebar-card';
 import PatternCategories from './pattern-categories';
 import { PATTERN_TYPES } from '../../../utils/constants';
-import { useAvailableTemplateParts } from './hooks';
+import { useAvailablePatterns } from './hooks';
 
 const CARD_ICONS = {
 	wp_block: symbol,
@@ -69,7 +69,7 @@ export default function TemplatePanel() {
 		[]
 	);
 
-	const availableTemplateParts = useAvailableTemplateParts( record );
+	const availablePatterns = useAvailablePatterns( record );
 
 	if ( ! title && ! description ) {
 		return null;
@@ -92,7 +92,7 @@ export default function TemplatePanel() {
 				) }
 			</p>
 			<TemplatesList
-				availableTemplates={ availableTemplateParts }
+				availableTemplates={ availablePatterns }
 				onSelect={ () => {} }
 			/>
 			<LastRevision />
