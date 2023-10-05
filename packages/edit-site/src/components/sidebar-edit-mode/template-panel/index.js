@@ -1,11 +1,14 @@
 /**
  * WordPress dependencies
  */
-import { useSelect } from '@wordpress/data';
+import { __experimentalBlockPatternsList as BlockPatternsList } from '@wordpress/block-editor';
 import { PanelBody } from '@wordpress/components';
-import { store as editorStore } from '@wordpress/editor';
+import { useAsyncList } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
+import { store as editorStore } from '@wordpress/editor';
+import { useSelect } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
+import { __ } from '@wordpress/i18n';
 import { navigation, symbol } from '@wordpress/icons';
 
 /**
@@ -18,11 +21,28 @@ import LastRevision from './last-revision';
 import SidebarCard from '../sidebar-card';
 import PatternCategories from './pattern-categories';
 import { PATTERN_TYPES } from '../../../utils/constants';
+import { useAvailableTemplateParts } from './hooks';
 
 const CARD_ICONS = {
 	wp_block: symbol,
 	wp_navigation: navigation,
 };
+
+function TemplatesList( { availableTemplates, onSelect } ) {
+	const shownTemplates = useAsyncList( availableTemplates );
+	if ( ! availableTemplates || availableTemplates?.length < 2 ) {
+		return null;
+	}
+
+	return (
+		<BlockPatternsList
+			label={ __( 'Templates' ) }
+			blockPatterns={ availableTemplates }
+			shownPatterns={ shownTemplates }
+			onClickPattern={ onSelect }
+		/>
+	);
+}
 
 export default function TemplatePanel() {
 	const { title, description, icon, record, postType } = useSelect(
@@ -49,6 +69,8 @@ export default function TemplatePanel() {
 		[]
 	);
 
+	const availableTemplateParts = useAvailableTemplateParts( record );
+
 	if ( ! title && ! description ) {
 		return null;
 	}
@@ -64,6 +86,15 @@ export default function TemplatePanel() {
 			>
 				<TemplateAreas />
 			</SidebarCard>
+			<p>
+				{ __(
+					'Choose a predefined pattern to switch up the look of your footer.'
+				) }
+			</p>
+			<TemplatesList
+				availableTemplates={ availableTemplateParts }
+				onSelect={ () => {} }
+			/>
 			<LastRevision />
 			{ postType === PATTERN_TYPES.user && (
 				<PatternCategories post={ record } />

@@ -11,6 +11,7 @@ import { parse } from '@wordpress/blocks';
  */
 import { store as editSiteStore } from '../../../store';
 import { PATTERN_CORE_SOURCES, PATTERN_TYPES } from '../../../utils/constants';
+import { useExistingTemplateParts } from '../../../utils/template-part-create';
 import { unlock } from '../../../lock-unlock';
 
 function injectThemeAttributeInBlockTemplateContent(
@@ -94,4 +95,30 @@ export function useAvailablePatterns( template ) {
 			currentThemeStylesheet
 		);
 	}, [ blockPatterns, restBlockPatterns, template, currentThemeStylesheet ] );
+}
+
+function prepareTemplateParts( templateParts, template ) {
+	// Filter only the patterns that are compatible with the current template.
+	const filterCompatiblePatterns = ( templatePart ) =>
+		templatePart.area?.includes( template.area );
+
+	return templateParts
+		.filter( filterCompatiblePatterns )
+		.map( ( templatePart ) => ( {
+			id: templatePart.id,
+			area: templatePart.area,
+			keywords: templateParts.keywords || [],
+			type: PATTERN_TYPES.theme, //TODO?
+			blocks: parse( templatePart.content.raw, {
+				__unstableSkipMigrationLogs: true,
+			} ),
+		} ) );
+}
+
+export function useAvailableTemplateParts( template ) {
+	const existingTemplateParts = useExistingTemplateParts();
+
+	return useMemo( () => {
+		return prepareTemplateParts( existingTemplateParts || [], template );
+	}, [ existingTemplateParts, template ] );
 }
