@@ -1,20 +1,25 @@
 /**
  * WordPress dependencies
  */
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import {
 	BlockSettingsMenuControls,
 	BlockTitle,
 	useBlockProps,
 	Warning,
 	store as blockEditorStore,
+	__experimentalBlockPatternsList as BlockPatternsList,
 	__experimentalRecursionProvider as RecursionProvider,
 	__experimentalUseHasRecursion as useHasRecursion,
+	InspectorControls,
 } from '@wordpress/block-editor';
-import { Spinner, Modal, MenuItem } from '@wordpress/components';
+import { parse } from '@wordpress/blocks';
+import { PanelBody, Spinner, Modal, MenuItem } from '@wordpress/components';
+import { useAsyncList } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { store as coreStore } from '@wordpress/core-data';
 import { useState, createInterpolateElement } from '@wordpress/element';
+import { store as noticesStore } from '@wordpress/notices';
 
 /**
  * Internal dependencies
@@ -30,11 +35,29 @@ import {
 	useTemplatePartArea,
 } from './utils/hooks';
 
+function TemplatesList( { availableTemplates, onSelect } ) {
+	const shownTemplates = useAsyncList( availableTemplates );
+
+	if ( ! availableTemplates || availableTemplates?.length < 2 ) {
+		return null;
+	}
+
+	return (
+		<BlockPatternsList
+			label={ __( 'Templates' ) }
+			blockPatterns={ availableTemplates }
+			shownPatterns={ shownTemplates }
+			onClickPattern={ onSelect }
+		/>
+	);
+}
+
 export default function TemplatePartEdit( {
 	attributes,
 	setAttributes,
 	clientId,
 } ) {
+	const { createSuccessNotice } = useDispatch( noticesStore );
 	const { slug, theme, tagName, layout = {} } = attributes;
 	const templatePartId = createTemplatePartId( theme, slug );
 	const hasAlreadyRendered = useHasRecursion( templatePartId );
@@ -126,6 +149,32 @@ export default function TemplatePartEdit( {
 		);
 	}
 
+	const partsAsPatterns = templateParts.map( ( templatePart ) => ( {
+		name: createTemplatePartId( templatePart.theme, templatePart.slug ),
+		title: templatePart.title.rendered,
+		blocks: parse( templatePart.content.raw ),
+		templatePart,
+	} ) );
+
+	// TODO - de dupe
+	const onTemplatePartSelect = ( { templatePart } ) => {
+		setAttributes( {
+			slug: templatePart.slug,
+			theme: templatePart.theme,
+			area: templatePart.area,
+		} );
+		createSuccessNotice(
+			sprintf(
+				/* translators: %s: template part title. */
+				__( 'Template Part "%s" inserted.' ),
+				templatePart.title?.rendered || templatePart.slug
+			),
+			{
+				type: 'snackbar',
+			}
+		);
+	};
+
 	return (
 		<>
 			<RecursionProvider uniqueId={ templatePartId }>
@@ -190,6 +239,17 @@ export default function TemplatePartEdit( {
 						} }
 					</BlockSettingsMenuControls>
 				) }
+				{ canReplace && partsAsPatterns.length && (
+					<InspectorControls>
+						<PanelBody title={ __( 'Replace' ) }>
+							<TemplatesList
+								availableTemplates={ partsAsPatterns }
+								onSelect={ onTemplatePartSelect }
+							/>
+						</PanelBody>
+					</InspectorControls>
+				) }
+
 				{ isEntityAvailable && (
 					<TemplatePartInnerBlocks
 						tagName={ TagName }
