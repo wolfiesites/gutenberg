@@ -35,6 +35,8 @@ export default function useClipboardHandler() {
 		__unstableIsSelectionCollapsed,
 		__unstableIsSelectionMergeable,
 		__unstableGetSelectedBlocksWithPartialSelection,
+		canInsertBlockType,
+		getBlockRootClientId,
 	} = useSelect( blockEditorStore );
 	const {
 		flashBlock,
@@ -203,6 +205,7 @@ export default function useClipboardHandler() {
 						blocks.length - 1,
 						-1
 					);
+					event.preventDefault();
 					return;
 				}
 
@@ -216,6 +219,32 @@ export default function useClipboardHandler() {
 						false
 					) &&
 					! event.__deprecatedOnSplit
+				) {
+					return;
+				}
+
+				const [ firstSelectedClientId ] = selectedBlockClientIds;
+				const firstSelectedBlockName = getBlockName(
+					firstSelectedClientId
+				);
+
+				const [ transform ] = getBlockTransforms(
+					'from',
+					firstSelectedBlockName
+				).filter( ( { type } ) => type === 'paste' );
+
+				if ( transform ) {
+					blocks = transform.transform( blocks );
+				}
+
+				const rootClientId = getBlockRootClientId(
+					firstSelectedClientId
+				);
+
+				if (
+					! blocks.every( ( block ) =>
+						canInsertBlockType( block.name, rootClientId )
+					)
 				) {
 					return;
 				}
