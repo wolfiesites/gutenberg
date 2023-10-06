@@ -45,10 +45,11 @@ function filterPatterns( patterns, template ) {
 	const filterOutDuplicatesByName = ( currentItem, index, items ) =>
 		index === items.findIndex( ( item ) => currentItem.name === item.name );
 
-	// Filter only the patterns that are compatible with the current template.
+	// Looks for patterns that have the same template type as the current template,
+	// or have a block type that matches the current template area.
 	const filterCompatiblePatterns = ( pattern ) =>
 		pattern.templateTypes?.includes( template.slug ) ||
-		pattern.blockTypes?.includes( 'core/template-part/' + template.area ); // TODO - get this working for templates.
+		pattern.blockTypes?.includes( 'core/template-part/' + template.area );
 
 	return patterns.filter(
 		filterOutDuplicatesByName && filterCompatiblePatterns
