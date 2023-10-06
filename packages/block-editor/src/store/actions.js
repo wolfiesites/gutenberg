@@ -966,7 +966,12 @@ export const __unstableSplitSelection =
 					: createBlock( select.getBlockName( selectionA.clientId ) );
 			}
 
-			if ( selectionA.offset === 0 ) {
+			const length = getRichTextAttributeLength(
+				selectionA.clientId,
+				selectionA.attributeKey
+			);
+
+			if ( selectionA.offset === 0 && length ) {
 				dispatch.insertBlocks(
 					[ createEmpty() ],
 					select.getBlockIndex( selectionA.clientId ),
@@ -975,15 +980,11 @@ export const __unstableSplitSelection =
 				);
 				return;
 			}
-			const length = getRichTextAttributeLength(
-				selectionA.clientId,
-				selectionA.attributeKey
-			);
+
 			if ( selectionA.offset === length ) {
-				const offset = length ? 1 : 0;
 				dispatch.insertBlocks(
 					[ createEmpty() ],
-					select.getBlockIndex( selectionA.clientId ) + offset,
+					select.getBlockIndex( selectionA.clientId ) + 1,
 					anchorRootClientId
 				);
 				return;
