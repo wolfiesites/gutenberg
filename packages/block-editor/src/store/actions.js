@@ -1083,7 +1083,9 @@ export const __unstableSplitSelection =
 		const firstBlock = clonedBlocks.shift();
 		const headType = getBlockType( head.name );
 		const firstBlocks =
-			headType.merge && switchToBlockType( firstBlock, headType.name );
+			headType.merge && firstBlock.name === headType.name
+				? [ firstBlock ]
+				: switchToBlockType( firstBlock, headType.name );
 
 		if ( firstBlocks?.length ) {
 			const first = firstBlocks.shift();
@@ -1108,7 +1110,9 @@ export const __unstableSplitSelection =
 
 		if ( lastBlock ) {
 			const lastBlocks =
-				tailType.merge && switchToBlockType( lastBlock, tailType.name );
+				tailType.merge && tailType.name === lastBlock.name
+					? [ lastBlock ]
+					: switchToBlockType( lastBlock, tailType.name );
 
 			if ( lastBlocks?.length ) {
 				const last = lastBlocks.pop();

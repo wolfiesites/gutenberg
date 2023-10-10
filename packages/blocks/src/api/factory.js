@@ -457,12 +457,6 @@ function maybeCheckTransformIsMatch( transform, blocks ) {
  */
 export function switchToBlockType( blocks, name ) {
 	const blocksArray = Array.isArray( blocks ) ? blocks : [ blocks ];
-
-	// Return early if all blocks are already of the correct block type.
-	if ( blocksArray.every( ( block ) => block.name === name ) ) {
-		return blocksArray;
-	}
-
 	const isMultiBlock = blocksArray.length > 1;
 	const firstBlock = blocksArray[ 0 ];
 	const sourceName = firstBlock.name;
