@@ -28,7 +28,6 @@ test.describe( 'RichText deprecated onSplit', () => {
 				} ) {
 					return el( RichText, {
 						...useBlockProps(),
-						identifier: 'value',
 						value: attributes.value,
 						onChange( value ) {
 							setAttributes( { value } );

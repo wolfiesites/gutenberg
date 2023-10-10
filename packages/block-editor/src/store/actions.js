@@ -24,7 +24,7 @@ import deprecated from '@wordpress/deprecated';
 /**
  * Internal dependencies
  */
-import { mapRichTextSettings } from './utils';
+import { findRichTextAttributeKey, mapRichTextSettings } from './utils';
 import {
 	retrieveSelectedAttribute,
 	START_OF_SELECTED_AREA,
@@ -889,25 +889,6 @@ export const __unstableSplitSelection =
 	( { registry, select, dispatch } ) => {
 		const selectionAnchor = select.getSelectionStart();
 		const selectionFocus = select.getSelectionEnd();
-
-		// Can't split if the selection is not set.
-		if (
-			! selectionAnchor.attributeKey ||
-			! selectionFocus.attributeKey ||
-			typeof selectionAnchor.offset === 'undefined' ||
-			typeof selectionFocus.offset === 'undefined'
-		) {
-			if ( blocks.length ) {
-				dispatch.replaceBlocks(
-					select.getSelectedBlockClientIds(),
-					blocks,
-					blocks.length - 1,
-					-1
-				);
-			}
-			return;
-		}
-
 		const anchorRootClientId = select.getBlockRootClientId(
 			selectionAnchor.clientId
 		);
@@ -938,13 +919,41 @@ export const __unstableSplitSelection =
 
 		const selectionA = selectionStart;
 		const selectionB = selectionEnd;
-
 		const blockA = select.getBlock( selectionA.clientId );
+		const blockB = select.getBlock( selectionB.clientId );
+		const blockAType = getBlockType( blockA.name );
+		const blockBType = getBlockType( blockB.name );
+		const attributeKeyA =
+			typeof selectionA.attributeKey === 'string'
+				? selectionA.attributeKey
+				: findRichTextAttributeKey( blockAType );
+		const attributeKeyB =
+			typeof selectionB.attributeKey === 'string'
+				? selectionB.attributeKey
+				: findRichTextAttributeKey( blockBType );
+
+		// Can't split if the selection is not set.
+		if (
+			! attributeKeyA ||
+			! attributeKeyB ||
+			typeof selectionAnchor.offset === 'undefined' ||
+			typeof selectionFocus.offset === 'undefined'
+		) {
+			if ( blocks.length ) {
+				dispatch.replaceBlocks(
+					select.getSelectedBlockClientIds(),
+					blocks,
+					blocks.length - 1,
+					-1
+				);
+			}
+			return;
+		}
 
 		// We can do some short-circuiting if the selection is collapsed.
 		if (
 			selectionA.clientId === selectionB.clientId &&
-			selectionA.attributeKey === selectionB.attributeKey &&
+			attributeKeyA === attributeKeyB &&
 			selectionA.offset === selectionB.offset
 		) {
 			// If an unmodified default block is selected, replace it. We don't
@@ -988,7 +997,7 @@ export const __unstableSplitSelection =
 
 				const length = getRichTextAttributeLength(
 					selectionA.clientId,
-					selectionA.attributeKey
+					attributeKeyA
 				);
 
 				if ( selectionA.offset === 0 && length ) {
@@ -1012,18 +1021,10 @@ export const __unstableSplitSelection =
 			}
 		}
 
-		const blockB = select.getBlock( selectionB.clientId );
-
-		const blockAType = getBlockType( blockA.name );
-		const blockBType = getBlockType( blockB.name );
-
-		const htmlA = blockA.attributes[ selectionA.attributeKey ];
-		const htmlB = blockB.attributes[ selectionB.attributeKey ];
-
-		const attributeDefinitionA =
-			blockAType.attributes[ selectionA.attributeKey ];
-		const attributeDefinitionB =
-			blockBType.attributes[ selectionB.attributeKey ];
+		const htmlA = blockA.attributes[ attributeKeyA ];
+		const htmlB = blockB.attributes[ attributeKeyB ];
+		const attributeDefinitionA = blockAType.attributes[ attributeKeyA ];
+		const attributeDefinitionB = blockBType.attributes[ attributeKeyB ];
 
 		let valueA = create( {
 			html: htmlA,
@@ -1046,7 +1047,7 @@ export const __unstableSplitSelection =
 				blockA.clientId === blockB.clientId ? [] : blockA.innerBlocks,
 			attributes: {
 				...blockA.attributes,
-				[ selectionA.attributeKey ]: toHTMLString( {
+				[ attributeKeyA ]: toHTMLString( {
 					value: valueA,
 					...mapRichTextSettings( attributeDefinitionA ),
 				} ),
@@ -1062,7 +1063,7 @@ export const __unstableSplitSelection =
 					: blockB.clientId,
 			attributes: {
 				...blockB.attributes,
-				[ selectionB.attributeKey ]: toHTMLString( {
+				[ attributeKeyB ]: toHTMLString( {
 					value: valueB,
 					...mapRichTextSettings( attributeDefinitionB ),
 				} ),
@@ -1125,7 +1126,7 @@ export const __unstableSplitSelection =
 				} );
 				output.push( ...lastBlocks );
 				offset = create( {
-					html: lastBlock.attributes[ selectionB.attributeKey ],
+					html: lastBlock.attributes[ attributeKeyB ],
 				} ).text.length;
 			} else {
 				output.push( lastBlock );
@@ -1147,7 +1148,7 @@ export const __unstableSplitSelection =
 			if ( offset ) {
 				dispatch.selectionChange(
 					tail.clientId,
-					selectionB.attributeKey,
+					attributeKeyB,
 					offset,
 					offset
 				);
