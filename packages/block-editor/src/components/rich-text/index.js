@@ -363,6 +363,7 @@ export function RichTextWrapper(
 						onRemove,
 					} ),
 					useEnter( {
+						isSelected,
 						value,
 						onReplace,
 						onSplit,
