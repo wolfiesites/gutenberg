@@ -939,59 +939,79 @@ export const __unstableSplitSelection =
 		const selectionA = selectionStart;
 		const selectionB = selectionEnd;
 
-		// Short-circuit if selection is collapsed and at start or end of block.
-		// We can simply insert the given blocks or a default block. If no
-		// default block can be inserter, create an empty block of the type that
-		// is selected.
+		const blockA = select.getBlock( selectionA.clientId );
+
+		// We can do some short-circuiting if the selection is collapsed.
 		if (
-			! blocks.length &&
 			selectionA.clientId === selectionB.clientId &&
 			selectionA.attributeKey === selectionB.attributeKey &&
-			selectionA.offset === selectionB.offset &&
-			! select.getBlock( selectionA.clientId ).innerBlocks?.length
+			selectionA.offset === selectionB.offset
 		) {
-			function getRichTextAttributeLength( clientId, attributeKey ) {
-				return create( {
-					html: select.getBlockAttributes( clientId )[ attributeKey ],
-				} ).text.length;
+			// If an unmodified default block is selected, replace it. We don't
+			// want to be converting into a default block.
+			if ( blocks.length ) {
+				if ( isUnmodifiedDefaultBlock( blockA ) ) {
+					dispatch.replaceBlocks(
+						[ selectionA.clientId ],
+						blocks,
+						blocks.length - 1,
+						-1
+					);
+					return;
+				}
 			}
 
-			function createEmpty() {
-				const defaultBlockName = getDefaultBlockName();
-				return select.canInsertBlockType(
-					defaultBlockName,
-					anchorRootClientId
-				)
-					? createBlock( defaultBlockName )
-					: createBlock( select.getBlockName( selectionA.clientId ) );
-			}
+			// If selection is at the start or end, we can simply insert an
+			// empty block, provided this block has no inner blocks.
+			else if (
+				! select.getBlock( selectionA.clientId ).innerBlocks?.length
+			) {
+				function getRichTextAttributeLength( clientId, attributeKey ) {
+					return create( {
+						html: select.getBlockAttributes( clientId )[
+							attributeKey
+						],
+					} ).text.length;
+				}
 
-			const length = getRichTextAttributeLength(
-				selectionA.clientId,
-				selectionA.attributeKey
-			);
+				function createEmpty() {
+					const defaultBlockName = getDefaultBlockName();
+					return select.canInsertBlockType(
+						defaultBlockName,
+						anchorRootClientId
+					)
+						? createBlock( defaultBlockName )
+						: createBlock(
+								select.getBlockName( selectionA.clientId )
+						  );
+				}
 
-			if ( selectionA.offset === 0 && length ) {
-				dispatch.insertBlocks(
-					[ createEmpty() ],
-					select.getBlockIndex( selectionA.clientId ),
-					anchorRootClientId,
-					false
+				const length = getRichTextAttributeLength(
+					selectionA.clientId,
+					selectionA.attributeKey
 				);
-				return;
-			}
 
-			if ( selectionA.offset === length ) {
-				dispatch.insertBlocks(
-					[ createEmpty() ],
-					select.getBlockIndex( selectionA.clientId ) + 1,
-					anchorRootClientId
-				);
-				return;
+				if ( selectionA.offset === 0 && length ) {
+					dispatch.insertBlocks(
+						[ createEmpty() ],
+						select.getBlockIndex( selectionA.clientId ),
+						anchorRootClientId,
+						false
+					);
+					return;
+				}
+
+				if ( selectionA.offset === length ) {
+					dispatch.insertBlocks(
+						[ createEmpty() ],
+						select.getBlockIndex( selectionA.clientId ) + 1,
+						anchorRootClientId
+					);
+					return;
+				}
 			}
 		}
 
-		const blockA = select.getBlock( selectionA.clientId );
 		const blockB = select.getBlock( selectionB.clientId );
 
 		const blockAType = getBlockType( blockA.name );
