@@ -1062,15 +1062,16 @@ export const __unstableSplitSelection =
 		const clonedBlocks = [ ...blocks ];
 		const firstBlock = clonedBlocks.shift();
 		const headType = getBlockType( head.name );
+		const firstBlocks =
+			headType.merge && switchToBlockType( firstBlock, headType.name );
 
-		if ( head.name === firstBlock.name && headType.merge ) {
+		if ( firstBlocks?.length ) {
+			const first = firstBlocks.shift();
 			output.push( {
 				...head,
-				attributes: headType.merge(
-					head.attributes,
-					firstBlock.attributes
-				),
+				attributes: headType.merge( head.attributes, first.attributes ),
 			} );
+			clonedBlocks.unshift( ...firstBlocks );
 		} else {
 			if ( ! isUnmodifiedBlock( head ) ) {
 				output.push( head );
@@ -1086,14 +1087,19 @@ export const __unstableSplitSelection =
 		}
 
 		if ( lastBlock ) {
-			if ( lastBlock.name === tail.name && tailType.merge ) {
+			const lastBlocks =
+				tailType.merge && switchToBlockType( lastBlock, tailType.name );
+
+			if ( lastBlocks?.length ) {
+				const last = lastBlocks.pop();
 				output.push( {
 					...tail,
 					attributes: tailType.merge(
-						lastBlock.attributes,
+						last.attributes,
 						tail.attributes
 					),
 				} );
+				output.push( ...lastBlocks );
 				offset = create( {
 					html: lastBlock.attributes[ selectionB.attributeKey ],
 				} ).text.length;
