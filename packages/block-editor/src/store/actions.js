@@ -939,14 +939,6 @@ export const __unstableSplitSelection =
 			typeof selectionAnchor.offset === 'undefined' ||
 			typeof selectionFocus.offset === 'undefined'
 		) {
-			if ( blocks.length ) {
-				dispatch.replaceBlocks(
-					select.getSelectedBlockClientIds(),
-					blocks,
-					blocks.length - 1,
-					-1
-				);
-			}
 			return;
 		}
 
@@ -972,9 +964,7 @@ export const __unstableSplitSelection =
 
 			// If selection is at the start or end, we can simply insert an
 			// empty block, provided this block has no inner blocks.
-			else if (
-				! select.getBlock( selectionA.clientId ).innerBlocks?.length
-			) {
+			else if ( ! select.getBlockOrder( selectionA.clientId ).length ) {
 				function getRichTextAttributeLength( clientId, attributeKey ) {
 					return create( {
 						html: select.getBlockAttributes( clientId )[
