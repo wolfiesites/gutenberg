@@ -96,15 +96,20 @@ export default function TemplatePanel() {
 			>
 				<TemplateAreas />
 			</SidebarCard>
-			<p>
-				{ __(
-					'Choose a predefined pattern to switch up the look of your template.' // TODO - make this dynamic?
-				) }
-			</p>
-			<TemplatesList
-				availableTemplates={ availablePatterns }
-				onSelect={ onTemplateSelect }
-			/>
+			<SidebarCard
+				className="edit-site-template-card__templates-list"
+				title={ __( 'Transform into:' ) }
+			>
+				<p>
+					{ __(
+						'Choose a predefined pattern to switch up the look of your template.' // TODO - make this dynamic?
+					) }
+				</p>
+				<TemplatesList
+					availableTemplates={ availablePatterns }
+					onSelect={ onTemplateSelect }
+				/>
+			</SidebarCard>
 			<LastRevision />
 			{ postType === PATTERN_TYPES.user && (
 				<PatternCategories post={ record } />

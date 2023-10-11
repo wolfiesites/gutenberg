@@ -37,3 +37,12 @@ h3.edit-site-template-card__template-areas-title {
 	font-weight: 500;
 	margin: 0 0 $grid-unit-10;
 }
+
+.edit-site-template-card__templates-list {
+	margin-top: $grid-unit-20;
+}
+
+.edit-site-template-panel .block-editor-block-preview__container {
+	border-radius: 2px;
+	box-shadow: none;
+}
