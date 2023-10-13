@@ -2,10 +2,8 @@
  * WordPress dependencies
  */
 import { MenuItem } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import { store as noticesStore } from '@wordpress/notices';
+import { __ } from '@wordpress/i18n';
 import { privateApis as patternsPrivateApis } from '@wordpress/patterns';
 import { privateApis as routerPrivateApis } from '@wordpress/router';
 
@@ -14,7 +12,7 @@ import { privateApis as routerPrivateApis } from '@wordpress/router';
  */
 import { TEMPLATE_PART_POST_TYPE, PATTERN_TYPES } from '../../utils/constants';
 import { unlock } from '../../lock-unlock';
-import CreateTemplatePartModal from '../create-template-part-modal';
+import DuplicateTemplatePartModal from '../duplicate-template-part-modal';
 
 const { DuplicatePatternModal } = unlock( patternsPrivateApis );
 const { useHistory } = unlock( routerPrivateApis );
@@ -25,7 +23,6 @@ export default function DuplicateMenuItem( {
 	label = __( 'Duplicate' ),
 	onClose,
 } ) {
-	const { createSuccessNotice } = useDispatch( noticesStore );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const history = useHistory();
 
@@ -35,18 +32,6 @@ export default function DuplicateMenuItem( {
 	const isThemePattern = item.type === PATTERN_TYPES.theme;
 
 	async function onTemplatePartSuccess( templatePart ) {
-		createSuccessNotice(
-			sprintf(
-				// translators: %s: The new template part's title e.g. 'Call to action (copy)'.
-				__( '"%s" duplicated.' ),
-				item.title
-			),
-			{
-				type: 'snackbar',
-				id: 'edit-site-patterns-success',
-			}
-		);
-
 		history.push( {
 			postType: TEMPLATE_PART_POST_TYPE,
 			postId: templatePart?.id,
@@ -85,19 +70,10 @@ export default function DuplicateMenuItem( {
 				/>
 			) }
 			{ isModalOpen && isTemplatePart && (
-				<CreateTemplatePartModal
-					blocks={ item.blocks }
-					closeModal={ closeModal }
-					confirmLabel={ __( 'Duplicate' ) }
-					defaultArea={ item.templatePart.area }
-					defaultTitle={ sprintf(
-						/* translators: %s: Existing template part title */
-						__( '%s (Copy)' ),
-						item.title
-					) }
-					modalTitle={ __( 'Duplicate template part' ) }
-					onCreate={ onTemplatePartSuccess }
-					onError={ closeModal }
+				<DuplicateTemplatePartModal
+					onClose={ closeModal }
+					onSuccess={ onTemplatePartSuccess }
+					templatePart={ item.templatePart }
 				/>
 			) }
 		</>

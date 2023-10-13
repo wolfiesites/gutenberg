@@ -42,6 +42,7 @@ export default function CreateTemplatePartModal( {
 	defaultArea = TEMPLATE_PART_AREA_DEFAULT_CATEGORY,
 	blocks = [],
 	confirmLabel = __( 'Create' ),
+	content,
 	closeModal,
 	modalTitle = __( 'Create template part' ),
 	onCreate,
@@ -82,7 +83,7 @@ export default function CreateTemplatePartModal( {
 				{
 					slug: cleanSlug,
 					title: uniqueTitle,
-					content: serialize( blocks ),
+					content: content || serialize( blocks ),
 					area,
 				},
 				{ throwOnError: true }
