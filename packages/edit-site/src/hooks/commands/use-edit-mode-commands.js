@@ -34,8 +34,9 @@ import isTemplateRevertable from '../../utils/is-template-revertable';
 import { KEYBOARD_SHORTCUT_HELP_MODAL_NAME } from '../../components/keyboard-shortcut-help-modal';
 import { PREFERENCES_MODAL_NAME } from '../../components/preferences-modal';
 import { PATTERN_MODALS } from '../../components/pattern-modal';
+import { TEMPLATE_PART_MODALS } from '../../components/template-part-modal';
 import { unlock } from '../../lock-unlock';
-import { TEMPLATE_POST_TYPE } from '../../utils/constants';
+import { TEMPLATE_POST_TYPE, TEMPLATE_ORIGINS } from '../../utils/constants';
 
 const { useHistory } = unlock( routerPrivateApis );
 
@@ -362,7 +363,7 @@ function useEditUICommands() {
 }
 
 function usePatternCommands() {
-	const { isLoaded, record: pattern } = useEditedEntityRecord();
+	const { isLoaded, record } = useEditedEntityRecord();
 	const { openModal } = useDispatch( interfaceStore );
 
 	if ( ! isLoaded ) {
@@ -371,7 +372,7 @@ function usePatternCommands() {
 
 	const commands = [];
 
-	if ( pattern?.type === 'wp_block' ) {
+	if ( record?.type === 'wp_block' ) {
 		commands.push( {
 			name: 'core/rename-pattern',
 			label: __( 'Rename pattern' ),
@@ -390,6 +391,22 @@ function usePatternCommands() {
 				close();
 			},
 		} );
+	}
+
+	if ( record?.type === 'wp_template_part' ) {
+		if ( record?.source === TEMPLATE_ORIGINS.custom ) {
+			commands.push( {
+				name: 'core/rename-template-part',
+				label: __( 'Rename template part' ),
+				icon: symbol,
+				callback: ( { close } ) => {
+					openModal( TEMPLATE_PART_MODALS.rename );
+					close();
+				},
+			} );
+		}
+
+		// All template parts will be eligible for duplication in a follow-up.
 	}
 
 	return { isLoading: false, commands };
