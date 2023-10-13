@@ -282,7 +282,7 @@ function MediaTextEdit( {
 				<ToggleControl
 					__nextHasNoMarginBottom
 					label={ __( 'Crop image to fill entire column' ) }
-					checked={ imageFill }
+					checked={ !! imageFill }
 					onChange={ () =>
 						setAttributes( {
 							imageFill: ! imageFill,
