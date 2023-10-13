@@ -15,15 +15,17 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 
-export default function RenamePatternModal( {
+export default function RenameTemplatePartModal( {
 	onClose,
 	onError,
 	onSuccess,
-	pattern,
+	templatePart,
 	...props
 } ) {
 	const originalName =
-		typeof pattern.title === 'string' ? pattern.title : pattern.title.raw;
+		typeof templatePart.title === 'string'
+			? templatePart.title
+			: templatePart.title.raw;
 	const [ name, setName ] = useState( decodeEntities( originalName ) );
 	const [ isSaving, setIsSaving ] = useState( false );
 
@@ -38,14 +40,19 @@ export default function RenamePatternModal( {
 	const onRename = async ( event ) => {
 		event.preventDefault();
 
-		if ( ! name || name === pattern.title || isSaving ) {
+		if ( ! name || name === templatePart.title || isSaving ) {
 			return;
 		}
 
 		try {
-			await editEntityRecord( 'postType', pattern.type, pattern.id, {
-				title: name,
-			} );
+			await editEntityRecord(
+				'postType',
+				templatePart.type,
+				templatePart.id,
+				{
+					title: name,
+				}
+			);
 
 			setIsSaving( true );
 			setName( '' );
@@ -53,17 +60,17 @@ export default function RenamePatternModal( {
 
 			const savedRecord = await saveSpecifiedEntityEdits(
 				'postType',
-				pattern.type,
-				pattern.id,
+				templatePart.type,
+				templatePart.id,
 				[ 'title' ],
 				{ throwOnError: true }
 			);
 
 			onSuccess?.( savedRecord );
 
-			createSuccessNotice( __( 'Pattern renamed' ), {
+			createSuccessNotice( __( 'Template part renamed' ), {
 				type: 'snackbar',
-				id: 'pattern-update',
+				id: 'template-part-update',
 			} );
 		} catch ( error ) {
 			onError?.();
@@ -71,11 +78,13 @@ export default function RenamePatternModal( {
 			const errorMessage =
 				error.message && error.code !== 'unknown_error'
 					? error.message
-					: __( 'An error occurred while renaming the pattern.' );
+					: __(
+							'An error occurred while renaming the template part.'
+					  );
 
 			createErrorNotice( errorMessage, {
 				type: 'snackbar',
-				id: 'pattern-update',
+				id: 'template-part-update',
 			} );
 		} finally {
 			setIsSaving( false );
