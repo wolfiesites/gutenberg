@@ -39,6 +39,8 @@ import BlockOutline from './block-outline';
 import { store as blockEditorStore } from '../../store';
 import { useLayout } from './layout';
 import { useSettings } from '../use-settings';
+import BlockCrashBoundary from './block-crash-boundary';
+import BlockCrashWarning from './block-crash-warning';
 
 const EMPTY_ARRAY = [];
 
@@ -101,14 +103,16 @@ function BlockWrapper( {
 				isSelected={ isSelected }
 				name={ name }
 			/>
-			<BlockDraggable
-				clientId={ clientId }
-				draggingClientId={ draggingClientId }
-				enabled={ draggingEnabled }
-				testID="draggable-trigger-content"
-			>
-				{ children }
-			</BlockDraggable>
+			<BlockCrashBoundary fallback={ <BlockCrashWarning /> }>
+				<BlockDraggable
+					clientId={ clientId }
+					draggingClientId={ draggingClientId }
+					enabled={ draggingEnabled }
+					testID="draggable-trigger-content"
+				>
+					{ children }
+				</BlockDraggable>
+			</BlockCrashBoundary>
 		</Pressable>
 	);
 }

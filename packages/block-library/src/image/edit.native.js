@@ -660,6 +660,8 @@ export class ImageEdit extends Component {
 	}
 
 	render() {
+		throw Error( 'Error in Image block' );
+
 		const { isCaptionSelected, isFetchingImage } = this.state;
 		const {
 			attributes,
