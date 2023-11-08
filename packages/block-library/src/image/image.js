@@ -426,7 +426,14 @@ export default function Image( {
 
 	const sizeControls = (
 		<InspectorControls>
-			<ToolsPanel label={ __( 'Settings' ) } resetAll={ resetAll }>
+			<ToolsPanel
+				label={ __( 'Settings' ) }
+				resetAll={ resetAll }
+				dropdownMenuProps={ {
+					placement: 'left-start',
+					offset: 258, // sidebar width (280px) - button width (24px) + border (2px)
+				} }
+			>
 				{ isResizable && dimensionsControl }
 			</ToolsPanel>
 		</InspectorControls>
@@ -510,7 +517,14 @@ export default function Image( {
 				</BlockControls>
 			) }
 			<InspectorControls>
-				<ToolsPanel label={ __( 'Settings' ) } resetAll={ resetAll }>
+				<ToolsPanel
+					label={ __( 'Settings' ) }
+					resetAll={ resetAll }
+					dropdownMenuProps={ {
+						placement: 'left-start',
+						offset: 258, // sidebar width (280px) - button width (24px) + border (2px)
+					} }
+				>
 					{ ! multiImageSelection && (
 						<ToolsPanelItem
 							label={ __( 'Alternative text' ) }
