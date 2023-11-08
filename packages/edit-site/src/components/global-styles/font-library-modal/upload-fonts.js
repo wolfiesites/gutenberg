@@ -8,11 +8,11 @@ import { __experimentalSpacer as Spacer } from '@wordpress/components';
  */
 import LocalFonts from './local-fonts';
 
-function UploadFonts() {
+function UploadFonts( { onRequestClose } ) {
 	return (
 		<>
 			<Spacer margin={ 8 } />
-			<LocalFonts />
+			<LocalFonts onRequestClose={ onRequestClose } />
 		</>
 	);
 }

@@ -6,7 +6,7 @@ import {
 	Modal,
 	privateApis as componentsPrivateApis,
 } from '@wordpress/components';
-import { useContext } from '@wordpress/element';
+import { useState, useContext } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -47,6 +47,7 @@ function FontLibraryModal( {
 	initialTabName = 'installed-fonts',
 } ) {
 	const { collections } = useContext( FontLibraryContext );
+	const [ selectedTab, setSelectedTab ] = useState( initialTabName );
 
 	const tabs = [
 		...DEFAULT_TABS,
@@ -60,10 +61,14 @@ function FontLibraryModal( {
 			isFullScreen
 			className="font-library-modal"
 		>
-			<Tabs initialTabId={ initialTabName }>
+			<Tabs selectedTabId={ selectedTab } onSelect={ setSelectedTab }>
 				<Tabs.TabList className="font-library-modal__tab-list">
 					{ tabs.map( ( tab ) => (
-						<Tabs.Tab key={ tab.name } id={ tab.name }>
+						<Tabs.Tab
+							key={ tab.name }
+							id={ tab.name }
+							className={ tab.className }
+						>
 							{ tab.title }
 						</Tabs.Tab>
 					) ) }
@@ -72,7 +77,11 @@ function FontLibraryModal( {
 					<InstalledFonts />
 				</Tabs.TabPanel>
 				<Tabs.TabPanel id={ 'upload-fonts' }>
-					<UploadFonts />
+					<UploadFonts
+						onRequestClose={ () =>
+							setSelectedTab( 'installed-fonts' )
+						}
+					/>
 				</Tabs.TabPanel>
 				{ tabsFromCollections( collections || [] ).map( ( tab ) => (
 					<Tabs.TabPanel key={ tab.name } id={ tab.name }>

@@ -24,7 +24,7 @@ import makeFamiliesFromFaces from './utils/make-families-from-faces';
 import { loadFontFaceInBrowser } from './utils';
 import { getNoticeFromInstallResponse } from './utils/get-notice-from-response';
 
-function LocalFonts() {
+function LocalFonts( { onRequestClose } ) {
 	const { installFonts } = useContext( FontLibraryContext );
 	const [ notice, setNotice ] = useState( null );
 	const supportedFormats =
@@ -148,8 +148,12 @@ function LocalFonts() {
 	const handleInstall = async ( fontFaces ) => {
 		const fontFamilies = makeFamiliesFromFaces( fontFaces );
 		const response = await installFonts( fontFamilies );
-		const installNotice = getNoticeFromInstallResponse( response );
-		setNotice( installNotice );
+		if ( ! response.errors.length ) {
+			onRequestClose();
+		} else {
+			const installNotice = getNoticeFromInstallResponse( response );
+			setNotice( installNotice );
+		}
 	};
 
 	return (
