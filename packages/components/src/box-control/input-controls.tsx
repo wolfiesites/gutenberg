@@ -11,6 +11,7 @@ import type { UnitControlProps } from '../unit-control/types';
 const noop = () => {};
 
 export default function BoxInputControls( {
+	__next40pxDefaultSize,
 	onChange = noop,
 	onFocus = noop,
 	onHoverOn = noop,
@@ -125,6 +126,7 @@ export default function BoxInputControls( {
 							onHoverOff={ createHandleOnHoverOff( side ) }
 							label={ LABELS[ side ] }
 							key={ `box-control-${ side }` }
+							__next40pxDefaultSize={ __next40pxDefaultSize }
 						/>
 					);
 				} ) }
