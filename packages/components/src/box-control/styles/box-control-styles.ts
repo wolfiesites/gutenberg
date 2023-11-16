@@ -11,11 +11,18 @@ import BaseUnitControl from '../../unit-control';
 import { rtl } from '../../utils';
 import type { BoxUnitControlProps } from '../types';
 
+const RootWidth = ( {
+	__next40pxDefaultSize,
+}: Pick< BoxUnitControlProps, '__next40pxDefaultSize' > ) => {
+	const maxWidth = __next40pxDefaultSize ? '320px' : '235px';
+	return css( { maxWidth } );
+};
+
 export const Root = styled.div`
 	box-sizing: border-box;
-	max-width: 235px;
 	padding-bottom: 12px;
 	width: 100%;
+	${ RootWidth }
 `;
 
 export const Header = styled( Flex )`
@@ -73,8 +80,16 @@ const unitControlMarginStyles = ( {
 	return rtl( { marginLeft } )();
 };
 
+const unitControlWidth = ( {
+	__next40pxDefaultSize,
+}: Pick< BoxUnitControlProps, '__next40pxDefaultSize' > ) => {
+	const maxWidth = __next40pxDefaultSize ? '80px' : '60px';
+
+	return css( { maxWidth } );
+};
+
 export const UnitControl = styled( BaseUnitControl )`
-	max-width: 60px;
 	${ unitControlBorderRadiusStyles };
 	${ unitControlMarginStyles };
+	${ unitControlWidth };
 `;

@@ -157,7 +157,12 @@ function BoxControl( {
 	};
 
 	return (
-		<Root id={ id } role="group" aria-labelledby={ headingId }>
+		<Root
+			id={ id }
+			role="group"
+			aria-labelledby={ headingId }
+			__next40pxDefaultSize={ __next40pxDefaultSize }
+		>
 			<Header className="component-box-control__header">
 				<FlexItem>
 					<BaseControl.VisualLabel id={ headingId }>
