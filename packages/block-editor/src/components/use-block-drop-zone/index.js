@@ -65,6 +65,7 @@ export function getDropTargetPosition(
 	let nearestIndex = 0;
 	let insertPosition = 'before';
 	let minDistance = Infinity;
+	let targetBlockIndex = null;
 
 	blocksData.forEach(
 		( { isUnmodifiedDefaultBlock, getBoundingClientRect, blockIndex } ) => {
@@ -81,6 +82,10 @@ export function getDropTargetPosition(
 				isPointContainedByRect( position, rect )
 			) {
 				distance = 0;
+			} else if ( isPointContainedByRect( position, rect ) ) {
+				// Set target block index if the point is inside of the block
+				// and the block is modified.
+				targetBlockIndex = blockIndex;
 			}
 
 			if ( distance < minDistance ) {
@@ -106,6 +111,10 @@ export function getDropTargetPosition(
 	const isAdjacentBlockUnmodifiedDefaultBlock =
 		!! blocksData[ adjacentIndex ]?.isUnmodifiedDefaultBlock;
 
+	// If the target index is set then group with the block at that index.
+	if ( targetBlockIndex !== null ) {
+		return [ targetBlockIndex, 'group' ];
+	}
 	// If both blocks are not unmodified default blocks then just insert between them.
 	if (
 		! isNearestBlockUnmodifiedDefaultBlock &&
