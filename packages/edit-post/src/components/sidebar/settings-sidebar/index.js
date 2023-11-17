@@ -37,6 +37,10 @@ const SIDEBAR_ACTIVE_BY_DEFAULT = Platform.select( {
 	web: true,
 	native: false,
 } );
+export const sidebars = {
+	document: 'edit-post/document',
+	block: 'edit-post/block',
+};
 
 const SettingsSidebar = () => {
 	const { sidebarName, isSidebarOpen, keyboardShortcut, isTemplateMode } =
@@ -52,15 +56,11 @@ const SettingsSidebar = () => {
 				editPostStore.name
 			);
 			const isOpen = sidebar !== null;
-			if (
-				! [ 'edit-post/document', 'edit-post/block' ].includes(
-					sidebar
-				)
-			) {
+			if ( ! [ sidebars.document, sidebars.block ].includes( sidebar ) ) {
 				if ( select( blockEditorStore ).getBlockSelectionStart() ) {
-					sidebar = 'edit-post/block';
+					sidebar = sidebars.block;
 				}
-				sidebar = 'edit-post/document';
+				sidebar = sidebars.document;
 			}
 			const shortcut = select(
 				keyboardShortcutsStore
@@ -84,7 +84,7 @@ const SettingsSidebar = () => {
 				identifier={ sidebarName }
 				header={
 					<Tabs.Context.Provider value={ tabsContextValue }>
-						<SettingsHeader sidebarName={ sidebarName } />
+						<SettingsHeader />
 					</Tabs.Context.Provider>
 				}
 				closeLabel={ __( 'Close Settings' ) }
@@ -96,10 +96,7 @@ const SettingsSidebar = () => {
 				isActiveByDefault={ SIDEBAR_ACTIVE_BY_DEFAULT }
 			>
 				<Tabs.Context.Provider value={ tabsContextValue }>
-					<Tabs.TabPanel
-						id={ 'edit-post/document' }
-						focusable={ false }
-					>
+					<Tabs.TabPanel id={ sidebars.document } focusable={ false }>
 						{ ! isTemplateMode && (
 							<>
 								<PostStatus />
@@ -115,7 +112,7 @@ const SettingsSidebar = () => {
 						) }
 						{ isTemplateMode && <TemplateSummary /> }
 					</Tabs.TabPanel>
-					<Tabs.TabPanel id={ 'edit-post/block' } focusable={ false }>
+					<Tabs.TabPanel id={ sidebars.block } focusable={ false }>
 						<BlockInspector />
 					</Tabs.TabPanel>
 				</Tabs.Context.Provider>
