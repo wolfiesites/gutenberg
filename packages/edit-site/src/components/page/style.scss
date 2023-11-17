@@ -5,9 +5,12 @@
 	overflow: hidden;
 	margin: 0;
 	margin-top: $header-height;
+	&.small {
+		max-width: 280px;
+	}
 	@include break-medium() {
 		border-radius: 8px;
-		margin: $grid-unit-30 $grid-unit-30 $grid-unit-30 0;
+		margin: $grid-unit-15 $grid-unit-15 $grid-unit-15 0;
 	}
 }
 
