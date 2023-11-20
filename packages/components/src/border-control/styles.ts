@@ -69,8 +69,8 @@ export const borderControlDropdown = (
 		 * Override button component styles to fit within BorderControl
 		 * regardless of size.
 		 */
-		height: ${ size === '__unstable-large' ? '40px' : '30px' };
-		width: ${ size === '__unstable-large' ? '40px' : '30px' };
+		height: ${ size === '__unstable-large' ? '40px' : '32px' };
+		width: ${ size === '__unstable-large' ? '40px' : '32px' };
 		padding: 0;
 		display: flex;
 		align-items: center;
