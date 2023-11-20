@@ -11,7 +11,7 @@ import BaseUnitControl from '../../unit-control';
 import { rtl } from '../../utils';
 import type { BoxUnitControlProps } from '../types';
 
-const RootWidth = ( {
+const rootWidth = ( {
 	__next40pxDefaultSize,
 }: Pick< BoxUnitControlProps, '__next40pxDefaultSize' > ) => {
 	const maxWidth = __next40pxDefaultSize ? '320px' : '235px';
@@ -22,7 +22,7 @@ export const Root = styled.div`
 	box-sizing: border-box;
 	padding-bottom: 12px;
 	width: 100%;
-	${ RootWidth }
+	${ rootWidth }
 `;
 
 export const Header = styled( Flex )`
