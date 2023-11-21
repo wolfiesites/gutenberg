@@ -908,3 +908,52 @@ export function receiveNavigationFallbackId( fallbackId ) {
 		fallbackId,
 	};
 }
+
+/**
+ * Returns an action object used to set the template for a given query.
+ *
+ * @param {Object} query      The lookup query.
+ * @param {string} templateId The resolved template id.
+ *
+ * @return {Object} Action object.
+ */
+export function receiveDefaultTemplateId( query, templateId ) {
+	return {
+		type: 'RECEIVE_DEFAULT_TEMPLATE',
+		query,
+		templateId,
+	};
+}
+
+/**
+ * Returns an action object used in signalling that revisions have been received.
+ *
+ * @param {string}        kind            Kind of the received entity record revisions.
+ * @param {string}        name            Name of the received entity record revisions.
+ * @param {number|string} recordKey       The key of the entity record whose revisions you want to fetch.
+ * @param {Array|Object}  records         Revisions received.
+ * @param {?Object}       query           Query Object.
+ * @param {?boolean}      invalidateCache Should invalidate query caches.
+ * @param {?Object}       meta            Meta information about pagination.
+ * @return {Object} Action object.
+ */
+export function receiveRevisions(
+	kind,
+	name,
+	recordKey,
+	records,
+	query,
+	invalidateCache = false,
+	meta
+) {
+	return {
+		type: 'RECEIVE_ITEM_REVISIONS',
+		items: Array.isArray( records ) ? records : [ records ],
+		recordKey,
+		meta,
+		query,
+		kind,
+		name,
+		invalidateCache,
+	};
+}
