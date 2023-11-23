@@ -158,7 +158,7 @@ export default function PostSavedState( {
 			 * of the button that we want to avoid. By setting `showTooltip`,
 			 * the tooltip is always rendered even when there's no keyboard shortcut.
 			 */
-			showTooltip
+			// showTooltip
 			variant="tertiary"
 			icon={ isLargeViewport ? undefined : cloudUpload }
 			// Make sure the aria-label has always a value, as the default `text` is undefined on small screens.
