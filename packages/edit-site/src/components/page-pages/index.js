@@ -35,6 +35,7 @@ import {
 	viewPostAction,
 	useEditPostAction,
 } from '../actions';
+import { useBulkTrashPostAction } from '../bulk-actions';
 import SideEditor from './side-editor';
 import Media from '../media';
 import { unlock } from '../../lock-unlock';
@@ -164,6 +165,20 @@ export default function PagePages() {
 		totalPages,
 	} = useEntityRecords( 'postType', postType, queryArgs );
 
+	useEffect( () => {
+		if (
+			selection.some(
+				( id ) => ! pages?.some( ( page ) => page.id === id )
+			)
+		) {
+			setSelection(
+				selection.filter( ( id ) =>
+					pages?.some( ( page ) => page.id === id )
+				)
+			);
+		}
+	}, [ pages, selection ] );
+
 	const { records: authors, isResolving: isLoadingAuthors } =
 		useEntityRecords( 'root', 'user' );
 
@@ -271,6 +286,9 @@ export default function PagePages() {
 	const permanentlyDeletePostAction = usePermanentlyDeletePostAction();
 	const restorePostAction = useRestorePostAction();
 	const editPostAction = useEditPostAction();
+
+	const bulkTrashPostAction = useBulkTrashPostAction();
+
 	const actions = useMemo(
 		() => [
 			viewPostAction,
@@ -281,6 +299,11 @@ export default function PagePages() {
 			postRevisionsAction,
 		],
 		[ permanentlyDeletePostAction, restorePostAction, editPostAction ]
+	);
+
+	const bulkActions = useMemo(
+		() => [ bulkTrashPostAction ],
+		[ bulkTrashPostAction ]
 	);
 	const onChangeView = useCallback(
 		( viewUpdater ) => {
@@ -310,11 +333,14 @@ export default function PagePages() {
 					paginationInfo={ paginationInfo }
 					fields={ fields }
 					actions={ actions }
+					bulkActions={ bulkActions }
 					data={ pages || EMPTY_ARRAY }
 					getItemId={ ( item ) => item.id }
 					isLoading={ isLoadingPages || isLoadingAuthors }
 					view={ view }
 					onChangeView={ onChangeView }
+					selection={ selection }
+					setSelection={ setSelection }
 				/>
 			</Page>
 			{ VIEW_LAYOUTS.find( ( v ) => v.type === view.type )?.supports
