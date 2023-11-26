@@ -3,16 +3,15 @@
  */
 import { useSelect, useDispatch } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
-import {
-	DropdownMenu,
-	MenuGroup,
-	MenuItem,
-	__experimentalHStack as HStack,
-	__experimentalText as Text,
-} from '@wordpress/components';
+import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { store as coreStore, useEntityBlockEditor } from '@wordpress/core-data';
+import { store as coreStore } from '@wordpress/core-data';
 import { check } from '@wordpress/icons';
+import { store as blockEditorStore } from '@wordpress/block-editor';
+import {
+	privateApis as editorPrivateApis,
+	store as editorStore,
+} from '@wordpress/editor';
 
 /**
  * Internal dependencies
@@ -21,7 +20,9 @@ import { store as editSiteStore } from '../../../store';
 import SwapTemplateButton from './swap-template-button';
 import ResetDefaultTemplate from './reset-default-template';
 import { unlock } from '../../../lock-unlock';
-import usePageContentBlocks from '../../block-editor/block-editor-provider/use-page-content-blocks';
+import { PAGE_CONTENT_BLOCK_TYPES } from '../../../utils/constants';
+
+const { PostPanelRow } = unlock( editorPrivateApis );
 
 const POPOVER_PROPS = {
 	className: 'edit-site-page-panels-edit-template__dropdown',
@@ -29,60 +30,41 @@ const POPOVER_PROPS = {
 };
 
 export default function EditTemplate() {
-	const { hasResolved, template, isTemplateHidden, postType } = useSelect(
-		( select ) => {
+	const { hasPostContentBlocks, hasResolved, template, isTemplateHidden } =
+		useSelect( ( select ) => {
 			const { getEditedPostContext, getEditedPostType, getEditedPostId } =
 				select( editSiteStore );
-			const { getCanvasMode, getPageContentFocusType } = unlock(
-				select( editSiteStore )
-			);
+			const { getRenderingMode } = unlock( select( editorStore ) );
 			const { getEditedEntityRecord, hasFinishedResolution } =
 				select( coreStore );
+			const { __experimentalGetGlobalBlocksByName } =
+				select( blockEditorStore );
 			const _context = getEditedPostContext();
 			const _postType = getEditedPostType();
-			const queryArgs = [
-				'postType',
-				getEditedPostType(),
-				getEditedPostId(),
-			];
-
+			const queryArgs = [ 'postType', _postType, getEditedPostId() ];
 			return {
+				hasPostContentBlocks: !! __experimentalGetGlobalBlocksByName(
+					Object.keys( PAGE_CONTENT_BLOCK_TYPES )
+				).length,
 				context: _context,
 				hasResolved: hasFinishedResolution(
 					'getEditedEntityRecord',
 					queryArgs
 				),
 				template: getEditedEntityRecord( ...queryArgs ),
-				isTemplateHidden:
-					getCanvasMode() === 'edit' &&
-					getPageContentFocusType() === 'hideTemplate',
+				isTemplateHidden: getRenderingMode() === 'post-only',
 				postType: _postType,
 			};
-		},
-		[]
-	);
+		}, [] );
 
-	const [ blocks ] = useEntityBlockEditor( 'postType', postType );
-
-	const { setHasPageContentFocus } = useDispatch( editSiteStore );
-	// Disable reason: `useDispatch` can't be called conditionally.
-	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
-	const { setPageContentFocusType } = unlock( useDispatch( editSiteStore ) );
-	// Check if there are any post content block types in the blocks tree.
-	const pageContentBlocks = usePageContentBlocks( {
-		blocks,
-		isPageContentFocused: true,
-	} );
+	const { setRenderingMode } = useDispatch( editorStore );
 
 	if ( ! hasResolved ) {
 		return null;
 	}
 
 	return (
-		<HStack className="edit-site-summary-field">
-			<Text className="edit-site-summary-field__label">
-				{ __( 'Template' ) }
-			</Text>
+		<PostPanelRow label={ __( 'Template' ) }>
 			<DropdownMenu
 				popoverProps={ POPOVER_PROPS }
 				focusOnMount
@@ -99,7 +81,7 @@ export default function EditTemplate() {
 						<MenuGroup>
 							<MenuItem
 								onClick={ () => {
-									setHasPageContentFocus( false );
+									setRenderingMode( 'template-only' );
 									onClose();
 								} }
 							>
@@ -108,7 +90,7 @@ export default function EditTemplate() {
 							<SwapTemplateButton onClick={ onClose } />
 						</MenuGroup>
 						<ResetDefaultTemplate onClick={ onClose } />
-						{ !! pageContentBlocks?.length && (
+						{ hasPostContentBlocks && (
 							<MenuGroup>
 								<MenuItem
 									icon={
@@ -116,10 +98,10 @@ export default function EditTemplate() {
 									}
 									isPressed={ ! isTemplateHidden }
 									onClick={ () => {
-										setPageContentFocusType(
+										setRenderingMode(
 											isTemplateHidden
-												? 'disableTemplate'
-												: 'hideTemplate'
+												? 'template-locked'
+												: 'post-only'
 										);
 									} }
 								>
@@ -130,6 +112,6 @@ export default function EditTemplate() {
 					</>
 				) }
 			</DropdownMenu>
-		</HStack>
+		</PostPanelRow>
 	);
 }
