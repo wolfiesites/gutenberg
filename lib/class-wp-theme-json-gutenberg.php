@@ -2335,7 +2335,27 @@ class WP_Theme_JSON_Gutenberg {
 				}
 
 				foreach ( $variation_elements as $variation_element => $variation_element_node ) {
-					// TODO: Process the block style variation's element styles here...
+					// TODO: See if there is a way to clean up the generation of element selectors.
+					// The following code varies from standard block element selectors only to avoid
+					// that the $selectors[ $name ]['elements'][ $variation_element ] value would
+					// nest the block's root selector.
+					$nodes[] = array(
+						'path'     => array( 'styles', 'blocks', $name, 'variations', $variation, 'elements', $variation_element ),
+						'selector' => static::scope_selector( $variation_selector, static::ELEMENTS[ $variation_element ] ),
+					);
+
+					// Handle any pseudo selectors for the element.
+					if ( isset( static::VALID_ELEMENT_PSEUDO_SELECTORS[ $variation_element ] ) ) {
+						foreach ( static::VALID_ELEMENT_PSEUDO_SELECTORS[ $variation_element ] as $pseudo_selector ) {
+							if ( isset( $variation_element_node[ $pseudo_selector ] ) ) {
+								$pseudo_element_selector = static::append_to_selector( static::ELEMENTS[ $variation_element ], $pseudo_selector );
+								$nodes[]                 = array(
+									'path'     => array( 'styles', 'blocks', $name, 'variations', $variation, 'elements', $variation_element ),
+									'selector' => static::scope_selector( $variation_selector, $pseudo_element_selector ),
+								);
+							}
+						}
+					}
 				}
 			}
 
