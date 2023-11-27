@@ -768,6 +768,7 @@ class WP_Theme_JSON_Gutenberg {
 		foreach ( $valid_block_names as $block ) {
 			// Build the schema for each block style variation.
 			$style_variation_names = array();
+
 			if (
 				! empty( $input['styles']['blocks'][ $block ]['variations'] ) &&
 				is_array( $input['styles']['blocks'][ $block ]['variations'] ) &&
@@ -779,9 +780,14 @@ class WP_Theme_JSON_Gutenberg {
 				);
 			}
 
+			$schema_styles_variations                 = array();
+			$block_style_variation_styles             = static::VALID_STYLES;
+			$block_style_variation_styles['blocks']   = null;
+			$block_style_variation_styles['elements'] = null;
+
 			$schema_styles_variations = array();
 			if ( ! empty( $style_variation_names ) ) {
-				$schema_styles_variations = array_fill_keys( $style_variation_names, $styles_non_top_level );
+				$schema_styles_variations = array_fill_keys( $style_variation_names, $block_style_variation_styles );
 			}
 
 			$schema_settings_blocks[ $block ]             = static::VALID_SETTINGS;
@@ -951,6 +957,7 @@ class WP_Theme_JSON_Gutenberg {
 				}
 			}
 
+			// Block style variations can be registered through the WP_Block_Styles_Registry as well as block.json.
 			$registered_styles = $style_registry->get_registered_styles_for_block( $block_name );
 			foreach ( $registered_styles as $style ) {
 				$style_selectors[ $style['name'] ] = static::append_to_selector( '.is-style-' . $style['name'] . '.is-style-' . $style['name'], static::$blocks_metadata[ $block_name ]['selector'] );
@@ -2283,38 +2290,63 @@ class WP_Theme_JSON_Gutenberg {
 		}
 
 		foreach ( $theme_json['styles']['blocks'] as $name => $node ) {
-			$selector = null;
-			if ( isset( $selectors[ $name ]['selector'] ) ) {
-				$selector = $selectors[ $name ]['selector'];
-			}
-
-			$duotone_selector = null;
-			if ( isset( $selectors[ $name ]['duotone'] ) ) {
-				$duotone_selector = $selectors[ $name ]['duotone'];
-			}
-
-			$feature_selectors = null;
-			if ( isset( $selectors[ $name ]['selectors'] ) ) {
-				$feature_selectors = $selectors[ $name ]['selectors'];
-			}
-
+			$selector            = $selectors[ $name ]['selector'] ?? null;
+			$duotone_selector    = $selectors[ $name ]['duotone'] ?? null;
+			$feature_selectors   = $selectors[ $name ]['selectors'] ?? null;
+			$variations          = $node['variations'] ?? array();
 			$variation_selectors = array();
-			if ( isset( $node['variations'] ) ) {
-				foreach ( $node['variations'] as $variation => $node ) {
-					$variation_selectors[] = array(
-						'path'     => array( 'styles', 'blocks', $name, 'variations', $variation ),
-						'selector' => $selectors[ $name ]['styleVariations'][ $variation ],
+			$variation_nodes     = array();
+
+			// TODO: Should we be supporting recursive variations and block type styles?
+			foreach ( $variations as $variation => $variation_node ) {
+				$variation_selector    = $selectors[ $name ]['styleVariations'][ $variation ];
+				$variation_selectors[] = array(
+					'path'     => array( 'styles', 'blocks', $name, 'variations', $variation ),
+					'selector' => $variation_selector,
+				);
+
+				$variation_blocks   = $variation_node['blocks'] ?? array();
+				$variation_elements = $variation_node['elements'] ?? array();
+
+				foreach ( $variation_blocks as $variation_block => $variation_block_node ) {
+					$variation_block_selector    = static::scope_selector( $variation_selector, $selectors[ $variation_block ]['selector'] ?? null );
+					$variation_duotone_selector  = static::scope_selector( $variation_selector, $selectors[ $variation_block ]['duotone'] ?? null );
+					$variation_feature_selectors = $selectors[ $variation_block ]['selectors'] ?? null;
+
+					foreach ( $variation_feature_selectors as $feature => $feature_selector ) {
+						if ( is_string( $feature_selector ) ) {
+							$variation_feature_selectors[ $feature ] = static::scope_selector( $variation_selector, $feature_selector );
+						}
+
+						if ( is_array( $feature_selector ) ) {
+							foreach ( $feature_selector as $subfeature => $subfeature_selector ) {
+								$variation_feature_selectors[ $feature ][ $subfeature ] = static::scope_selector( $variation_selector, $subfeature_selector );
+							}
+						}
+					}
+
+					$variation_nodes[] = array(
+						'name'      => $variation_block,
+						'path'      => array( 'styles', 'blocks', $name, 'variations', $variation, 'blocks', $variation_block ),
+						'selector'  => $variation_block_selector,
+						'selectors' => $variation_feature_selectors,
+						'duotone'   => $variation_duotone_selector,
 					);
+				}
+
+				foreach ( $variation_elements as $variation_element => $variation_element_node ) {
+					// TODO: Process the block style variation's element styles here...
 				}
 			}
 
 			$nodes[] = array(
-				'name'       => $name,
-				'path'       => array( 'styles', 'blocks', $name ),
-				'selector'   => $selector,
-				'selectors'  => $feature_selectors,
-				'duotone'    => $duotone_selector,
-				'variations' => $variation_selectors,
+				'name'            => $name,
+				'path'            => array( 'styles', 'blocks', $name ),
+				'selector'        => $selector,
+				'selectors'       => $feature_selectors,
+				'duotone'         => $duotone_selector,
+				'variations'      => $variation_selectors,
+				'variation_nodes' => $variation_nodes,
 			);
 
 			if ( isset( $theme_json['styles']['blocks'][ $name ]['elements'] ) ) {
@@ -2390,6 +2422,18 @@ class WP_Theme_JSON_Gutenberg {
 
 				// Compute declarations for remaining styles not covered by feature level selectors.
 				$style_variation_declarations[ $style_variation['selector'] ] = static::compute_style_properties( $style_variation_node, $settings, null, $this->theme_json );
+			}
+		}
+
+		$style_variation_block_declarations = array();
+		if ( ! empty( $block_metadata['variation_nodes'] ) ) {
+			foreach ( $block_metadata['variation_nodes'] as $variation_node ) {
+				$style_variation_block_declarations[ $variation_node['selector'] ] = static::compute_style_properties(
+					_wp_array_get( $this->theme_json, $variation_node['path'], array() ),
+					$settings,
+					null,
+					$this->theme_json
+				);
 			}
 		}
 
@@ -2492,6 +2536,11 @@ class WP_Theme_JSON_Gutenberg {
 		// 6. Generate and append the style variation rulesets.
 		foreach ( $style_variation_declarations as $style_variation_selector => $individual_style_variation_declarations ) {
 			$block_rules .= static::to_ruleset( $style_variation_selector, $individual_style_variation_declarations );
+		}
+
+		// 7. Generate and append the block style variations for inner blocks and elements.
+		foreach ( $style_variation_block_declarations as $style_variation_block_selector => $indvidial_style_variation_block_declaration ) {
+			$block_rules .= static::to_ruleset( $style_variation_block_selector, $indvidial_style_variation_block_declaration );
 		}
 
 		return $block_rules;
