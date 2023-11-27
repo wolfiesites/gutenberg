@@ -65,6 +65,7 @@ import { isExternalImage } from './edit';
 /**
  * Module constants
  */
+import { TOOLSPANEL_DROPDOWNMENU_PROPS } from '../utils/constants';
 import { MIN_SIZE, ALLOWED_MEDIA_TYPES } from './constants';
 import { evalAspectRatio } from './utils';
 
@@ -429,10 +430,7 @@ export default function Image( {
 			<ToolsPanel
 				label={ __( 'Settings' ) }
 				resetAll={ resetAll }
-				dropdownMenuProps={ {
-					placement: 'left-start',
-					offset: 258, // sidebar width (280px) - button width (24px) + border (2px)
-				} }
+				dropdownMenuProps={ TOOLSPANEL_DROPDOWNMENU_PROPS }
 			>
 				{ isResizable && dimensionsControl }
 			</ToolsPanel>
