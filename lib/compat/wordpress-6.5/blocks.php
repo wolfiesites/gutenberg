@@ -28,10 +28,19 @@ function gutenberg_register_block_style( $block_name, $style_properties ) {
 		return false;
 	}
 
-	$block_names = is_string( $block_name ) ? array( $block_name ) : $block_name;
+	$block_names  = is_string( $block_name ) ? array( $block_name ) : $block_name;
+	$style_data   = $style_properties['style_data'] ?? null;
+	$style_handle = str_replace( '/', '-', implode( '-', $block_names ) );
 
-	if ( ! empty( $style_properties['style_data'] ) ) {
-		// Process theme.json-like style object into stylesheet to enqueue.
+	// Theme.json processing of block style variations, currently verifies the
+	// the variation against those registered via block.json or
+	// `register_block_style`. As a result, the block style needs to be
+	// registered before a stylesheet is generated from any style data.
+	// To do this, a stylesheet handle will still need to be generated
+	// and the style object removed from the registered style properties.
+	if ( $style_data ) {
+		unset( $style_properties['style_data'] );
+		$style_properties['style_handle'] = $style_handle;
 	}
 
 	$result = true;
@@ -40,6 +49,35 @@ function gutenberg_register_block_style( $block_name, $style_properties ) {
 		if ( ! WP_Block_Styles_Registry::get_instance()->register( $name, $style_properties ) ) {
 			$result = false;
 		}
+	}
+
+	if ( ! empty( $style_data ) ) {
+		// Process theme.json-like style object into stylesheet to enqueue.
+		$block_styles = array();
+		foreach ( $block_names as $name ) {
+			$block_styles[ $name ] = array(
+				'variations' => array(
+					$style_properties['name'] => $style_data,
+				),
+			);
+		}
+		$config     = array(
+			'version' => 2,
+			'styles'  => array( 'blocks' => $block_styles ),
+		);
+		$theme_json = new WP_Theme_JSON_Gutenberg( $config, 'blocks' );
+		$stylesheet = $theme_json->get_stylesheet(
+			array( 'styles' ),
+			array( 'custom' ),
+			array( 'skip_root_layout_styles' => true )
+		);
+
+		// TODO: Work out the correct approach to registering the stylesheet.
+		// What needs to be done here for when block styles are being loaded separately?
+		// Does the registration of this stylesheet need to depend on the relevant blocks
+		// or block style being used on a page?
+		wp_register_style( $style_handle, false );
+		wp_add_inline_style( $style_handle, $stylesheet );
 	}
 
 	return $result;

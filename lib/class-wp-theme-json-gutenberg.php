@@ -2313,14 +2313,16 @@ class WP_Theme_JSON_Gutenberg {
 					$variation_duotone_selector  = static::scope_selector( $variation_selector, $selectors[ $variation_block ]['duotone'] ?? null );
 					$variation_feature_selectors = $selectors[ $variation_block ]['selectors'] ?? null;
 
-					foreach ( $variation_feature_selectors as $feature => $feature_selector ) {
-						if ( is_string( $feature_selector ) ) {
-							$variation_feature_selectors[ $feature ] = static::scope_selector( $variation_selector, $feature_selector );
-						}
+					if ( $variation_feature_selectors ) {
+						foreach ( $variation_feature_selectors as $feature => $feature_selector ) {
+							if ( is_string( $feature_selector ) ) {
+								$variation_feature_selectors[ $feature ] = static::scope_selector( $variation_selector, $feature_selector );
+							}
 
-						if ( is_array( $feature_selector ) ) {
-							foreach ( $feature_selector as $subfeature => $subfeature_selector ) {
-								$variation_feature_selectors[ $feature ][ $subfeature ] = static::scope_selector( $variation_selector, $subfeature_selector );
+							if ( is_array( $feature_selector ) ) {
+								foreach ( $feature_selector as $subfeature => $subfeature_selector ) {
+									$variation_feature_selectors[ $feature ][ $subfeature ] = static::scope_selector( $variation_selector, $subfeature_selector );
+								}
 							}
 						}
 					}
