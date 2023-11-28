@@ -1781,8 +1781,16 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 			'styles'   => '.is-style-plain.is-style-plain.wp-block-quote{background-color: hotpink;}',
 		);
 
+		$custom = array(
+			'metadata' => array(
+				'path'     => array( 'styles', 'blocks', 'core/quote', 'variations', 'custom' ),
+				'selector' => '.is-style-custom.is-style-custom.wp-block-quote',
+			),
+			'styles'   => '.is-style-custom.is-style-custom.wp-block-quote{background-color: magenta;}',
+		);
+
 		return array(
-			'1 variation with 1 invalid property'   => array(
+			'variation with 1 valid property'        => array(
 				'theme_json_variations' => array(
 					'variations' => array(
 						'plain' => array(
@@ -1795,7 +1803,7 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 				'metadata_variation'    => array( $plain['metadata'] ),
 				'expected'              => $plain['styles'],
 			),
-			'1 variation with 2 invalid properties' => array(
+			'variation with 2 invalid properties'    => array(
 				'theme_json_variations' => array(
 					'variations' => array(
 						'plain' => array(
@@ -1809,6 +1817,19 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 				),
 				'metadata_variation'    => array( $plain['metadata'] ),
 				'expected'              => $plain['styles'],
+			),
+			'variation via WP_Block_Styles_Registry' => array(
+				'theme_json_variations' => array(
+					'variations' => array(
+						'custom' => array(
+							'color' => array(
+								'background' => 'magenta',
+							),
+						),
+					),
+				),
+				'metadata_variation'    => array( $custom['metadata'] ),
+				'expected'              => $custom['styles'],
 			),
 		);
 	}
