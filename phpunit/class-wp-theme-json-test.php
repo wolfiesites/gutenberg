@@ -1591,6 +1591,14 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 	 * @param array $expected_sanitized    Expected results after sanitizing.
 	 */
 	public function test_sanitize_for_block_with_style_variations( $theme_json_variations, $expected_sanitized ) {
+		register_block_style(
+			'core/quote',
+			array(
+				'name'  => 'custom',
+				'label' => 'Custom',
+			)
+		);
+
 		$theme_json = new WP_Theme_JSON_Gutenberg(
 			array(
 				'version' => 2,
@@ -1607,6 +1615,8 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 		$this->assertIsArray( $sanitized_theme_json, 'Sanitized theme.json is not an array data type' );
 		$this->assertArrayHasKey( 'styles', $sanitized_theme_json, 'Sanitized theme.json does not have an "styles" key' );
 		$this->assertSameSetsWithIndex( $expected_sanitized, $sanitized_theme_json['styles'], 'Sanitized theme.json styles does not match' );
+
+		unregister_block_style( 'core/quote', 'custom' );
 	}
 
 	/**
@@ -1659,6 +1669,32 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 								'plain' => array(
 									'color' => array(
 										'background' => 'hotpink',
+									),
+								),
+							),
+						),
+					),
+				),
+			),
+			'1 variation via registry with invalid properties' => array(
+				'theme_json_variations' => array(
+					'variations' => array(
+						'custom' => array(
+							'color'            => array(
+								'background' => 'magenta',
+							),
+							'invalidProperty1' => 'value1',
+							'invalidProperty2' => 'value2',
+						),
+					),
+				),
+				'expected_sanitized'    => array(
+					'blocks' => array(
+						'core/quote' => array(
+							'variations' => array(
+								'custom' => array(
+									'color' => array(
+										'background' => 'magenta',
 									),
 								),
 							),
