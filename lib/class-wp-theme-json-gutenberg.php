@@ -915,7 +915,28 @@ class WP_Theme_JSON_Gutenberg {
 
 		// Is there metadata for all currently registered blocks?
 		$blocks = array_diff_key( $blocks, static::$blocks_metadata );
+
 		if ( empty( $blocks ) ) {
+			// New block styles may have been registered within WP_Block_Styles_Registry.
+			// Update block metadata for any new block style variations.
+			$registered_styles = $style_registry->get_all_registered();
+			foreach ( static::$blocks_metadata as $block_name => $block_metadata ) {
+				if ( ! empty( $registered_styles[ $block_name ] ) ) {
+					$style_selectors = $block_metadata['styleVariations'] ?? array();
+
+					foreach ( $registered_styles[ $block_name ] as $block_style ) {
+						if ( ! isset( $style_selectors[ $block_style['name'] ] ) ) {
+							$style_selectors[ $block_style['name'] ] = static::append_to_selector(
+								'.is-style-' . $block_style['name'] . '.is-style-' . $block_style['name'],
+								$block_metadata['selector']
+							);
+						}
+					}
+
+					static::$blocks_metadata[ $block_name ]['styleVariations'] = $style_selectors;
+				}
+			}
+
 			return static::$blocks_metadata;
 		}
 

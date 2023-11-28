@@ -1517,6 +1517,17 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 	}
 
 	public function test_sanitize_for_unregistered_style_variations() {
+		// Block style variations are verified against those defined
+		// in a block type's block.json file or registered via
+		// `register_block_style`.
+		register_block_style(
+			'core/quote',
+			array(
+				'name'  => 'custom',
+				'label' => 'Custom',
+			)
+		);
+
 		$theme_json = new WP_Theme_JSON_Gutenberg(
 			array(
 				'version' => 2,
@@ -1534,6 +1545,11 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 										'background' => 'hotpink',
 									),
 								),
+								'custom'                => array(
+									'color' => array(
+										'background' => 'magenta',
+									),
+								),
 							),
 						),
 					),
@@ -1548,9 +1564,14 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 				'blocks' => array(
 					'core/quote' => array(
 						'variations' => array(
-							'plain' => array(
+							'plain'  => array(
 								'color' => array(
 									'background' => 'hotpink',
+								),
+							),
+							'custom' => array(
+								'color' => array(
+									'background' => 'magenta',
 								),
 							),
 						),
@@ -1559,6 +1580,8 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 			),
 		);
 		$this->assertSameSetsWithIndex( $expected, $sanitized_theme_json, 'Sanitized theme.json styles does not match' );
+
+		unregister_block_style( 'core/quote', 'custom' );
 	}
 
 	/**
