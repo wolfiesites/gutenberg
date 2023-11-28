@@ -48,7 +48,7 @@ export function CodeEdit( props ) {
 	return (
 		<View>
 			<PlainText
-				value={ attributes.content }
+				value={ attributes.content.toString() }
 				identifier="content"
 				style={ codeStyle }
 				multiline={ true }
