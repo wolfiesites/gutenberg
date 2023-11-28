@@ -2470,8 +2470,18 @@ class WP_Theme_JSON_Gutenberg {
 		$style_variation_block_declarations = array();
 		if ( ! empty( $block_metadata['variation_nodes'] ) ) {
 			foreach ( $block_metadata['variation_nodes'] as $variation_node ) {
+				$style_variation_block_node   = _wp_array_get( $this->theme_json, $variation_node['path'], array() );
+				$variation_block_declarations = static::get_feature_declarations_for_node( $variation_node, $style_variation_block_node );
+
+				foreach ( $variation_block_declarations as $current_selector => $new_declarations ) {
+					$style_variation_block_declarations[ $current_selector ] = $new_declarations;
+				}
+
+				// Note that `get_feature_declarations_for_node` will also unset
+				// feature values so they aren't duplicated in declarations via
+				// the call below.
 				$style_variation_block_declarations[ $variation_node['selector'] ] = static::compute_style_properties(
-					_wp_array_get( $this->theme_json, $variation_node['path'], array() ),
+					$style_variation_block_node,
 					$settings,
 					null,
 					$this->theme_json
