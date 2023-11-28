@@ -35,6 +35,19 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 		}
 
 		static::$user_id = self::factory()->user->create();
+
+		// Register some block styles to test block style variations that have
+		// been registered through `WP_Block_Styles_Registry` as opposed to
+		// through block.json.
+		register_block_style( 'core/quote', array( 'name' => 'custom' ) );
+		register_block_style( 'core/group', array( 'name' => 'custom' ) );
+	}
+
+	public static function tear_down_after_class() {
+		unregister_block_style( 'core/quote', 'custom' );
+		unregister_block_style( 'core/group', 'custom' );
+
+		parent::tear_down_after_class();
 	}
 
 	public function test_get_stylesheet_generates_layout_styles() {
@@ -1517,17 +1530,6 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 	}
 
 	public function test_sanitize_for_unregistered_style_variations() {
-		// Block style variations are verified against those defined
-		// in a block type's block.json file or registered via
-		// `register_block_style`.
-		register_block_style(
-			'core/quote',
-			array(
-				'name'  => 'custom',
-				'label' => 'Custom',
-			)
-		);
-
 		$theme_json = new WP_Theme_JSON_Gutenberg(
 			array(
 				'version' => 2,
@@ -1580,8 +1582,6 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 			),
 		);
 		$this->assertSameSetsWithIndex( $expected, $sanitized_theme_json, 'Sanitized theme.json styles does not match' );
-
-		unregister_block_style( 'core/quote', 'custom' );
 	}
 
 	/**
@@ -1591,14 +1591,6 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 	 * @param array $expected_sanitized    Expected results after sanitizing.
 	 */
 	public function test_sanitize_for_block_with_style_variations( $theme_json_variations, $expected_sanitized ) {
-		register_block_style(
-			'core/quote',
-			array(
-				'name'  => 'custom',
-				'label' => 'Custom',
-			)
-		);
-
 		$theme_json = new WP_Theme_JSON_Gutenberg(
 			array(
 				'version' => 2,
@@ -1615,8 +1607,6 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 		$this->assertIsArray( $sanitized_theme_json, 'Sanitized theme.json is not an array data type' );
 		$this->assertArrayHasKey( 'styles', $sanitized_theme_json, 'Sanitized theme.json does not have an "styles" key' );
 		$this->assertSameSetsWithIndex( $expected_sanitized, $sanitized_theme_json['styles'], 'Sanitized theme.json styles does not match' );
-
-		unregister_block_style( 'core/quote', 'custom' );
 	}
 
 	/**
