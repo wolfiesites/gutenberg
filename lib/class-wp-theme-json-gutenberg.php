@@ -910,7 +910,6 @@ class WP_Theme_JSON_Gutenberg {
 	protected static function get_blocks_metadata() {
 		// NOTE: the compat/6.1 version of this method in Gutenberg did not have these changes.
 		$registry       = WP_Block_Type_Registry::get_instance();
-		$registry       = WP_Block_Type_Registry::get_instance();
 		$blocks         = $registry->get_all_registered();
 		$style_registry = WP_Block_Styles_Registry::get_instance();
 
