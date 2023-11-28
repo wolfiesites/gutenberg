@@ -4,7 +4,6 @@
 import {
 	__experimentalVStack as VStack,
 	__experimentalHStack as HStack,
-	Popover,
 } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 
@@ -32,7 +31,6 @@ export default function DataViews( {
 	supportedLayouts,
 	selection,
 	setSelection,
-	bulkActions,
 } ) {
 	const ViewComponent = VIEW_LAYOUTS.find(
 		( v ) => v.type === view.type
@@ -89,7 +87,7 @@ export default function DataViews( {
 				/>
 					<BulkActions
 						data={ data }
-						bulkActions={ bulkActions }
+						actions={ actions }
 						selection={ selection }
 						setSelection={ setSelection }
 					/>
