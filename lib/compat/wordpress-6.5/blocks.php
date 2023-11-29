@@ -62,7 +62,7 @@ function gutenberg_register_block_style( $block_name, $style_properties ) {
 			);
 		}
 		$config     = array(
-			'version' => 2,
+			'version' => WP_Theme_JSON_Gutenberg::LATEST_SCHEMA,
 			'styles'  => array( 'blocks' => $block_styles ),
 		);
 		$theme_json = new WP_Theme_JSON_Gutenberg( $config, 'blocks' );
