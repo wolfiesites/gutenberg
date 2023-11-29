@@ -14,11 +14,14 @@ import useScrollWhenDragging from './use-scroll-when-dragging';
 import { store as blockEditorStore } from '../../store';
 
 const BlockDraggable = ( {
+	appendToOwnerDocument,
 	children,
 	clientIds,
 	cloneClassname,
+	elementId,
 	onDragStart,
 	onDragEnd,
+	dragComponent,
 } ) => {
 	const { srcRootClientId, isDraggable, icon } = useSelect(
 		( select ) => {
@@ -73,6 +76,7 @@ const BlockDraggable = ( {
 
 	return (
 		<Draggable
+			appendToOwnerDocument={ appendToOwnerDocument }
 			cloneClassname={ cloneClassname }
 			__experimentalTransferDataType="wp-blocks"
 			transferData={ transferData }
@@ -102,8 +106,18 @@ const BlockDraggable = ( {
 				}
 			} }
 			__experimentalDragComponent={
-				<BlockDraggableChip count={ clientIds.length } icon={ icon } />
+				// Check against `undefined` so that `null` can be used to disable
+				// the default drag component.
+				dragComponent !== undefined ? (
+					dragComponent
+				) : (
+					<BlockDraggableChip
+						count={ clientIds.length }
+						icon={ icon }
+					/>
+				)
 			}
+			elementId={ elementId }
 		>
 			{ ( { onDraggableStart, onDraggableEnd } ) => {
 				return children( {
