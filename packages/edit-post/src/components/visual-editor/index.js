@@ -21,7 +21,7 @@ import {
 import { useEffect, useRef, useMemo } from '@wordpress/element';
 import { __unstableMotion as motion } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useMergeRefs } from '@wordpress/compose';
+import { useMergeRefs, useViewportMatch } from '@wordpress/compose';
 import { parse, store as blocksStore } from '@wordpress/blocks';
 import { store as coreStore } from '@wordpress/core-data';
 
@@ -140,6 +140,7 @@ export default function VisualEditor( { styles } ) {
 	);
 	const {
 		hasRootPaddingAwareAlignments,
+		hasTopToolbar,
 		isFocusMode,
 		themeHasDisabledLayoutStyles,
 		themeSupportsLayout,
@@ -149,6 +150,7 @@ export default function VisualEditor( { styles } ) {
 			themeHasDisabledLayoutStyles: _settings.disableLayoutStyles,
 			themeSupportsLayout: _settings.supportsLayout,
 			isFocusMode: _settings.focusMode,
+			hasTopToolbar: _settings.hasFixedToolbar,
 			hasRootPaddingAwareAlignments:
 				_settings.__experimentalFeatures?.useRootPaddingAwareAlignments,
 		};
@@ -280,13 +282,7 @@ export default function VisualEditor( { styles } ) {
 				layout?.wideSize )
 			? { ...globalLayoutSettings, ...layout, type: 'constrained' }
 			: { ...globalLayoutSettings, ...layout, type: 'default' };
-	}, [
-		layout?.type,
-		layout?.inherit,
-		layout?.contentSize,
-		layout?.wideSize,
-		globalLayoutSettings,
-	] );
+	}, [ layout, globalLayoutSettings ] );
 
 	// If there is a Post Content block we use its layout for the block list;
 	// if not, this must be a classic theme, in which case we use the fallback layout.
@@ -320,7 +316,7 @@ export default function VisualEditor( { styles } ) {
 						: '' ),
 			},
 		],
-		[ styles ]
+		[ paddingBottom, styles ]
 	);
 
 	// Add some styles for alignwide/alignfull Post Content and its children.
@@ -336,9 +332,19 @@ export default function VisualEditor( { styles } ) {
 		deviceType === 'Tablet' ||
 		deviceType === 'Mobile';
 
+	const isLargeViewport = useViewportMatch( 'medium' );
+	let blockToolbarDisplay = 'popover';
+
+	if ( ! isLargeViewport ) {
+		blockToolbarDisplay = 'sticky';
+	} else if ( hasTopToolbar ) {
+		blockToolbarDisplay = 'none';
+	}
+
 	return (
 		<BlockTools
 			__unstableContentRef={ ref }
+			__experimentalBlockToolbarDisplay={ blockToolbarDisplay }
 			className={ classnames( 'edit-post-visual-editor', {
 				'is-template-mode': isTemplateMode,
 				'has-inline-canvas': ! isToBeIframed,
