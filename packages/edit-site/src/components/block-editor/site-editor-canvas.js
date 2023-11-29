@@ -13,6 +13,7 @@ import {
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { useViewportMatch, useResizeObserver } from '@wordpress/compose';
+import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
@@ -38,19 +39,27 @@ const LAYOUT = {
 export default function SiteEditorCanvas() {
 	const { clearSelectedBlock } = useDispatch( blockEditorStore );
 
-	const { templateType, isFocusMode, isViewMode } = useSelect( ( select ) => {
-		const { getEditedPostType, getCanvasMode } = unlock(
-			select( editSiteStore )
-		);
+	const { templateType, hasTopToolbar, isFocusMode, isViewMode } = useSelect(
+		( select ) => {
+			const { getEditedPostType, getCanvasMode } = unlock(
+				select( editSiteStore )
+			);
 
-		const _templateType = getEditedPostType();
+			const _templateType = getEditedPostType();
+			const { get: getPreference } = select( preferencesStore );
 
-		return {
-			templateType: _templateType,
-			isFocusMode: FOCUSABLE_ENTITIES.includes( _templateType ),
-			isViewMode: getCanvasMode() === 'view',
-		};
-	}, [] );
+			return {
+				templateType: _templateType,
+				hasTopToolbar: getPreference(
+					editSiteStore.name,
+					'fixedToolbar'
+				),
+				isFocusMode: FOCUSABLE_ENTITIES.includes( _templateType ),
+				isViewMode: getCanvasMode() === 'view',
+			};
+		},
+		[]
+	);
 
 	const [ resizeObserver, sizes ] = useResizeObserver();
 
@@ -88,6 +97,15 @@ export default function SiteEditorCanvas() {
 
 	const forceFullHeight = isNavigationFocusMode;
 
+	const isLargeViewport = useViewportMatch( 'medium' );
+	let blockToolbarDisplay = 'popover';
+
+	if ( ! isLargeViewport ) {
+		blockToolbarDisplay = 'sticky';
+	} else if ( hasTopToolbar ) {
+		blockToolbarDisplay = 'none';
+	}
+
 	return (
 		<>
 			<EditorCanvasContainer.Slot>
@@ -103,6 +121,9 @@ export default function SiteEditorCanvas() {
 									isFocusMode || !! editorCanvasView,
 								'is-view-mode': isViewMode,
 							} ) }
+							__experimentalBlockToolbarDisplay={
+								blockToolbarDisplay
+							}
 							__unstableContentRef={ contentRef }
 							onClick={ ( event ) => {
 								// Clear selected block when clicking on the gray background.
