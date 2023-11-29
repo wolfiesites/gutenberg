@@ -2,18 +2,28 @@
  * WordPress dependencies
  */
 import {
-	DropdownMenu,
-	MenuGroup,
-	MenuItem,
 	Button,
 	Modal,
 	__experimentalHStack as HStack,
+	privateApis as componentsPrivateApis,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useMemo, useState } from '@wordpress/element';
 import { moreVertical } from '@wordpress/icons';
 
-export function PrimaryActionTrigger( { action, onClick } ) {
+/**
+ * Internal dependencies
+ */
+import { unlock } from '../../lock-unlock';
+
+const {
+	DropdownMenuV2Ariakit: DropdownMenu,
+	DropdownMenuGroupV2Ariakit: DropdownMenuGroup,
+	DropdownMenuItemV2Ariakit: DropdownMenuItem,
+	DropdownMenuItemLabelV2Ariakit: DropdownMenuItemLabel,
+} = unlock( componentsPrivateApis );
+
+function ButtonTrigger( { action, onClick } ) {
 	return (
 		<Button
 			label={ action.label }
@@ -25,11 +35,11 @@ export function PrimaryActionTrigger( { action, onClick } ) {
 	);
 }
 
-function SecondaryActionTrigger( { action, onClick } ) {
+function DropdownMenuItemTrigger( { action, onClick } ) {
 	return (
-		<MenuItem onClick={ onClick } isDestructive={ action.isDestructive }>
-			{ action.label }
-		</MenuItem>
+		<DropdownMenuItem onClick={ onClick }>
+			<DropdownMenuItemLabel>{ action.label }</DropdownMenuItemLabel>
+		</DropdownMenuItem>
 	);
 }
 
@@ -68,7 +78,33 @@ export function ActionWithModal( { action, item, items, ActionTrigger } ) {
 	);
 }
 
-export default function ItemActions( { item, actions } ) {
+function ActionsDropdownMenuGroup( { actions, item } ) {
+	return (
+		<DropdownMenuGroup>
+			{ actions.map( ( action ) => {
+				if ( !! action.RenderModal ) {
+					return (
+						<ActionWithModal
+							key={ action.id }
+							action={ action }
+							item={ item }
+							ActionTrigger={ DropdownMenuItemTrigger }
+						/>
+					);
+				}
+				return (
+					<DropdownMenuItemTrigger
+						key={ action.id }
+						action={ action }
+						onClick={ () => action.callback( item ) }
+					/>
+				);
+			} ) }
+		</DropdownMenuGroup>
+	);
+}
+
+export default function ItemActions( { item, actions, isCompact } ) {
 	const { primaryActions, secondaryActions } = useMemo( () => {
 		return actions.reduce(
 			( accumulator, action ) => {
@@ -90,6 +126,15 @@ export default function ItemActions( { item, actions } ) {
 	if ( ! primaryActions.length && ! secondaryActions.length ) {
 		return null;
 	}
+	if ( isCompact ) {
+		return (
+			<CompactItemActions
+				item={ item }
+				primaryActions={ primaryActions }
+				secondaryActions={ secondaryActions }
+			/>
+		);
+	}
 	return (
 		<HStack
 			spacing={ 1 }
@@ -107,15 +152,14 @@ export default function ItemActions( { item, actions } ) {
 								key={ action.id }
 								action={ action }
 								item={ item }
-								ActionTrigger={ PrimaryActionTrigger }
+								ActionTrigger={ ButtonTrigger }
 							/>
 						);
 					}
 					return (
-						<PrimaryActionTrigger
+						<ButtonTrigger
 							key={ action.id }
 							action={ action }
-							item={ item }
 							onClick={
 								action.isBulk
 									? () => action.callback( [ item ] )
@@ -125,37 +169,50 @@ export default function ItemActions( { item, actions } ) {
 					);
 				} ) }
 			{ !! secondaryActions.length && (
-				<DropdownMenu icon={ moreVertical } label={ __( 'Actions' ) }>
-					{ () => (
-						<MenuGroup>
-							{ secondaryActions.map( ( action ) => {
-								if ( !! action.RenderModal ) {
-									return (
-										<ActionWithModal
-											key={ action.id }
-											action={ action }
-											item={ item }
-											ActionTrigger={
-												SecondaryActionTrigger
-											}
+				<DropdownMenu
+					trigger={
+						<Button
+							size="compact"
+							icon={ moreVertical }
+							label={ __( 'Actions' ) }
 						/>
-									);
 					}
-								return (
-									<SecondaryActionTrigger
-										key={ action.id }
-										action={ action }
+					placement="bottom-end"
+				>
+					<ActionsDropdownMenuGroup
+						actions={ secondaryActions }
 						item={ item }
-										onClick={ () =>
-											action.callback( item )
-										}
 					/>
-								);
-							} ) }
-						</MenuGroup>
-					) }
 				</DropdownMenu>
 			) }
 		</HStack>
+	);
+}
+
+function CompactItemActions( { item, primaryActions, secondaryActions } ) {
+	return (
+		<DropdownMenu
+			trigger={
+				<Button
+					size="compact"
+					icon={ moreVertical }
+					label={ __( 'Actions' ) }
+				/>
+			}
+			placement="bottom-end"
+		>
+			{ !! primaryActions.length && (
+				<ActionsDropdownMenuGroup
+					actions={ primaryActions }
+					item={ item }
+				/>
+			) }
+			{ !! secondaryActions.length && (
+				<ActionsDropdownMenuGroup
+					actions={ secondaryActions }
+					item={ item }
+				/>
+			) }
+		</DropdownMenu>
 	);
 }
