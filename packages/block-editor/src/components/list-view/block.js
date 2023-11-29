@@ -39,6 +39,7 @@ function ListViewBlock( {
 	block: { clientId },
 	displacement,
 	isDragged,
+	isNesting,
 	isSelected,
 	isBranchSelected,
 	selectBlock,
@@ -209,6 +210,7 @@ function ListViewBlock( {
 		'is-synced': blockInformation?.isSynced,
 		'is-above': displacement === 'above',
 		'is-below': displacement === 'below',
+		'is-nesting': isNesting,
 	} );
 
 	// Only include all selected blocks if the currently clicked on block
