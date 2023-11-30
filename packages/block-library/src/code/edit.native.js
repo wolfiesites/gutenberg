@@ -48,6 +48,7 @@ export function CodeEdit( props ) {
 	return (
 		<View>
 			<PlainText
+				// To do: refactor the native code to use RichText as well.
 				value={ attributes.content.toString() }
 				identifier="content"
 				style={ codeStyle }
