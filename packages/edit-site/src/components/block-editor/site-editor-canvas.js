@@ -13,6 +13,8 @@ import {
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { useViewportMatch, useResizeObserver } from '@wordpress/compose';
+import { useEntityProp } from '@wordpress/core-data';
+
 /**
  * Internal dependencies
  */
@@ -35,6 +37,11 @@ const LAYOUT = {
 	alignments: [],
 };
 
+function useIsNavigationOverlay() {
+	const [ area ] = useEntityProp( 'postType', 'wp_template_part', 'area' );
+	return area === 'navigation-overlay';
+}
+
 export default function SiteEditorCanvas() {
 	const { clearSelectedBlock } = useDispatch( blockEditorStore );
 
@@ -51,6 +58,8 @@ export default function SiteEditorCanvas() {
 			isViewMode: getCanvasMode() === 'view',
 		};
 	}, [] );
+
+	const isNavigationOverlayTemplate = useIsNavigationOverlay();
 
 	const [ resizeObserver, sizes ] = useResizeObserver();
 
@@ -81,12 +90,16 @@ export default function SiteEditorCanvas() {
 	// Hide the appender when:
 	// - In navigation focus mode (should only allow the root Nav block).
 	// - In view mode (i.e. not editing).
+	// - In navigation overlay template (should only allow the root Overlay Block).
 	const showBlockAppender =
-		( isNavigationFocusMode && hasBlocks ) || isViewMode
+		( isNavigationFocusMode && hasBlocks ) ||
+		isViewMode ||
+		isNavigationOverlayTemplate
 			? false
 			: undefined;
 
-	const forceFullHeight = isNavigationFocusMode;
+	const forceFullHeight =
+		isNavigationFocusMode || isNavigationOverlayTemplate;
 
 	return (
 		<>
