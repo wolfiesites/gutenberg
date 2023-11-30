@@ -646,7 +646,8 @@ export const getNodesWithStyles = ( tree, blockSelectors ) => {
 				} );
 				blockStyles.variations = variations;
 			}
-			if ( blockStyles && blockSelectors?.[ blockName ]?.selector ) {
+
+			if ( blockSelectors?.[ blockName ]?.selector ) {
 				nodes.push( {
 					duotoneSelector:
 						blockSelectors[ blockName ].duotoneSelector,
