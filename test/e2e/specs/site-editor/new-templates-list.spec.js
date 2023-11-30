@@ -7,13 +7,13 @@ test.describe( 'Templates', () => {
 	test.beforeAll( async ( { requestUtils } ) => {
 		await Promise.all( [
 			requestUtils.activateTheme( 'emptytheme' ),
-			requestUtils.activatePlugin( 'gutenberg-test-dataviews' ),
+			requestUtils.setGutenbergExperiments( [ 'gutenberg-dataviews' ] ),
 		] );
 	} );
 	test.afterAll( async ( { requestUtils } ) => {
 		await Promise.all( [
 			requestUtils.activateTheme( 'twentytwentyone' ),
-			requestUtils.deactivatePlugin( 'gutenberg-test-dataviews' ),
+			requestUtils.setGutenbergExperiments( [] ),
 		] );
 	} );
 	test( 'Sorting', async ( { admin, page } ) => {
