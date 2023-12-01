@@ -16,8 +16,8 @@ import { OPERATOR_IN } from './constants';
 import { unlock } from '../../lock-unlock';
 
 const {
-	DropdownMenuV2: DropdownMenu,
-	DropdownMenuCheckboxItemV2: DropdownMenuCheckboxItem,
+	DropdownMenuV2Ariakit: DropdownMenu,
+	DropdownMenuRadioItemV2Ariakit: DropdownMenuRadioItem,
 } = unlock( componentsPrivateApis );
 
 export default function FilterSummary( { filter, view, onChangeView } ) {
@@ -45,11 +45,12 @@ export default function FilterSummary( { filter, view, onChangeView } ) {
 		>
 			{ filter.elements.map( ( element ) => {
 				return (
-					<DropdownMenuCheckboxItem
+					<DropdownMenuRadioItem
 						key={ element.value }
 						value={ element.value }
+						name="filter-summary-item"
 						checked={ activeElement?.value === element.value }
-						onSelect={ () =>
+						onChange={ () =>
 							onChangeView( ( currentView ) => ( {
 								...currentView,
 								page: 1,
@@ -71,7 +72,7 @@ export default function FilterSummary( { filter, view, onChangeView } ) {
 						}
 					>
 						{ element.label }
-					</DropdownMenuCheckboxItem>
+					</DropdownMenuRadioItem>
 				);
 			} ) }
 		</DropdownMenu>
