@@ -144,16 +144,12 @@ function HeaderMenu( { dataView, header } ) {
 									}
 									onSelect={ ( event ) => {
 										event.preventDefault();
-										if ( sortedDirection === direction ) {
-											dataView.resetSorting();
-										} else {
-											dataView.setSorting( [
-												{
-													id: header.column.id,
-													desc: direction === 'desc',
-												},
-											] );
-										}
+										dataView.setSorting( [
+											{
+												id: header.column.id,
+												desc: direction === 'desc',
+											},
+										] );
 									} }
 								>
 									{ info.label }
