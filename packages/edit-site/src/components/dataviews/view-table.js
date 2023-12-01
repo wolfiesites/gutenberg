@@ -29,6 +29,7 @@ import {
 	Button,
 	Icon,
 	privateApis as componentsPrivateApis,
+	CheckboxControl,
 } from '@wordpress/components';
 import { useMemo, Children, Fragment } from '@wordpress/element';
 
@@ -246,7 +247,11 @@ function ViewTable( {
 	getItemId,
 	isLoading = false,
 	paginationInfo,
+	selection,
+	setSelection,
+	getSelectionLabel,
 } ) {
+	const areAllSelected = selection && selection.length === data.length;
 	const columns = useMemo( () => {
 		const _columns = fields.map( ( field ) => {
 			const { render, getValue, ...column } = field;
@@ -257,6 +262,69 @@ function ViewTable( {
 			}
 			return column;
 		} );
+		if ( selection !== undefined ) {
+			_columns.unshift( {
+				header: (
+					<CheckboxControl
+						__nextHasNoMarginBottom
+						checked={ areAllSelected }
+						indeterminate={ ! areAllSelected && selection.length }
+						onChange={ () => {
+							if ( areAllSelected ) {
+								setSelection( [] );
+							} else {
+								setSelection( data.map( ( { id } ) => id ) );
+							}
+						} }
+						label={
+							areAllSelected
+								? __( 'Deselect all' )
+								: __( 'Select all' )
+						}
+					/>
+				),
+				id: 'selection',
+				cell: ( props ) => {
+					//console.log({ props });
+					const item = props.row.original;
+					const isSelected = selection.includes( item.id );
+					//console.log({ item, isSelected });
+					let selectionLabel;
+					if ( getSelectionLabel ) {
+						selectionLabel = getSelectionLabel( isSelected, item );
+					} else {
+						selectionLabel = isSelected
+							? __( 'Deselect item' )
+							: __( 'Select a new item' );
+					}
+					return (
+						<CheckboxControl
+							__nextHasNoMarginBottom
+							checked={ isSelected }
+							label={ selectionLabel }
+							onChange={ () => {
+								if ( ! isSelected ) {
+									const newSelection = [
+										...selection,
+										item.id,
+									];
+									setSelection( newSelection );
+								} else {
+									setSelection(
+										selection.filter(
+											( id ) => id !== item.id
+										)
+									);
+								}
+							} }
+						/>
+					);
+				},
+				enableHiding: false,
+				width: 40,
+				className: 'dataviews-table-view__selection-column',
+			} );
+		}
 		if ( actions?.length ) {
 			_columns.push( {
 				header: __( 'Actions' ),
@@ -274,7 +342,15 @@ function ViewTable( {
 		}
 
 		return _columns;
-	}, [ fields, actions, view ] );
+	}, [
+		areAllSelected,
+		fields,
+		actions,
+		view,
+		selection,
+		setSelection,
+		data,
+	] );
 
 	const columnVisibility = useMemo( () => {
 		if ( ! view.hiddenFields?.length ) {
@@ -472,6 +548,10 @@ function ViewTable( {
 												header.column.columnDef
 													.maxWidth || undefined,
 										} }
+										className={
+											header.column.columnDef.className ||
+											undefined
+										}
 										data-field-id={ header.id }
 									>
 										<HeaderMenu
@@ -500,6 +580,10 @@ function ViewTable( {
 												cell.column.columnDef
 													.maxWidth || undefined,
 										} }
+										className={
+											cell.column.columnDef.className ||
+											undefined
+										}
 									>
 										{ flexRender(
 											cell.column.columnDef.cell,
