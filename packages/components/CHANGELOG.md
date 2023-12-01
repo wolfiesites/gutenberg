@@ -12,6 +12,10 @@
 
 -   `ToggleGroupControl`: react correctly to external controlled updates ([#56678](https://github.com/WordPress/gutenberg/pull/56678)).
 
+### Experimental
+
+-   `Tabs`: improve focus handling in controlled mode ([#56658](https://github.com/WordPress/gutenberg/pull/56658)).
+
 ## 25.13.0 (2023-11-29)
 
 ### Enhancements
