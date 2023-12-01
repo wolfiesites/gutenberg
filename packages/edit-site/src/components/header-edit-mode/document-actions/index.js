@@ -48,12 +48,16 @@ const typeLabels = {
 	[ TEMPLATE_PART_POST_TYPE ]: __( 'Editing template part:' ),
 };
 
-export default function DocumentActions() {
+export default function DocumentActions( { onBack } ) {
 	const isPage = useSelect(
 		( select ) => select( editSiteStore ).isPage(),
 		[]
 	);
-	return isPage ? <PageDocumentActions /> : <TemplateDocumentActions />;
+	return isPage ? (
+		<PageDocumentActions />
+	) : (
+		<TemplateDocumentActions onBack={ onBack } />
+	);
 }
 
 function PageDocumentActions() {

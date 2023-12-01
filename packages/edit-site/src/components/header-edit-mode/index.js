@@ -27,6 +27,7 @@ import {
 	VisuallyHidden,
 } from '@wordpress/components';
 import { store as preferencesStore } from '@wordpress/preferences';
+import { privateApis as routerPrivateApis } from '@wordpress/router';
 
 /**
  * Internal dependencies
@@ -42,6 +43,8 @@ import {
 } from '../editor-canvas-container';
 import { unlock } from '../../lock-unlock';
 import { FOCUSABLE_ENTITIES } from '../../utils/constants';
+
+const { useHistory } = unlock( routerPrivateApis );
 
 const { BlockContextualToolbar } = unlock( blockEditorPrivateApis );
 
@@ -95,6 +98,8 @@ export default function HeaderEditMode( { setListViewToggleElement } ) {
 			isZoomOutMode: __unstableGetEditorMode() === 'zoom-out',
 		};
 	}, [] );
+
+	const history = useHistory();
 
 	const isLargeViewport = useViewportMatch( 'medium' );
 	const isTopToolbar = ! isZoomOutMode && hasFixedToolbar && isLargeViewport;
@@ -205,7 +210,13 @@ export default function HeaderEditMode( { setListViewToggleElement } ) {
 					{ ! hasDefaultEditorCanvasView ? (
 						getEditorCanvasContainerTitle( editorCanvasView )
 					) : (
-						<DocumentActions />
+						<DocumentActions
+							{ ...( isFocusMode && {
+								onBack: () => {
+									history.back();
+								},
+							} ) }
+						/>
 					) }
 				</div>
 			) }
