@@ -6,7 +6,7 @@ import {
 	Button,
 	Icon,
 } from '@wordpress/components';
-import { chevronRightSmall, plus } from '@wordpress/icons';
+import { plus } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -16,10 +16,8 @@ import { unlock } from '../../lock-unlock';
 import { ENUMERATION_TYPE, OPERATOR_IN } from './constants';
 
 const {
-	DropdownMenuV2: DropdownMenu,
-	DropdownSubMenuV2: DropdownSubMenu,
-	DropdownSubMenuTriggerV2: DropdownSubMenuTrigger,
-	DropdownMenuItemV2: DropdownMenuItem,
+	DropdownMenuV2Ariakit: DropdownMenu,
+	DropdownMenuItemV2Ariakit: DropdownMenuItem,
 } = unlock( componentsPrivateApis );
 
 export default function AddFilter( { fields, view, onChangeView } ) {
@@ -68,22 +66,16 @@ export default function AddFilter( { fields, view, onChangeView } ) {
 				}
 
 				return (
-					<DropdownSubMenu
+					<DropdownMenu
 						key={ filter.field }
 						trigger={
-							<DropdownSubMenuTrigger
-								suffix={ <Icon icon={ chevronRightSmall } /> }
-							>
-								{ filter.name }
-							</DropdownSubMenuTrigger>
+							<DropdownMenuItem>{ filter.name }</DropdownMenuItem>
 						}
 					>
 						{ filter.elements.map( ( element ) => (
 							<DropdownMenuItem
 								key={ element.value }
-								role="menuitemradio"
-								aria-checked={ false }
-								onSelect={ () => {
+								onClick={ () => {
 									onChangeView( ( currentView ) => ( {
 										...currentView,
 										page: 1,
@@ -101,7 +93,7 @@ export default function AddFilter( { fields, view, onChangeView } ) {
 								{ element.label }
 							</DropdownMenuItem>
 						) ) }
-					</DropdownSubMenu>
+					</DropdownMenu>
 				);
 			} ) }
 		</DropdownMenu>
