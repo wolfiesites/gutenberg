@@ -40,10 +40,12 @@ import ItemActions from './item-actions';
 import { ENUMERATION_TYPE, OPERATOR_IN } from './constants';
 
 const {
-	DropdownMenuV2: DropdownMenu,
-	DropdownMenuGroupV2: DropdownMenuGroup,
-	DropdownMenuItemV2: DropdownMenuItem,
-	DropdownMenuSeparatorV2: DropdownMenuSeparator,
+	DropdownMenuV2Ariakit: DropdownMenu,
+	DropdownMenuGroupV2Ariakit: DropdownMenuGroup,
+	DropdownMenuItemV2Ariakit: DropdownMenuItem,
+	DropdownMenuRadioItemV2Ariakit: DropdownMenuRadioItem,
+	DropdownMenuSeparatorV2Ariakit: DropdownMenuSeparator,
+	// TODO: check if we should use menus & items, like in view-actions.
 	DropdownSubMenuV2: DropdownSubMenu,
 	DropdownSubMenuTriggerV2: DropdownSubMenuTrigger,
 } = unlock( componentsPrivateApis );
@@ -81,7 +83,7 @@ function HeaderMenu( { dataView, header } ) {
 
 	return (
 		<DropdownMenu
-			align="start"
+			placement="bottom-start"
 			trigger={
 				<Button
 					icon={ sortIcons[ header.column.getIsSorted() ] }
@@ -96,20 +98,16 @@ function HeaderMenu( { dataView, header } ) {
 					<DropdownMenuGroup>
 						{ Object.entries( sortingItemsInfo ).map(
 							( [ direction, info ] ) => (
-								<DropdownMenuItem
+								<DropdownMenuRadioItem
 									key={ direction }
-									role="menuitemradio"
-									aria-checked={
-										sortedDirection === direction
-									}
-									prefix={ <Icon icon={ info.icon } /> }
-									suffix={
-										sortedDirection === direction && (
-											<Icon icon={ check } />
-										)
-									}
-									onSelect={ ( event ) => {
-										event.preventDefault();
+									value={ direction }
+									name="view-table-column-sorting"
+									// Note: there is currently a limitation from the DropdownMenu
+									// component where the radio won't unselect when all related
+									// radios are set to false.
+									checked={ sortedDirection === direction }
+									suffix={ <Icon icon={ info.icon } /> }
+									onChange={ () => {
 										if ( sortedDirection === direction ) {
 											dataView.resetSorting();
 										} else {
@@ -123,18 +121,15 @@ function HeaderMenu( { dataView, header } ) {
 									} }
 								>
 									{ info.label }
-								</DropdownMenuItem>
+								</DropdownMenuRadioItem>
 							)
 						) }
 					</DropdownMenuGroup>
 				) }
 				{ isHidable && (
 					<DropdownMenuItem
-						role="menuitemradio"
-						aria-checked={ ! header.column.getIsVisible() }
 						prefix={ <Icon icon={ unseen } /> }
-						onSelect={ ( event ) => {
-							event.preventDefault();
+						onClick={ ( event ) => {
 							header.column.getToggleVisibilityHandler()( event );
 						} }
 					>
