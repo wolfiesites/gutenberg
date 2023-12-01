@@ -185,27 +185,15 @@ function SortMenu( { fields, view, onChangeView } ) {
 										value={ direction }
 										name={ `view-actions-sorting-${ field.id }` }
 										suffix={ <Icon icon={ info.icon } /> }
-										// Note: there is currently a limitation from the DropdownMenu
-										// component where the radio won't unselect when all related
-										// radios are set to false.
 										checked={ isChecked }
 										onChange={ () => {
-											if (
-												sortedDirection === direction
-											) {
-												onChangeView( {
-													...view,
-													sort: undefined,
-												} );
-											} else {
-												onChangeView( {
-													...view,
-													sort: {
-														field: field.id,
-														direction,
-													},
-												} );
-											}
+											onChangeView( {
+												...view,
+												sort: {
+													field: field.id,
+													direction,
+												},
+											} );
 										} }
 									>
 										{ info.label }
