@@ -612,7 +612,7 @@ function scopeFeatureSelectors( scope, selectors ) {
 		return;
 	}
 
-	const featureSelectors = { ...selectors };
+	const featureSelectors = JSON.parse( JSON.stringify( selectors ) );
 
 	Object.entries( selectors ).forEach( ( [ feature, selector ] ) => {
 		if ( typeof selector === 'string' ) {
@@ -948,6 +948,7 @@ export const toStyles = (
 													baseSelector,
 													styleVariationSelector
 												);
+
 											const rules =
 												declarations.join( ';' );
 											ruleset += `${ cssSelector }{${ rules };}`;
