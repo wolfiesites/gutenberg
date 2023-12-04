@@ -344,9 +344,7 @@ function Layout() {
 						{ ( mode === 'text' || ! isRichEditingEnabled ) && (
 							<TextEditor />
 						) }
-						{ ! isLargeViewport && (
-							<BlockToolbar hideDragHandle variant="unstyled" />
-						) }
+						{ ! isLargeViewport && <BlockToolbar hideDragHandle /> }
 						{ isRichEditingEnabled && mode === 'visual' && (
 							<VisualEditor styles={ styles } />
 						) }
