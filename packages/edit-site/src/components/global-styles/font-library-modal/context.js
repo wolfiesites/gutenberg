@@ -101,15 +101,18 @@ function FontLibraryProvider( { children } ) {
 				.sort( ( a, b ) => a.name.localeCompare( b.name ) )
 		: [];
 
-	const customFonts = fontFamilies?.custom
-		? fontFamilies.custom
+	const baseCustomFonts = libraryFonts
+		? libraryFonts
 				.map( ( f ) => setUIValuesNeeded( f, { source: 'custom' } ) )
 				.sort( ( a, b ) => a.name.localeCompare( b.name ) )
 		: [];
 
-	const baseCustomFonts = libraryFonts
-		? libraryFonts
+	const customFonts = fontFamilies?.custom
+		? fontFamilies.custom
 				.map( ( f ) => setUIValuesNeeded( f, { source: 'custom' } ) )
+				.filter( ( f ) =>
+					baseCustomFonts.some( ( bf ) => bf.slug === f.slug )
+				) // Ensures that the font actually exists in the library.
 				.sort( ( a, b ) => a.name.localeCompare( b.name ) )
 		: [];
 
