@@ -42,13 +42,13 @@ export default function ViewGrid( { data, fields, view, actions, getItemId } ) {
 					className="dataviews-view-grid__card"
 				>
 					<div className="dataviews-view-grid__media">
-						{ mediaField?.render( { item, view } ) }
+						{ mediaField?.render( { item } ) }
 					</div>
 					<HStack
 						className="dataviews-view-grid__title"
 						justify="space-between"
 					>
-						{ primaryField?.render( { item, view } ) }
+						{ primaryField?.render( { item } ) }
 						<ItemActions
 							item={ item }
 							actions={ actions }
@@ -62,7 +62,6 @@ export default function ViewGrid( { data, fields, view, actions, getItemId } ) {
 						{ visibleFields.map( ( field ) => {
 							const renderedValue = field.render( {
 								item,
-								view,
 							} );
 							if ( ! renderedValue ) {
 								return null;
@@ -77,7 +76,7 @@ export default function ViewGrid( { data, fields, view, actions, getItemId } ) {
 										{ field.header }
 									</div>
 									<div className="dataviews-view-grid__field-value">
-										{ field.render( { item, view } ) }
+										{ field.render( { item } ) }
 									</div>
 								</VStack>
 							);
