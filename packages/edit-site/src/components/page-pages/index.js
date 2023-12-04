@@ -334,19 +334,22 @@ export default function PagePages() {
 					onChangeView={ onChangeView }
 					selection={ selection }
 					setSelection={ setSelection }
-					getSelectionLabel={ ( isSelected, item ) =>
-						isSelected
-							? sprintf(
-									// translators: %s: The title of the page.
-									__( 'Deselect page: %s' ),
-									item.title?.rendered || item.slug
-							  )
-							: sprintf(
-									// translators: %s: The title of the page.
-									__( 'Select page: %s' ),
-									item.title?.rendered || item.slug
-							  )
-					}
+					labels={ {
+						getSelectLabel: ( item ) => {
+							return sprintf(
+								// translators: %s: The title of the page.
+								__( 'Select page: %s' ),
+								item.title?.rendered || item.slug
+							);
+						},
+						getDeselectLabel: ( item ) => {
+							return sprintf(
+								// translators: %s: The title of the page.
+								__( 'Deselect page: %s' ),
+								item.title?.rendered || item.slug
+							);
+						},
+					} }
 				/>
 			</Page>
 			{ VIEW_LAYOUTS.find( ( v ) => v.type === view.type )?.supports

@@ -249,7 +249,7 @@ function ViewTable( {
 	paginationInfo,
 	selection,
 	setSelection,
-	getSelectionLabel,
+	labels,
 } ) {
 	const areAllSelected = selection && selection.length === data.length;
 	const columns = useMemo( () => {
@@ -288,13 +288,14 @@ function ViewTable( {
 					//console.log({ props });
 					const item = props.row.original;
 					const isSelected = selection.includes( item.id );
-					//console.log({ item, isSelected });
 					let selectionLabel;
-					if ( getSelectionLabel ) {
-						selectionLabel = getSelectionLabel( isSelected, item );
+					if ( isSelected ) {
+						selectionLabel = labels?.getDeselectLabel
+							? labels?.getDeselectLabel( item )
+							: __( 'Deselect item' );
 					} else {
-						selectionLabel = isSelected
-							? __( 'Deselect item' )
+						selectionLabel = labels?.getSelectLabel
+							? labels?.getSelectLabel( item )
 							: __( 'Select a new item' );
 					}
 					return (

@@ -65,7 +65,7 @@ export const trashPostAction = {
 						variant="primary"
 						onClick={ async () => {
 							try {
-								await Promise.all(
+								await Promise.allSettled(
 									posts.map( async ( post ) => {
 										deleteEntityRecord(
 											'postType',

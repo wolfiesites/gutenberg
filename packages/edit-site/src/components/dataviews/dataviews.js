@@ -31,7 +31,7 @@ export default function DataViews( {
 	supportedLayouts,
 	selection,
 	setSelection,
-	getSelectionLabel,
+	labels,
 } ) {
 	const ViewComponent = VIEW_LAYOUTS.find(
 		( v ) => v.type === view.type
@@ -78,7 +78,7 @@ export default function DataViews( {
 					isLoading={ isLoading }
 					selection={ selection }
 					setSelection={ setSelection }
-					getSelectionLabel={ getSelectionLabel }
+					labels={ labels }
 				/>
 
 				<div>
