@@ -160,7 +160,10 @@ export function useStyleOverride( { id, css, assets, __unstableType } = {} ) {
 export function useBlockSettings( name, parentLayout ) {
 	const [
 		fontFamilies,
-		fontSizes,
+		userFontSizes,
+		themeFontSizes,
+		defaultFontSizes,
+		defaultFontSizesEnabled,
 		customFontSize,
 		fontStyle,
 		fontWeight,
@@ -203,7 +206,10 @@ export function useBlockSettings( name, parentLayout ) {
 		isButtonEnabled,
 	] = useSettings(
 		'typography.fontFamilies',
-		'typography.fontSizes',
+		'typography.fontSizes.custom',
+		'typography.fontSizes.theme',
+		'typography.fontSizes.default',
+		'typography.defaultFontSizes',
 		'typography.customFontSize',
 		'typography.fontStyle',
 		'typography.fontWeight',
@@ -281,9 +287,12 @@ export function useBlockSettings( name, parentLayout ) {
 					custom: fontFamilies,
 				},
 				fontSizes: {
-					custom: fontSizes,
+					custom: userFontSizes,
+					theme: themeFontSizes,
+					default: defaultFontSizes,
 				},
 				customFontSize,
+				defaultFontSizes: defaultFontSizesEnabled,
 				fontStyle,
 				fontWeight,
 				lineHeight,
@@ -316,7 +325,10 @@ export function useBlockSettings( name, parentLayout ) {
 		};
 	}, [
 		fontFamilies,
-		fontSizes,
+		userFontSizes,
+		themeFontSizes,
+		defaultFontSizes,
+		defaultFontSizesEnabled,
 		customFontSize,
 		fontStyle,
 		fontWeight,
