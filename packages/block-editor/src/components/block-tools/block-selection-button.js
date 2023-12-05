@@ -97,7 +97,8 @@ function BlockSelectionButton( { clientId, rootClientId } ) {
 
 	// Focus the breadcrumb in navigation mode.
 	useEffect( () => {
-		ref.current.focus();
+		// FIXME: It's stealing focus when entering the zoom-out mode.
+		// ref.current.focus();
 
 		speak( label );
 	}, [ label ] );
